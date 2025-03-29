@@ -1,5 +1,3 @@
-'use client';
-
 import { FieldValues } from 'react-hook-form';
 import { z } from 'zod';
 import Link from 'next/link';

@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/neon-http';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { dataBaseConfig } from '@env';
 import users from '@/db/schema/users';
 import accounts from '@/db/schema/accounts';

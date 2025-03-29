@@ -25,11 +25,13 @@ export async function uploadFileByUrl(file: File) {
             publicUrl: string;
         }> = await getUrl.json();
 
-        if (!getUrlRes.success || !getUrlRes.data?.uploadUrl || !getUrlRes.data?.publicUrl) {
+        if (!getUrlRes.success || !getUrlRes.data) {
             throw new Error(getUrlRes.message);
         }
 
-        const { uploadUrl, publicUrl } = getUrlRes.data;
+        const {
+            data: { uploadUrl, publicUrl }
+        } = getUrlRes;
 
         const upload = await fetch(uploadUrl, {
             method: 'PUT',

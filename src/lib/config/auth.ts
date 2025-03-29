@@ -1,4 +1,3 @@
-import db from '@/db';
 import NextAuth, { User } from 'next-auth';
 import credentials from 'next-auth/providers/credentials';
 import Resend from 'next-auth/providers/resend';
@@ -9,6 +8,7 @@ import users from '@/db/schema/users';
 import accounts from '@/db/schema/accounts';
 import verificationTokens from '@/db/schema/verificationTokens';
 import { selectUserByEmail } from '@/db/services/users';
+import db from '@/lib/config/database';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     session: {
