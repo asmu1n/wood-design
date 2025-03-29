@@ -32,11 +32,8 @@ export default function Registry() {
     ];
 
     return (
-        <>
-            <h1 className="text-center text-2xl font-semibold text-gray-900">注册属于你的账号</h1>
-            <div>
-                <AuthForm type="REGISTER" schema={registerSchema} formConfig={registerFormConfig} onSubmit={Register} />
-            </div>
-        </>
+        <div>
+            <AuthForm type="REGISTER" schema={registerSchema} formConfig={registerFormConfig} onSubmit={Register} />
+        </div>
     );
 }

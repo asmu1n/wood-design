@@ -18,6 +18,58 @@ declare global {
         limit: number;
     }
     type AuthCredentials = z.infer<typeof registerSchema>;
+
+    type Point = {
+        x: number;
+        y: number;
+    };
+
+    type Color = {
+        r: number;
+        g: number;
+        b: number;
+    };
+
+    interface Camera extends Point {
+        zoom: number;
+    }
+
+    type LayerType = 'Rectangle' | 'Ellipse' | 'Path' | 'Text';
+
+    type RectangleLayer = BaseLayer & {
+        type: 'Rectangle';
+        cornerRadius?: number;
+    };
+
+    type EllipseLayer = BaseLayer & {
+        type: 'Ellipse';
+    };
+
+    type PathLayer = BaseLayer & {
+        type: 'Path';
+        points: { x: number; y: number }[];
+    };
+
+    type TextLayer = BaseLayer & {
+        type: 'Text';
+        text: string;
+        fontSize: number;
+        fontFamily: string;
+        fontWeight: number;
+        lineHeight: number;
+        textAlign: 'left' | 'center' | 'right' | 'justify';
+    };
+
+    type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer;
 }
 
-export {}
+type BaseLayer = Point & {
+    type: LayerType;
+    width: number;
+    height: number;
+    fill: Color;
+    stroke: Color;
+    opacity: number;
+};
+
+export {};

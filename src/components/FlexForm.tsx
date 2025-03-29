@@ -1,4 +1,3 @@
-'use client';
 import { DefaultValues, FieldValues, Path, UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -9,6 +8,7 @@ import UploadFile from './UploadFile';
 import { FormItemConfig } from './AuthForm';
 import { cn } from '@/lib/utils';
 import { Textarea } from './ui/textarea';
+import { Button } from './ui/button';
 
 export interface FlexFormProps<T extends FieldValues> {
     schema: z.ZodType<T>;
@@ -115,9 +115,10 @@ export default function FlexForm<T extends FieldValues>({ schema, formConfig, bu
                         }}
                     />
                 ))}
-            </div>
-            <div className="text-center">
-                <FlexForm.SubmitButton {...button} />
+
+                <div className="text-center">
+                    <FlexForm.SubmitButton {...button} />
+                </div>
             </div>
         </Form>
     );
@@ -135,9 +136,9 @@ FlexForm.SubmitButton = function FormSubmitButton({ children, disabled, replace 
             {replace ? (
                 children
             ) : (
-                <button type="submit" className="form-btn" disabled={disabled}>
+                <Button type="submit" className="" disabled={disabled}>
                     {children || '确定'}
-                </button>
+                </Button>
             )}
         </>
     );

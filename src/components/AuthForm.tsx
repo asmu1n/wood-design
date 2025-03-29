@@ -62,25 +62,25 @@ export default function AuthForm<T extends FieldValues>({ type, schema, formConf
 
     return (
         <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-semibold text-white">{isLogin ? '欢迎回来' : '注册属于你的账号'}</h1>
-            <p className="text-light-100">{isLogin ? '登录你的账号以访问图书信息' : '请填写下述注册信息并提供有效的身份验证信息'}</p>
+            <h1 className="text-primary text-2xl font-semibold">{isLogin ? '欢迎回来' : '注册属于你的账号'}</h1>
+            <p className="text-light-100">{isLogin ? '登录你的账号以访问' : '请填写下述注册信息并提供有效的身份验证信息'}</p>
             <FlexForm
                 formInputClass="dark"
                 schema={schema}
                 formConfig={formConfig}
                 onSubmit={handleSubmit}
                 button={{ children: isLogin ? '登录' : '注册' }}
-                parentClass="space-y-6"
+                parentClass="space-y-6 border border-gray-300 rounded-md p-4 dark:border-gray-700"
             />
             <p className="text-center text-base font-medium">
-                {isLogin ? '创建新账号?' : '已有账号?'}
-                <Link className="text-primary font-bold" href={isLogin ? '/register' : '/login'}>
+                {isLogin ? '创建新账号? ' : '已有账号? '}
+                <Link className="font-bold text-blue-400 duration-300 hover:text-blue-600" href={isLogin ? '/register' : '/login'}>
                     {isLogin ? '注册' : '登录'}
                 </Link>
             </p>
             {isLogin && (
                 <p className="text-center text-base font-medium">
-                    <Link className="text-primary font-bold" href={type === 'LOGIN' ? '/loginWithEmail' : '/login'}>
+                    <Link className="font-bold text-blue-400 duration-300 hover:text-blue-600" href={type === 'LOGIN' ? '/loginWithEmail' : '/login'}>
                         {type === 'LOGIN' ? '邮箱验证登录' : '账号密码登录'}
                     </Link>
                 </p>

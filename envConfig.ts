@@ -12,7 +12,7 @@ const cloudConfig = {
 };
 
 const dataBaseConfig = {
-    url: process.env.NODE_ENV === 'development' ? process.env.DATABASE_URL : process.env.DATABASE_PRO_URL
+    url: process.env.NODE_ENV === 'development' ? process.env.DATABASE_URL : process.env.DATABASE_PRO_URL || process.env.DATABASE_URL
 };
 
 const nextProdUrl = process.env.NEXT_PUBLIC_PROD_API_ENDPOINT || 'http://localhost:3000';
