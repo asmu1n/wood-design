@@ -21,6 +21,7 @@
         "@aws-sdk/s3-request-presigner": "^3.733.0",
         "@hookform/resolvers": "^3.10.0",
         "@liveblocks/client": "^2.22.2",
+        "@liveblocks/node": "^2.22.2",
         "@liveblocks/react": "^2.22.2",
         "@radix-ui/react-avatar": "^1.1.2",
         "@radix-ui/react-dialog": "^1.1.6",

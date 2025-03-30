@@ -23,4 +23,10 @@ const resendConfig = {
     token: process.env.RESEND_TOKEN
 };
 
-export { cloudConfig, dataBaseConfig, resendConfig, nextProdUrl, baseUrl };
+const liveblocksConfig = {
+    // secret: process.env.LIVEBLOCKS_SECRET,
+    publicKey: process.env.LIVEBLOCKS_PUBLIC_KEY,
+    secretKey: process.env.LIVEBLOCKS_SECRET_KEY
+};
+
+export { cloudConfig, dataBaseConfig, resendConfig, nextProdUrl, baseUrl, liveblocksConfig };

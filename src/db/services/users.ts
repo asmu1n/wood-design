@@ -61,4 +61,24 @@ function queryUser({ limit = 10, pageIndex = 0, ...filterParams }: QueryParams) 
     ]);
 }
 
-export { selectUserById, selectUserByEmail, queryUser, getUserState };
+async function vaildUser({ userId, email }: { userId?: string; email?: string }) {
+    if (!userId && !email) {
+        return false;
+    }
+
+    if (userId) {
+        const user = await selectUserById(userId);
+
+        return user?.id === userId;
+    }
+
+    if (email) {
+        const user = await selectUserByEmail(email);
+
+        return user?.email === email;
+    }
+
+    return false;
+}
+
+export { selectUserById, selectUserByEmail, queryUser, getUserState, vaildUser };
