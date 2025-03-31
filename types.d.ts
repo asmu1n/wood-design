@@ -1,10 +1,14 @@
 import { InferModel } from 'drizzle-orm';
 import users from '@/db/schema/users';
+import accounts from '@/db/schema/accounts';
+import rooms from '@/db/schema/rooms';
 import { registerSchema } from '@/lib/validations';
 import { z } from 'zod';
 
 declare global {
-    type IUser = InferModel<typeof users>;
+    type User = InferModel<typeof users>;
+    type Account = InferModel<typeof accounts>;
+    type Room = InferModel<typeof rooms>;
     interface IResponse<T = unknown> {
         success: boolean;
         message: string;
