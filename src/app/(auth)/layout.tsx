@@ -11,7 +11,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
     return (
         <main className="flex min-h-screen items-center justify-center bg-white px-4">
-            <div className="max-w-sm space-y-6">{children}</div>
+            <div className="w-[min(100%,468px)] space-y-6">{children}</div>
         </main>
     );
 }
