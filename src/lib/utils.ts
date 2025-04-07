@@ -98,3 +98,14 @@ export function queryFilter<T extends Record<string, any>>(filterConfig: Record<
 
     return filters;
 }
+
+export function colorToCss(rgb: Color) {
+    return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
+}
+
+export function pointerEventToCanvasPoint(e: React.PointerEvent, camera: Camera): Point {
+    return {
+        x: Math.round(e.clientX) - camera.x,
+        y: Math.round(e.clientY) - camera.y
+    };
+}

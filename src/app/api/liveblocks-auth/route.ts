@@ -18,15 +18,16 @@ export async function POST(request: Request) {
         return new Response('Unauthorized', { status: 401 });
     }
 
-    // 获取用户房间，并邀请加入
-    const session = liveblocks.prepareSession(user.id, {
-        userInfo: {
-            name: user.email || '游客'
-        }
-    });
+    console.log(user.id);
 
-    session.allow(`room:${'test'}`, session.FULL_ACCESS);
-    const { status, body } = await session.authorize();
+    // 获取用户房间，并邀请加入
+    const { status, body } = await liveblocks.identifyUser(
+        {
+            userId: user.id,
+            groupIds: []
+        },
+        { userInfo: { name: user.name || '游客', avatar: user.image || '' } }
+    );
 
     return new Response(body, { status });
 }

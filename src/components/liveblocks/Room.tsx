@@ -3,8 +3,7 @@
 import { ReactNode } from 'react';
 import { LiveblocksProvider, RoomProvider, ClientSideSuspense } from '@liveblocks/react/suspense';
 import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
-import logo from '@/assets/figma-logo.svg';
-import Image from 'next/image';
+import DefaultLoading from '../DefaultLoading';
 
 export function Room({ children, roomId }: { children: ReactNode; roomId: string }) {
     const roomParams = {
@@ -22,17 +21,10 @@ export function Room({ children, roomId }: { children: ReactNode; roomId: string
         } as Liveblocks['Storage']
     };
 
-    const loadingComp = (
-        <div className="flex h-screen flex-col items-center justify-center gap-2">
-            <Image src={logo} alt="logo" className="h-12.5 w-12.5 animate-bounce" />
-            <h1 className="text-sm font-normal">Loading…</h1>
-        </div>
-    );
-
     return (
         <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
             <RoomProvider {...roomParams}>
-                <ClientSideSuspense fallback={loadingComp}>{children}</ClientSideSuspense>
+                <ClientSideSuspense fallback={<DefaultLoading />}>{children}</ClientSideSuspense>
             </RoomProvider>
         </LiveblocksProvider>
     );

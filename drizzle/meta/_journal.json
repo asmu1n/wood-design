@@ -8,6 +8,13 @@
       "when": 1743256442251,
       "tag": "0000_safe_stellaris",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744026098765,
+      "tag": "0001_fearless_stature",
+      "breakpoints": true
     }
   ]
 }

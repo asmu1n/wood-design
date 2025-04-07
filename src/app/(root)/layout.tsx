@@ -8,5 +8,5 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         redirect('/login');
     }
 
-    return <main className="min-h-screen bg-white px-4">{children}</main>;
+    return <main className="min-h-screen bg-white">{children}</main>;
 }
