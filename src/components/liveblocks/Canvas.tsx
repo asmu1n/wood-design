@@ -6,6 +6,7 @@ import LayerComponent from './canvas/LayerComponent';
 import { nanoid } from 'nanoid';
 import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
 import { useState } from 'react';
+import ToolsBar from './ToolsBar';
 
 const MAX_LAYERS = 100;
 
@@ -85,6 +86,9 @@ export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
     const layerIds = useStorage(storage => storage.layerIds);
     const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, zoom: 1 });
+    const [canvasState, setCanvasState] = useState<CanvasType>({
+        mode: 'None'
+    });
     const insertLayer = useMutation(mutation, []);
 
     const onPointerUp = useMutation(({}, e: React.PointerEvent) => {
@@ -94,10 +98,13 @@ export default function Canvas() {
     }, []);
 
     return (
-        <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
-            <svg onPointerUp={onPointerUp} className="h-full w-full">
-                <g>{layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId}></LayerComponent>)}</g>
-            </svg>
+        <div>
+            <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
+                <svg onPointerUp={onPointerUp} className="h-full w-full">
+                    <g>{layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId}></LayerComponent>)}</g>
+                </svg>
+            </div>
+            <ToolsBar canvasState={canvasState} setCanvasState={setCanvasState} />
         </div>
     );
 }

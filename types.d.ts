@@ -65,6 +65,21 @@ declare global {
     };
 
     type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer;
+
+    type CanvasMode = 'None' | 'Inserting' | 'Dragging';
+
+    type CanvasType =
+        | {
+              mode: 'None';
+          }
+        | {
+              mode: 'Inserting';
+              layerType: LayerType;
+          }
+        | {
+              mode: 'Dragging';
+              origin: Point | null;
+          };
 }
 
 type BaseLayer = Point & {

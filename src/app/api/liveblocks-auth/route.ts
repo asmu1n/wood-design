@@ -18,8 +18,6 @@ export async function POST(request: Request) {
         return new Response('Unauthorized', { status: 401 });
     }
 
-    console.log(user.id);
-
     // 获取用户房间，并邀请加入
     const { status, body } = await liveblocks.identifyUser(
         {
