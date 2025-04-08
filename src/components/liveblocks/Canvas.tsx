@@ -10,6 +10,9 @@ import ToolsBar from './ToolsBar';
 
 const MAX_LAYERS = 100;
 
+const MAX_ZOOM = 5;
+const MIN_ZOOM = 0.1;
+
 function mutation(
     {
         storage,
@@ -97,11 +100,34 @@ export default function Canvas() {
 
             if (canvasState.mode === 'Inserting') {
                 insertLayer(canvasState.layerType, point);
+            } else if (canvasState.mode === 'Dragging') {
+                setCanvasState({ mode: 'Dragging', origin: null });
             }
         },
-        [insertLayer, canvasState]
+        [insertLayer, canvasState, camera]
+    );
+    const onPointerDown = useMutation(
+        ({}, e: React.PointerEvent) => {
+            const point = pointerEventToCanvasPoint(e, camera);
+
+            if (canvasState.mode === 'Dragging') {
+                setCanvasState({ mode: 'Dragging', origin: point });
+            }
+        },
+        [canvasState, camera]
     );
 
+    const onPointerMove = useMutation(
+        ({}, e: React.PointerEvent) => {
+            if (canvasState.mode === 'Dragging' && canvasState.origin) {
+                const deltaX = e.movementX;
+                const deltaY = e.movementY;
+
+                setCamera(prev => ({ ...prev, x: prev.x + deltaX, y: prev.y + deltaY }));
+            }
+        },
+        [canvasState, camera]
+    );
     const onZoom = useMemo(() => {
         function zoomIn() {
             setCamera(prev => ({ ...prev, zoom: prev.zoom + 0.1 > 2 ? 2 : prev.zoom + 0.1 }));
@@ -119,16 +145,20 @@ export default function Canvas() {
 
     const onWheel = useCallback(
         (e: React.WheelEvent) => {
-            e.preventDefault(); // 阻止默认滚动行为
-            const zoomSpeed = 0.1; // 缩放速度
+            // e.preventDefault(); // 阻止默认滚动行为
 
-            const scaleFactor = e.deltaY > 0 ? 1 - zoomSpeed : 1 + zoomSpeed; // 缩放因子
-            // 更新缩放比例
-            const newScale = camera.zoom * scaleFactor;
-
-            // 限制缩放范围
-            if (newScale < 0.1 || newScale > 2) {
+            // 阻止阈值事件
+            if ((camera.zoom === MAX_ZOOM && e.deltaY < 0) || (camera.zoom === MIN_ZOOM && e.deltaY > 0)) {
                 return;
+            }
+
+            const zoomSpeed = 0.1; // 缩放速度
+            const scaleFactor = e.deltaY > 0 ? 1 - zoomSpeed : 1 + zoomSpeed; // 缩放因子
+            let newScale = camera.zoom * scaleFactor; // 更新缩放比例
+
+            // 限制缩放范围,新值超过范围时直接设置到边界
+            if (newScale < MIN_ZOOM || newScale > MAX_ZOOM) {
+                newScale = newScale < MIN_ZOOM ? MIN_ZOOM : MAX_ZOOM;
             }
 
             // 计算缩放前鼠标位置（相对于画布内容）
@@ -151,7 +181,12 @@ export default function Canvas() {
     return (
         <div>
             <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
-                <svg onWheel={onWheel} onPointerUp={onPointerUp} className="h-full w-full">
+                <svg
+                    onPointerMove={onPointerMove}
+                    onPointerDown={onPointerDown}
+                    onPointerUp={onPointerUp}
+                    onWheel={onWheel}
+                    className="h-full w-full">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
                         {layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId}></LayerComponent>)}
                     </g>
@@ -160,8 +195,8 @@ export default function Canvas() {
             <ToolsBar
                 canvasState={canvasState}
                 setCanvasState={setCanvasState}
-                canZoomIn={camera.zoom < 2}
-                canZoomOut={camera.zoom > 0.1}
+                canZoomIn={camera.zoom < MAX_ZOOM}
+                canZoomOut={camera.zoom > MIN_ZOOM}
                 {...onZoom}
             />
         </div>
