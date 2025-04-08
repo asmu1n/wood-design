@@ -5,7 +5,7 @@ import { useMutation, useStorage } from '@liveblocks/react';
 import LayerComponent from './canvas/LayerComponent';
 import { nanoid } from 'nanoid';
 import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import ToolsBar from './ToolsBar';
 
 const MAX_LAYERS = 100;
@@ -91,20 +91,79 @@ export default function Canvas() {
     });
     const insertLayer = useMutation(mutation, []);
 
-    const onPointerUp = useMutation(({}, e: React.PointerEvent) => {
-        const point = pointerEventToCanvasPoint(e, camera);
+    const onPointerUp = useMutation(
+        ({}, e: React.PointerEvent) => {
+            const point = pointerEventToCanvasPoint(e, camera);
 
-        insertLayer('Rectangle', point);
+            if (canvasState.mode === 'Inserting') {
+                insertLayer(canvasState.layerType, point);
+            }
+        },
+        [insertLayer, canvasState]
+    );
+
+    const onZoom = useMemo(() => {
+        function zoomIn() {
+            setCamera(prev => ({ ...prev, zoom: prev.zoom + 0.1 > 2 ? 2 : prev.zoom + 0.1 }));
+        }
+
+        function zoomOut() {
+            setCamera(prev => ({ ...prev, zoom: prev.zoom - 0.1 < 0.1 ? 0.1 : prev.zoom - 0.1 }));
+        }
+
+        return {
+            zoomIn,
+            zoomOut
+        };
     }, []);
+
+    const onWheel = useCallback(
+        (e: React.WheelEvent) => {
+            e.preventDefault(); // 阻止默认滚动行为
+            const zoomSpeed = 0.1; // 缩放速度
+
+            const scaleFactor = e.deltaY > 0 ? 1 - zoomSpeed : 1 + zoomSpeed; // 缩放因子
+            // 更新缩放比例
+            const newScale = camera.zoom * scaleFactor;
+
+            // 限制缩放范围
+            if (newScale < 0.1 || newScale > 2) {
+                return;
+            }
+
+            // 计算缩放前鼠标位置（相对于画布内容）
+            const beforeScaleMouseX = (e.clientX - camera.x) / camera.zoom;
+            const beforeScaleMouseY = (e.clientY - camera.y) / camera.zoom;
+
+            // 调整平移偏移量，使鼠标位置保持不变
+            const translateX = e.clientX - beforeScaleMouseX * newScale;
+            const translateY = e.clientY - beforeScaleMouseY * newScale;
+
+            setCamera({
+                zoom: newScale,
+                x: translateX,
+                y: translateY
+            });
+        },
+        [camera]
+    );
 
     return (
         <div>
             <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
-                <svg onPointerUp={onPointerUp} className="h-full w-full">
-                    <g>{layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId}></LayerComponent>)}</g>
+                <svg onWheel={onWheel} onPointerUp={onPointerUp} className="h-full w-full">
+                    <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
+                        {layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId}></LayerComponent>)}
+                    </g>
                 </svg>
             </div>
-            <ToolsBar canvasState={canvasState} setCanvasState={setCanvasState} />
+            <ToolsBar
+                canvasState={canvasState}
+                setCanvasState={setCanvasState}
+                canZoomIn={camera.zoom < 2}
+                canZoomOut={camera.zoom > 0.1}
+                {...onZoom}
+            />
         </div>
     );
 }
