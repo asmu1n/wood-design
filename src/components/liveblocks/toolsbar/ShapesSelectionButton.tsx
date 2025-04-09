@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 interface ShapeSelectionButtonProps {
     isActive: boolean;
-    CanvasState: CanvasType;
+    canvasState: CanvasType;
     setCanvasState: (state: CanvasType) => void;
 }
 
@@ -14,11 +14,11 @@ const toolList: { shape: 'Rectangle' | 'Ellipse'; text: string }[] = [
     { shape: 'Ellipse', text: '圆' }
 ];
 
-export default function ShapeSelectionButton({ isActive, CanvasState, setCanvasState }: ShapeSelectionButtonProps) {
+export default function ShapeSelectionButton({ isActive, canvasState, setCanvasState }: ShapeSelectionButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    const shape = (CanvasState as { mode: 'Inserting'; layerType: 'Rectangle' | 'Ellipse' })?.layerType;
+    const shape = (canvasState as { mode: 'Inserting'; layerType: 'Rectangle' | 'Ellipse' })?.layerType;
 
     const iconConfig = {
         Rectangle: <IoSquareOutline className="h-5 w-5 pr-1" />,

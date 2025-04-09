@@ -2,8 +2,10 @@ import { useStorage } from '@liveblocks/react';
 import { memo } from 'react';
 import RectangleLayer from './RectangLayer';
 import EllipseLayer from './EllipseLayer';
+import PathLayer from './PathLayer';
+import TextLayer from './TextLayer';
 
-const LayerComponent = memo(function ({ id }: { id: string }) {
+function LayerComponent({ id }: { id: string }) {
     const layer = useStorage(root => root.layers.get(id));
 
     if (!layer) {
@@ -19,20 +21,18 @@ const LayerComponent = memo(function ({ id }: { id: string }) {
             return <EllipseLayer id={id} layer={layer} />;
         }
 
-        case 'Text': {
-            return <TextLayer />;
+        case 'Path': {
+            return <PathLayer id={id} layer={layer} />;
         }
 
-        case 'Line': {
-            return <LineLayer />;
+        case 'Text': {
+            return <TextLayer id={id} layer={layer} />;
         }
 
         default: {
             return null;
         }
     }
-});
+}
 
-LayerComponent.displayName = 'LayerComponent';
-
-export default LayerComponent;
+export default memo(LayerComponent);

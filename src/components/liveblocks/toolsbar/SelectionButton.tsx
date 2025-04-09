@@ -6,13 +6,14 @@ import { cn } from '@/lib/utils';
 
 interface SelectionButtonProps {
     isActive: boolean;
-    canvasMode: CanvasMode;
+    canvasState: CanvasType;
     setCanvasState: (state: CanvasType) => void;
 }
 
-export default function SelectionButton({ isActive, canvasMode, setCanvasState }: SelectionButtonProps) {
+export default function SelectionButton({ isActive, canvasState, setCanvasState }: SelectionButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const canvasMode = canvasState.mode;
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -31,7 +32,8 @@ export default function SelectionButton({ isActive, canvasMode, setCanvasState }
     const iconConfig = {
         None: <BiPointer className="h-5 w-5 pr-1" />,
         Inserting: <BiPlus className="h-5 w-5 pr-1" />,
-        Dragging: <RiHand className="h-5 w-5 pr-1" />
+        Dragging: <RiHand className="h-5 w-5 pr-1" />,
+        Pencil: <BiPointer className="h-5 w-5 pr-1" />
     };
 
     const toolList: { text: string; mode: CanvasMode }[] = [
@@ -62,7 +64,7 @@ export default function SelectionButton({ isActive, canvasMode, setCanvasState }
     return (
         <div className="relative flex" ref={menuRef}>
             <IconButton onClick={() => handleClick('None')} isActive={isActive}>
-                {iconConfig[canvasMode] || <BiPointer className="h-5 w-5" />}
+                {iconConfig[canvasMode] || <BiPointer className="h-5 w-5 pr-1" />}
             </IconButton>
             <button title="changeToolTip" onClick={() => setIsOpen(prev => !prev)} className={cn('ml-1', isOpen && 'rotate-180')}>
                 <svg width={8} height={8} viewBox="0 0 8 8" fill="none">

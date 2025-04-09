@@ -42,6 +42,7 @@
         "nanoid": "^5.1.5",
         "next": "15.1.4",
         "next-auth": "^5.0.0-beta.25",
+        "perfect-freehand": "^1.2.2",
         "pg": "^8.13.1",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",

@@ -28,6 +28,8 @@ declare global {
         y: number;
     };
 
+    type DraftPoint = [x: number, y: number, pressure: number];
+
     type Color = {
         r: number;
         g: number;
@@ -51,7 +53,7 @@ declare global {
 
     type PathLayer = BaseLayer & {
         type: 'Path';
-        points: { x: number; y: number }[];
+        points: [x: number, y: number, pressure: number][];
     };
 
     type TextLayer = BaseLayer & {
@@ -66,11 +68,14 @@ declare global {
 
     type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer;
 
-    type CanvasMode = 'None' | 'Inserting' | 'Dragging';
+    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Pencil';
 
     type CanvasType =
         | {
               mode: 'None';
+          }
+        | {
+              mode: 'Pencil';
           }
         | {
               mode: 'Inserting';

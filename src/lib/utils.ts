@@ -99,13 +99,95 @@ export function queryFilter<T extends Record<string, any>>(filterConfig: Record<
     return filters;
 }
 
-export function colorToCss(rgb: Color) {
+export function colorToCss(rgb?: Color) {
+    if (!rgb) {
+        return 'transparent';
+    }
+
     return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
 }
 
 export function pointerEventToCanvasPoint(e: React.PointerEvent, camera: Camera): Point {
+    // 需要考虑到缩放和位移
+    const { clientX, clientY } = e;
+    const { x, y, zoom } = camera;
+
+    // 考虑缩放的影响
     return {
-        x: Math.round(e.clientX) - camera.x,
-        y: Math.round(e.clientY) - camera.y
+        x: Math.round((clientX - x) / zoom),
+        y: Math.round((clientY - y) / zoom)
     };
+}
+
+export function penPointsToPath(penPoints: DraftPoint[], color: Color): PathLayer {
+    let left = Number.POSITIVE_INFINITY;
+    let top = Number.POSITIVE_INFINITY;
+    let right = Number.NEGATIVE_INFINITY;
+    let bottom = Number.NEGATIVE_INFINITY;
+
+    for (const point of penPoints) {
+        const [x, y] = point;
+
+        if (!x || !y) {
+            continue;
+        }
+
+        if (left > x) {
+            left = x;
+        }
+
+        if (top > y) {
+            top = y;
+        }
+
+        if (right < x) {
+            right = x;
+        }
+
+        if (bottom < y) {
+            bottom = y;
+        }
+    }
+
+    return {
+        type: 'Path',
+        points: penPoints.map(([x, y, pressure]) => [x - left, y - top, pressure]),
+        x: left,
+        y: top,
+        width: right - left,
+        height: bottom - top,
+        stroke: color,
+        fill: color,
+        opacity: 1
+    };
+}
+
+export function checkPointerButton(e: React.PointerEvent) {
+    const config: Record<string, string> = {
+        1: 'left',
+        2: 'right',
+        3: 'middle'
+    };
+    const button = String(e.buttons);
+
+    return config[button] || 'unknown';
+}
+
+export function getSvgPathFromStroke(stroke: number[][]): string {
+    if (!stroke.length) return '';
+
+    const d = stroke.reduce(
+        (acc, [x0, y0], i, arr) => {
+            const [x1, y1] = arr[(i + 1) % arr.length];
+
+            acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+
+            return acc;
+        },
+        ['M', ...stroke[0], 'Q']
+    );
+
+    d.push('Z');
+
+    return d.join(' ');
 }

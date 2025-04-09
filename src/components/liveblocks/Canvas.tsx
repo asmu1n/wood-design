@@ -1,19 +1,20 @@
 'use client';
 
-import { colorToCss, pointerEventToCanvasPoint } from '@/lib/utils';
-import { useMutation, useStorage } from '@liveblocks/react';
+import { checkPointerButton, colorToCss, penPointsToPath, pointerEventToCanvasPoint } from '@/lib/utils';
+import { useMutation, useSelf, useStorage } from '@liveblocks/react';
 import LayerComponent from './canvas/LayerComponent';
 import { nanoid } from 'nanoid';
 import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
 import { useCallback, useMemo, useState } from 'react';
 import ToolsBar from './ToolsBar';
+import PathLayer from './canvas/PathLayer';
 
 const MAX_LAYERS = 100;
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
 
-function mutation(
+function createLayer(
     {
         storage,
         setMyPresence
@@ -76,6 +77,26 @@ function mutation(
             });
             break;
         }
+
+        case 'Text': {
+            layer = new LiveObject<Layer>({
+                type: 'Text',
+                x: position.x,
+                y: position.y,
+                text: 'Test',
+                fontSize: 16,
+                width: 100,
+                height: 100,
+                fontFamily: 'Arial',
+                fontWeight: 400,
+                lineHeight: 1.5,
+                textAlign: 'left',
+                stroke: { r: 217, g: 217, b: 217 },
+                fill: { r: 217, g: 217, b: 217 },
+                opacity: 1
+            });
+            break;
+        }
     }
 
     if (layer) {
@@ -88,46 +109,122 @@ function mutation(
 export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
     const layerIds = useStorage(storage => storage.layerIds);
+    const pencilDraft = useSelf(self => self.presence.pencilDraft);
     const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, zoom: 1 });
     const [canvasState, setCanvasState] = useState<CanvasType>({
         mode: 'None'
     });
-    const insertLayer = useMutation(mutation, []);
 
+    // 插入图层
+    const insertLayer = useMutation(createLayer, []);
+
+    const startDrawing = useMutation(({ setMyPresence }, point: Point, pressure: number) => {
+        setMyPresence({ pencilDraft: [[point.x, point.y, pressure]], penColor: { r: 217, g: 217, b: 217 } }, { addToHistory: true });
+    }, []);
+
+    const continueDrawing = useMutation(
+        ({ setMyPresence, self }, point: Point, e: React.PointerEvent) => {
+            const { pencilDraft } = self.presence;
+
+            if (canvasState.mode === 'Pencil' && pencilDraft && checkPointerButton(e) === 'left') {
+                setMyPresence({
+                    pencilDraft: [...pencilDraft, [point.x, point.y, e.pressure]],
+                    penColor: { r: 217, g: 217, b: 217 }
+                });
+            }
+        },
+        [pencilDraft, canvasState.mode]
+    );
+
+    const insertPath = useMutation(({ storage, self, setMyPresence }) => {
+        const liveLayers = storage.get('layers');
+        const { pencilDraft } = self.presence;
+
+        if (pencilDraft && pencilDraft.length > 1 && liveLayers.size < MAX_LAYERS) {
+            const layerId = nanoid();
+
+            liveLayers.set(layerId, new LiveObject(penPointsToPath(pencilDraft, { r: 217, g: 217, b: 217 })));
+            const liveLayerIds = storage.get('layerIds');
+
+            liveLayerIds.push(layerId);
+            setMyPresence({ pencilDraft: null }, { addToHistory: true });
+            setCanvasState({ mode: 'Pencil' });
+        } else {
+            setMyPresence({ pencilDraft: null }, { addToHistory: true });
+        }
+    }, []);
+
+    // 指针点击抬起事件
     const onPointerUp = useMutation(
         ({}, e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera);
 
-            if (canvasState.mode === 'Inserting') {
-                insertLayer(canvasState.layerType, point);
-            } else if (canvasState.mode === 'Dragging') {
-                setCanvasState({ mode: 'Dragging', origin: null });
+            switch (canvasState.mode) {
+                case 'Inserting': {
+                    insertLayer(canvasState.layerType, point);
+                    break;
+                }
+
+                case 'Dragging': {
+                    setCanvasState({ mode: 'Dragging', origin: null });
+                    break;
+                }
+
+                case 'Pencil': {
+                    insertPath();
+                    break;
+                }
             }
         },
         [insertLayer, canvasState, camera]
     );
+
+    // 指针点击按下事件
     const onPointerDown = useMutation(
         ({}, e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera);
 
-            if (canvasState.mode === 'Dragging') {
-                setCanvasState({ mode: 'Dragging', origin: point });
+            switch (canvasState.mode) {
+                case 'Dragging': {
+                    setCanvasState({ mode: 'Dragging', origin: point });
+                    break;
+                }
+
+                case 'Pencil': {
+                    startDrawing(point, e.pressure);
+                    break;
+                }
             }
         },
         [canvasState, camera]
     );
 
+    //指针拖动事件
     const onPointerMove = useMutation(
         ({}, e: React.PointerEvent) => {
-            if (canvasState.mode === 'Dragging' && canvasState.origin) {
-                const deltaX = e.movementX;
-                const deltaY = e.movementY;
+            switch (canvasState.mode) {
+                case 'Dragging': {
+                    if (canvasState.origin) {
+                        const deltaX = e.movementX;
+                        const deltaY = e.movementY;
 
-                setCamera(prev => ({ ...prev, x: prev.x + deltaX, y: prev.y + deltaY }));
+                        setCamera(prev => ({ ...prev, x: prev.x + deltaX, y: prev.y + deltaY }));
+                    }
+
+                    break;
+                }
+
+                case 'Pencil': {
+                    const point = pointerEventToCanvasPoint(e, camera);
+
+                    continueDrawing(point, e);
+                    break;
+                }
             }
         },
-        [canvasState, camera]
+        [canvasState, camera, continueDrawing]
     );
+    //缩放按钮事件
     const onZoom = useMemo(() => {
         function zoomIn() {
             setCamera(prev => ({ ...prev, zoom: prev.zoom + 0.1 > 2 ? 2 : prev.zoom + 0.1 }));
@@ -142,7 +239,7 @@ export default function Canvas() {
             zoomOut
         };
     }, []);
-
+    //鼠标滚轮事件
     const onWheel = useCallback(
         (e: React.WheelEvent) => {
             // e.preventDefault(); // 阻止默认滚动行为
@@ -189,6 +286,20 @@ export default function Canvas() {
                     className="h-full w-full">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
                         {layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId}></LayerComponent>)}
+                        {canvasState.mode === 'Pencil' && pencilDraft && pencilDraft.length > 0 && (
+                            <PathLayer
+                                id="pencil-draft"
+                                layer={{
+                                    type: 'Path',
+                                    x: 0,
+                                    y: 0,
+                                    stroke: { r: 217, g: 217, b: 217 },
+                                    fill: { r: 217, g: 217, b: 217 },
+                                    opacity: 1,
+                                    points: pencilDraft
+                                }}
+                            />
+                        )}
                     </g>
                 </svg>
             </div>

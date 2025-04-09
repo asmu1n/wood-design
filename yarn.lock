@@ -6690,6 +6690,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"perfect-freehand@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "perfect-freehand@npm:1.2.2"
+  checksum: 10c0/8f7ae1cd24bdd91b51b06eb8a02bee1b4ecef361df9e3ef9a56aa942e14f59820cccff919eb33831493e12af2a6b7f8617cbdc59bf0b11723f4ffdc8fe325f1a
+  languageName: node
+  linkType: hard
+
 "pg-cloudflare@npm:^1.1.1":
   version: 1.1.1
   resolution: "pg-cloudflare@npm:1.1.1"
@@ -8333,6 +8340,7 @@ __metadata:
     nanoid: "npm:^5.1.5"
     next: "npm:15.1.4"
     next-auth: "npm:^5.0.0-beta.25"
+    perfect-freehand: "npm:^1.2.2"
     pg: "npm:^8.13.1"
     postcss: "npm:^8.5.3"
     prettier: "npm:^3.4.2"
