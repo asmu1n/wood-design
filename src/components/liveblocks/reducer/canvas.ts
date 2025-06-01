@@ -1,6 +1,6 @@
 export type CanvasAction =
     | { type: 'SET_NONE_MODE' }
-    | { type: 'SET_PENCIL_MODE' }
+    // | { type: 'SET_PENCIL_MODE' }
     | { type: 'SET_INSERT_MODE'; payload: { layerType: LayerType } }
     | { type: 'SET_DRAGGING_MODE'; payload: { origin: Point | null } }
     | { type: 'SET_RESIZING_MODE'; payload: { initialBounds: XYHW; corner: Side } }
@@ -19,8 +19,8 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
         case 'SET_NONE_MODE':
             return { mode: 'None' };
 
-        case 'SET_PENCIL_MODE':
-            return { mode: 'Pencil' };
+        // case 'SET_PENCIL_MODE':
+        //     return { mode: 'Pencil' };
 
         case 'SET_INSERT_MODE':
             return {

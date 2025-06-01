@@ -74,9 +74,9 @@ declare global {
         | {
               mode: 'None';
           }
-        | {
-              mode: 'Pencil';
-          }
+        // | {
+        //       mode: 'Pencil';
+        //   }
         | {
               mode: 'Inserting';
               layerType: LayerType;

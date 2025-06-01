@@ -21,7 +21,8 @@ const shapeSelectList: LayerType[] = ['Rectangle', 'Ellipse'];
 function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, canZoomOut }: ToolsBarProps) {
     const toolListConfig = [
         {
-            isActive: canvasState.mode !== 'Pencil',
+            // isActive: canvasState.mode !== 'Pencil',
+            isActive: true,
             Component: SelectionButton,
             tips: '选择'
         },
@@ -31,7 +32,7 @@ function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, ca
             tips: '选择图形'
         },
         {
-            isActive: canvasState.mode === 'Pencil',
+            isActive: canvasState.mode === 'Inserting' && canvasState.layerType === 'Path',
             Component: PencilButton,
             tips: '手绘'
         },

@@ -132,7 +132,7 @@ export default function Canvas() {
         ({ setMyPresence, self }, point: Point, e: React.PointerEvent) => {
             const { pencilDraft } = self.presence;
 
-            if (canvasState.mode === 'Pencil' && pencilDraft && checkPointerButton(e) === 'left') {
+            if (canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && checkPointerButton(e) === 'left') {
                 setMyPresence({
                     pencilDraft: [...pencilDraft, [point.x, point.y, e.pressure]],
                     penColor: { r: 217, g: 217, b: 217 }
@@ -179,8 +179,11 @@ export default function Canvas() {
                     break;
                 }
 
-                case 'Pencil': {
-                    insertPath();
+                case 'Inserting': {
+                    if (canvasState.layerType === 'Path') {
+                        insertPath();
+                    }
+
                     break;
                 }
             }
@@ -199,8 +202,11 @@ export default function Canvas() {
                     break;
                 }
 
-                case 'Pencil': {
-                    startDrawing(point, e.pressure);
+                case 'Inserting': {
+                    if (canvasState.layerType === 'Path') {
+                        startDrawing(point, e.pressure);
+                    }
+
                     break;
                 }
             }
@@ -225,8 +231,11 @@ export default function Canvas() {
                     break;
                 }
 
-                case 'Pencil': {
-                    continueDrawing(point, e);
+                case 'Inserting': {
+                    if (canvasState.layerType === 'Path') {
+                        continueDrawing(point, e);
+                    }
+
                     break;
                 }
 
@@ -256,8 +265,6 @@ export default function Canvas() {
     //鼠标滚轮事件
     const onWheel = useCallback(
         (e: React.WheelEvent) => {
-            // e.preventDefault(); // 阻止默认滚动行为
-
             // 阻止阈值事件
             if ((camera.zoom === MAX_ZOOM && e.deltaY < 0) || (camera.zoom === MIN_ZOOM && e.deltaY > 0)) {
                 return;
@@ -271,10 +278,6 @@ export default function Canvas() {
             if (newScale < MIN_ZOOM || newScale > MAX_ZOOM) {
                 newScale = newScale < MIN_ZOOM ? MIN_ZOOM : MAX_ZOOM;
             }
-
-            // // 计算缩放前鼠标位置（相对于画布内容）
-            // const beforeScaleMouseX = (e.clientX - camera.x) / camera.zoom;
-            // const beforeScaleMouseY = (e.clientY - camera.y) / camera.zoom;
 
             // 调整平移偏移量，使鼠标位置保持不变
             dispatch_camera({
@@ -314,7 +317,7 @@ export default function Canvas() {
                     className="h-full w-full">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
                         {layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId} onLayerPointerDown={onLayerPointerDown} />)}
-                        {canvasState.mode === 'Pencil' && pencilDraft && pencilDraft.length > 0 && (
+                        {canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0 && (
                             <PathLayer
                                 id="pencil-draft"
                                 layer={{
