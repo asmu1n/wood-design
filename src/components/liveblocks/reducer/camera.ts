@@ -61,6 +61,4 @@ export function cameraReducer(state: Camera, action: CameraAction): Camera {
 /**
  * 创建相机初始状态
  */
-export function getInitialCamera(): Camera {
-    return { x: 0, y: 0, zoom: 1 };
-}
+export const initialCamera: Camera = { x: 0, y: 0, zoom: 1 };

@@ -9,8 +9,8 @@ import { useCallback, useMemo, useReducer } from 'react';
 import ToolsBar from './ToolsBar';
 import PathLayer from './canvas/PathLayer';
 import SelectionBox from './canvas/SelectionBox';
-import { cameraReducer, getInitialCamera } from './reducer/camera';
-import { canvasReducer, getInitialCanvasState } from './reducer/canvas';
+import { cameraReducer, initialCamera } from './reducer/camera';
+import { canvasReducer, initialCanvasState } from './reducer/canvas';
 
 const MAX_LAYERS = 100;
 
@@ -113,8 +113,8 @@ export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
     const layerIds = useStorage(storage => storage.layerIds);
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
-    const [camera, dispatch_camera] = useReducer(cameraReducer, getInitialCamera());
-    const [canvasState, dispatch_canvas] = useReducer(canvasReducer, getInitialCanvasState());
+    const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
+    const [canvasState, dispatch_canvas] = useReducer(canvasReducer, initialCanvasState);
     // const setMyPresence = useMyPresence();
 
     // 插入图层

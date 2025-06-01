@@ -52,6 +52,4 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
     }
 }
 
-export function getInitialCanvasState(): CanvasType {
-    return { mode: 'None' };
-}
+export const initialCanvasState: CanvasType = { mode: 'None' };
