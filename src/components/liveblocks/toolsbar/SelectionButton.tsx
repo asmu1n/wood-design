@@ -3,14 +3,15 @@ import IconButton from './IconButton';
 import { BiPlus, BiPointer } from 'react-icons/bi';
 import { RiHand } from 'react-icons/ri';
 import { cn } from '@/lib/utils';
+import { CanvasAction } from '../reducer/canvas';
 
 interface SelectionButtonProps {
     isActive: boolean;
     canvasState: CanvasType;
-    setCanvasState: (state: CanvasType) => void;
+    dispatch_canvas: (action: CanvasAction) => void;
 }
 
-export default function SelectionButton({ isActive, canvasState, setCanvasState }: SelectionButtonProps) {
+export default function SelectionButton({ isActive, canvasState, dispatch_canvas }: SelectionButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const canvasMode = canvasState.mode;
@@ -33,7 +34,8 @@ export default function SelectionButton({ isActive, canvasState, setCanvasState 
         None: <BiPointer className="h-5 w-5 pr-1" />,
         Inserting: <BiPlus className="h-5 w-5 pr-1" />,
         Dragging: <RiHand className="h-5 w-5 pr-1" />,
-        Pencil: <BiPointer className="h-5 w-5 pr-1" />
+        Pencil: <BiPointer className="h-5 w-5 pr-1" />,
+        Resizing: <RiHand className="h-5 w-5 pr-1" />
     };
 
     const toolList: { text: string; mode: CanvasMode }[] = [
@@ -53,9 +55,9 @@ export default function SelectionButton({ isActive, canvasState, setCanvasState 
 
     function handleClick(mode: CanvasMode) {
         if (mode === 'None') {
-            setCanvasState({ mode });
+            dispatch_canvas({ type: 'SET_NONE_MODE' });
         } else if (mode === 'Dragging') {
-            setCanvasState({ mode, origin: null });
+            dispatch_canvas({ type: 'SET_DRAGGING_MODE', payload: { origin: null } });
         }
 
         setIsOpen(false);

@@ -1,18 +1,20 @@
 import { colorToCss } from '@/lib/utils';
 import { useMutation } from '@liveblocks/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface TextLayerProps {
     id: string;
     layer: TextLayer;
+    onSelect: (e: React.PointerEvent) => void;
 }
 
 //TODO 文本图层
-export default function TextLayer({ id, layer }: TextLayerProps) {
+export default function TextLayer({ id, layer, onSelect }: TextLayerProps) {
     const { x, y, width, height, text, fontSize, fontFamily, fontWeight, lineHeight, textAlign, stroke, fill, opacity } = layer;
 
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState(text);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const updateText = useMutation(
         ({ storage, setMyPresence }, newText: string) => {
@@ -43,11 +45,18 @@ export default function TextLayer({ id, layer }: TextLayerProps) {
         setIsEditing(true);
     }
 
+    useEffect(() => {
+        if (isEditing && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isEditing]);
+
     return (
         <g className="group" onDoubleClick={handleDoubleClick}>
             {isEditing ? (
                 <foreignObject x={x} y={y} width={width || 100} height={height || 100}>
                     <input
+                        ref={inputRef}
                         style={{
                             fontSize: fontSize + 'px',
                             color: colorToCss(fill) || '#ccc'
@@ -62,6 +71,7 @@ export default function TextLayer({ id, layer }: TextLayerProps) {
                 </foreignObject>
             ) : (
                 <text
+                    onPointerDown={onSelect}
                     x={x}
                     y={y + fontSize / 2}
                     fontSize={fontSize}

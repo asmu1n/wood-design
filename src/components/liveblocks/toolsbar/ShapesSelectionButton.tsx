@@ -2,11 +2,12 @@ import IconButton from './IconButton';
 import { useEffect, useRef, useState } from 'react';
 import { IoEllipseOutline, IoSquareOutline } from 'react-icons/io5';
 import { cn } from '@/lib/utils';
+import { CanvasAction } from '../reducer/canvas';
 
 interface ShapeSelectionButtonProps {
     isActive: boolean;
     canvasState: CanvasType;
-    setCanvasState: (state: CanvasType) => void;
+    dispatch_canvas: (action: CanvasAction) => void;
 }
 
 const toolList: { shape: 'Rectangle' | 'Ellipse'; text: string }[] = [
@@ -14,7 +15,7 @@ const toolList: { shape: 'Rectangle' | 'Ellipse'; text: string }[] = [
     { shape: 'Ellipse', text: '圆' }
 ];
 
-export default function ShapeSelectionButton({ isActive, canvasState, setCanvasState }: ShapeSelectionButtonProps) {
+export default function ShapeSelectionButton({ isActive, canvasState, dispatch_canvas }: ShapeSelectionButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -26,7 +27,7 @@ export default function ShapeSelectionButton({ isActive, canvasState, setCanvasS
     };
 
     function handleClick(layerType: 'Rectangle' | 'Ellipse') {
-        setCanvasState({ mode: 'Inserting', layerType });
+        dispatch_canvas({ type: 'SET_INSERT_MODE', payload: { layerType } });
     }
 
     useEffect(() => {

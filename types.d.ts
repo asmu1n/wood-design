@@ -68,7 +68,7 @@ declare global {
 
     type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer;
 
-    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Pencil';
+    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Pencil' | 'Resizing';
 
     type CanvasType =
         | {
@@ -84,7 +84,19 @@ declare global {
         | {
               mode: 'Dragging';
               origin: Point | null;
+          }
+        | {
+              mode: 'Resizing';
+              initialBounds: XYHW;
+              corner: Side;
           };
+
+    type Side = 'Top' | 'Bottom' | 'Left' | 'Right' | 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';
+
+    interface XYHW extends Point {
+        width: number;
+        height: number;
+    }
 }
 
 type BaseLayer = Point & {
