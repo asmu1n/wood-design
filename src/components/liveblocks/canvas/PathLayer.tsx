@@ -28,6 +28,7 @@ export default function PathLayer({ id, layer, onSelect }: PathLayerProps) {
             stroke={colorToCss(stroke) || '#ccc'}
             strokeWidth={1}
             opacity={opacity}
+            className="select-none"
         />
     );
 }

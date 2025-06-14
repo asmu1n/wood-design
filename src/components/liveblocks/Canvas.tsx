@@ -11,7 +11,7 @@ import PathLayer from './canvas/PathLayer';
 import SelectionBox from './canvas/SelectionBox';
 import { cameraReducer, initialCamera } from './reducer/camera';
 import { canvasReducer, initialCanvasState } from './reducer/canvas';
-import { _, colorToCss, match } from '@/utils/common';
+import { colorToCss, match } from '@/utils/common';
 
 const MAX_LAYERS = 100;
 
@@ -210,11 +210,11 @@ export default function Canvas() {
                     break;
                 }
 
-                // case 'Resizing': {
-                //     // when click up the layer, finish `RESIZE` to `TRANSITION`
-                //     dispatch_canvas({ type: 'SET_TRANSITION_MODE', payload: { point } });
-                //     break;
-                // }
+                case 'Resizing': {
+                    // when click up the layer, finish `RESIZE` to `TRANSITION`
+                    dispatch_canvas({ type: 'SET_TRANSITION_MODE', payload: { point } });
+                    break;
+                }
 
                 case 'None': {
                     unselectedLayers();
@@ -255,7 +255,7 @@ export default function Canvas() {
             const point = pointerEventToCanvasPoint(e, camera);
 
             match(canvasState)
-                .on({ mode: 'Dragging', origin: _ }, () => {
+                .on({ mode: 'Dragging', origin: (origin: Point | null) => origin }, () => {
                     const deltaX = e.movementX;
                     const deltaY = e.movementY;
 
@@ -267,32 +267,6 @@ export default function Canvas() {
                 .on({ mode: 'Resizing' }, () => {
                     resizeSelectedLayer(point);
                 });
-
-            // switch (canvasState.mode) {
-            //     case 'Dragging': {
-            //         if (canvasState.origin) {
-            //             const deltaX = e.movementX;
-            //             const deltaY = e.movementY;
-
-            //             dispatch_camera({ type: 'MOVE', payload: { deltaX, deltaY } });
-            //         }
-
-            //         break;
-            //     }
-
-            //     case 'Inserting': {
-            //         if (canvasState.layerType === 'Path') {
-            //             continueDrawing(point, e);
-            //         }
-
-            //         break;
-            //     }
-
-            //     case 'Resizing': {
-            //         resizeSelectedLayer(point);
-            //         break;
-            //     }
-            // }
         },
         [canvasState, camera, continueDrawing]
     );
@@ -367,7 +341,7 @@ export default function Canvas() {
                     onPointerDown={onPointerDown}
                     onPointerUp={onPointerUp}
                     onWheel={onWheel}
-                    className="h-full w-full">
+                    className="h-full w-full select-none">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
                         {layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId} onLayerPointerDown={onLayerPointerDown} />)}
                         {canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0 && (

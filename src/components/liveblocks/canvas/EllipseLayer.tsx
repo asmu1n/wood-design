@@ -22,6 +22,7 @@ export default function EllipseLayer({ id, layer, onSelect }: EllipseLayerProps)
                 fill={fill ? colorToCss(fill) : '#ccc'}
                 strokeWidth={1}
                 stroke={stroke ? colorToCss(stroke) : '#ccc'}
+                className="select-none"
             />
         </g>
     );

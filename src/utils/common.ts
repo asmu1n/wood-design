@@ -142,20 +142,23 @@ function exists() {
 const _ = Symbol('wildcard');
 
 type Pattern<T> = ((value: T) => boolean) | T | typeof _ | Not<Pattern<T>> | Or<Pattern<T>>;
+type PatternValue<T> = T | ((value: T) => any);
 
+type PatternObject<T> = {
+    [K in keyof T]?: PatternValue<T[K]>;
+};
 class Matcher<T> {
     private isMatched: boolean = false;
     constructor(private value: T) {}
 
-    on(pattern: Pattern<T extends Record<string, any> ? Record<keyof T, any> | T : T>, handler: (value: T) => void): Matcher<T> {
+    on<U>(pattern: PatternObject<U> | U, handler: (value: U) => void): Matcher<T> {
         const matched = this.matchesPattern(this.value, pattern);
 
         if (matched) {
-            handler(this.value);
+            handler(this.value as unknown as U);
             this.isMatched = true;
         }
 
-        // 继续链式调用
         return this;
     }
 

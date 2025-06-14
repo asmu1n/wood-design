@@ -5,18 +5,52 @@ export function resizeBounds(initialBounds: XYHW, corner: Side, point: Point): X
 
     match(corner)
         .on('Left', () => {
-            result.width = initialBounds.width + (initialBounds.x - point.x);
+            const newWidth = initialBounds.width + (initialBounds.x - point.x);
+
+            result.width = Math.max(newWidth, 1);
             result.x = point.x;
         })
         .on('Right', () => {
-            result.width = initialBounds.width + (point.x - initialBounds.x);
+            result.width = Math.max(point.x - initialBounds.x, 1);
         })
         .on('Top', () => {
-            result.height = initialBounds.height + (point.y - initialBounds.y);
+            const newHeight = initialBounds.height + (initialBounds.y - point.y);
+
+            result.height = Math.max(newHeight, 1);
+            result.y = point.y;
         })
         .on('Bottom', () => {
-            result.height = initialBounds.height + (initialBounds.y - point.y);
+            result.height = Math.max(point.y - initialBounds.y, 1);
+        })
+        .on('TopLeft', () => {
+            const newWidth = initialBounds.width + (initialBounds.x - point.x);
+            const newHeight = initialBounds.height + (initialBounds.y - point.y);
+
+            result.width = Math.max(newWidth, 1);
+            result.x = point.x;
+            result.height = Math.max(newHeight, 1);
             result.y = point.y;
+        })
+        .on('TopRight', () => {
+            const newWidth = point.x - initialBounds.x;
+            const newHeight = initialBounds.height + (initialBounds.y - point.y);
+
+            result.width = Math.max(newWidth, 1);
+            result.height = Math.max(newHeight, 1);
+            result.y = point.y;
+        })
+        .on('BottomLeft', () => {
+            const newHeight = point.y - initialBounds.y;
+
+            result.x = point.x;
+            result.height = Math.max(newHeight, 1);
+        })
+        .on('BottomRight', () => {
+            const newWidth = point.x - initialBounds.x;
+            const newHeight = point.y - initialBounds.y;
+
+            result.width = Math.max(newWidth, 1);
+            result.height = Math.max(newHeight, 1);
         });
 
     return result;

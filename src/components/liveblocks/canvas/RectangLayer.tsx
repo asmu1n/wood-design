@@ -22,6 +22,7 @@ export default function RectangleLayer({ id, layer, onSelect }: RectangleLayerPr
                 stroke={stroke ? colorToCss(stroke) : '#ccc'}
                 ry={cornerRadius ?? 0}
                 rx={cornerRadius ?? 0}
+                className="select-none"
             />
         </g>
     );

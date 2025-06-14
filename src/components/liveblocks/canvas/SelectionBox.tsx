@@ -116,7 +116,7 @@ export default function SelectionBox({ dispatch_canvas }: SelectionBoxProps) {
             <text
                 style={{ transform: `translate(${labelTextConfig.x}px, ${labelTextConfig.y}px)` }}
                 textAnchor="middle"
-                className="text-0.25 pointer-events-none fill-white">
+                className="text-0.25 pointer-events-none fill-white select-none">
                 {labelTextConfig.label}
             </text>
             {isShowingHandle && (
@@ -129,7 +129,7 @@ export default function SelectionBox({ dispatch_canvas }: SelectionBoxProps) {
                                 height: handleWidth,
                                 transform: `translate(${handle.x}px, ${handle.y}px)`
                             }}
-                            className={cn('stroke-0.25 fill-white stroke-[#0b99ff]', handle.cursor)}
+                            className={cn('stroke-0.25 fill-white stroke-[#0b99ff] select-none', handle.cursor)}
                             onPointerDown={() => onResizeHandlePointerDown(handle.side, { x, y, width, height })}
                         />
                     ))}
