@@ -1,6 +1,6 @@
 'use client';
 
-import { checkPointerButton, colorToCss, penPointsToPath, pointerEventToCanvasPoint } from '@/lib/utils';
+import { checkPointerButton, penPointsToPath, pointerEventToCanvasPoint, resizeBounds } from '@/utils/layer';
 import { useMutation, useSelf, useStorage } from '@liveblocks/react';
 import LayerComponent from './canvas/LayerComponent';
 import { nanoid } from 'nanoid';
@@ -11,6 +11,7 @@ import PathLayer from './canvas/PathLayer';
 import SelectionBox from './canvas/SelectionBox';
 import { cameraReducer, initialCamera } from './reducer/camera';
 import { canvasReducer, initialCanvasState } from './reducer/canvas';
+import { _, colorToCss, match } from '@/utils/common';
 
 const MAX_LAYERS = 100;
 
@@ -115,19 +116,41 @@ export default function Canvas() {
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
     const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
     const [canvasState, dispatch_canvas] = useReducer(canvasReducer, initialCanvasState);
+    const displaySelectionBox = canvasState.mode === 'Translating' || canvasState.mode === 'Resizing';
     // const setMyPresence = useMyPresence();
 
-    // 插入图层
+    // insert layer
     const insertLayer = useMutation(createLayer, []);
 
-    //TODO
-    const resizeSelectedLayer = useMutation(({ storage, self }, point: Point) => {}, []);
+    // select layer to resize
+    const resizeSelectedLayer = useMutation(
+        ({ storage, self }, point: Point) => {
+            if (canvasState.mode !== 'Resizing') {
+                return;
+            }
+
+            const bounds = resizeBounds(canvasState.initialBounds, canvasState.corner, point);
+            // update layers to set the new  width and height of the layer
+            const selectedLayer = storage.get('layers').get(self.presence.selection[0]);
+
+            if (selectedLayer) {
+                selectedLayer.update(bounds);
+            }
+        },
+        [canvasState]
+    );
+    // unselect layers
+    const unselectedLayers = useMutation(({ self, setMyPresence }) => {
+        if (self.presence.selection.length > 0) {
+            setMyPresence({ selection: [] });
+        }
+    }, []);
 
     const startDrawing = useMutation(({ setMyPresence }, point: Point, pressure: number) => {
         setMyPresence({ pencilDraft: [[point.x, point.y, pressure]], penColor: { r: 217, g: 217, b: 217 } }, { addToHistory: true });
     }, []);
 
-    // 继续绘制路径
+    // continue drawing path
     const continueDrawing = useMutation(
         ({ setMyPresence, self }, point: Point, e: React.PointerEvent) => {
             const { pencilDraft } = self.presence;
@@ -163,7 +186,7 @@ export default function Canvas() {
         }
     }, []);
 
-    // 指针点击抬起事件
+    // cursor click up event
     const onPointerUp = useMutation(
         ({}, e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera);
@@ -186,12 +209,24 @@ export default function Canvas() {
 
                     break;
                 }
+
+                // case 'Resizing': {
+                //     // when click up the layer, finish `RESIZE` to `TRANSITION`
+                //     dispatch_canvas({ type: 'SET_TRANSITION_MODE', payload: { point } });
+                //     break;
+                // }
+
+                case 'None': {
+                    unselectedLayers();
+                    dispatch_canvas({ type: 'SET_NONE_MODE' });
+                    break;
+                }
             }
         },
         [insertLayer, canvasState, camera]
     );
 
-    // 指针点击按下事件
+    // cursor click down event
     const onPointerDown = useMutation(
         ({}, e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera);
@@ -214,38 +249,70 @@ export default function Canvas() {
         [canvasState, camera]
     );
 
-    //指针拖动事件
+    // cursor move event
     const onPointerMove = useMutation(
         ({}, e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera);
 
-            switch (canvasState.mode) {
-                case 'Dragging': {
-                    if (canvasState.origin) {
-                        const deltaX = e.movementX;
-                        const deltaY = e.movementY;
+            match(canvasState)
+                .on({ mode: 'Dragging', origin: _ }, () => {
+                    const deltaX = e.movementX;
+                    const deltaY = e.movementY;
 
-                        dispatch_camera({ type: 'MOVE', payload: { deltaX, deltaY } });
-                    }
-
-                    break;
-                }
-
-                case 'Inserting': {
-                    if (canvasState.layerType === 'Path') {
-                        continueDrawing(point, e);
-                    }
-
-                    break;
-                }
-
-                case 'Resizing': {
+                    dispatch_camera({ type: 'MOVE', payload: { deltaX, deltaY } });
+                })
+                .on({ mode: 'Inserting', layerType: 'Path' }, () => {
+                    continueDrawing(point, e);
+                })
+                .on({ mode: 'Resizing' }, () => {
                     resizeSelectedLayer(point);
-                    break;
-                }
-            }
+                });
+
+            // switch (canvasState.mode) {
+            //     case 'Dragging': {
+            //         if (canvasState.origin) {
+            //             const deltaX = e.movementX;
+            //             const deltaY = e.movementY;
+
+            //             dispatch_camera({ type: 'MOVE', payload: { deltaX, deltaY } });
+            //         }
+
+            //         break;
+            //     }
+
+            //     case 'Inserting': {
+            //         if (canvasState.layerType === 'Path') {
+            //             continueDrawing(point, e);
+            //         }
+
+            //         break;
+            //     }
+
+            //     case 'Resizing': {
+            //         resizeSelectedLayer(point);
+            //         break;
+            //     }
+            // }
         },
         [canvasState, camera, continueDrawing]
+    );
+    // layer select event
+    const onLayerPointerDown = useMutation(
+        ({ self, setMyPresence }, e: React.PointerEvent, layerId: string) => {
+            e.stopPropagation();
+
+            if (canvasState.mode === 'Dragging' || canvasState.mode === 'None' || canvasState.mode === 'Translating') {
+                if (!self.presence.selection.includes(layerId)) {
+                    setMyPresence({ selection: [layerId] }, { addToHistory: true });
+                }
+            }
+
+            // when select layer, set transition mode and selection box will display and move to this layer
+            const pointer = pointerEventToCanvasPoint(e, camera);
+
+            dispatch_canvas({ type: 'SET_TRANSITION_MODE', payload: { point: pointer } });
+        },
+        [canvasState.mode, canvasState]
     );
     //缩放按钮事件
     const onZoom = useMemo(() => {
@@ -292,20 +359,6 @@ export default function Canvas() {
         [camera]
     );
 
-    //图层选中事件
-    const onLayerPointerDown = useMutation(
-        ({ self, setMyPresence }, e: React.PointerEvent, layerId: string) => {
-            e.stopPropagation();
-
-            if (canvasState.mode === 'Dragging' || canvasState.mode === 'None') {
-                if (!self.presence.selection.includes(layerId)) {
-                    setMyPresence({ selection: [layerId] }, { addToHistory: true });
-                }
-            }
-        },
-        [canvasState.mode]
-    );
-
     return (
         <div>
             <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
@@ -331,7 +384,7 @@ export default function Canvas() {
                                 }}
                             />
                         )}
-                        <SelectionBox dispatch_canvas={dispatch_canvas} />
+                        {displaySelectionBox && <SelectionBox dispatch_canvas={dispatch_canvas} />}
                     </g>
                 </svg>
             </div>

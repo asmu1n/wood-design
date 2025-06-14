@@ -6,7 +6,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import UploadFile from './UploadFile';
 import { FormItemConfig } from './AuthForm';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/common';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 

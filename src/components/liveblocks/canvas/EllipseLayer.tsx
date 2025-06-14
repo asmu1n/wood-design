@@ -1,4 +1,4 @@
-import { colorToCss } from '@/lib/utils';
+import { colorToCss } from '@/utils/common';
 
 interface EllipseLayerProps {
     id: string;

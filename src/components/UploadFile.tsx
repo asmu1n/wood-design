@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Input } from './ui/input';
 import { useEffect, useState } from 'react';
-import { cn, uploadFileByUrl } from '@/lib/utils';
+import { cn, uploadFileByUrl } from '@/utils/common';
 import { toast } from '@/lib/hooks/useToast';
 
 interface UploadVideoProps {

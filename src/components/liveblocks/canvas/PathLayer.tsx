@@ -1,4 +1,5 @@
-import { colorToCss, getSvgPathFromStroke } from '@/lib/utils';
+import { colorToCss } from '@/utils/common';
+import { getSvgPathFromStroke } from '@/utils/layer';
 import { getStroke } from 'perfect-freehand';
 
 interface PathLayerProps {

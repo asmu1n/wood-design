@@ -78,17 +78,21 @@ declare global {
         //       mode: 'Pencil';
         //   }
         | {
-              mode: 'Inserting';
+              mode: 'Inserting'; // insert layer or draw  a path
               layerType: LayerType;
           }
         | {
-              mode: 'Dragging';
+              mode: 'Dragging'; // when cursor  move on layer
               origin: Point | null;
           }
         | {
-              mode: 'Resizing';
+              mode: 'Resizing'; // when cursor move on layer's border
               initialBounds: XYHW;
               corner: Side;
+          }
+        | {
+              mode: 'Translating';
+              currentCursor: Point;
           };
 
     type Side = 'Top' | 'Bottom' | 'Left' | 'Right' | 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';

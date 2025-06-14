@@ -1,4 +1,4 @@
-import { colorToCss } from '@/lib/utils';
+import { colorToCss } from '@/utils/common';
 import { useMutation } from '@liveblocks/react';
 import { useEffect, useRef, useState } from 'react';
 

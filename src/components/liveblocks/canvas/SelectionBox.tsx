@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/common';
 import { useSelf, useStorage } from '@liveblocks/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CanvasAction } from '../reducer/canvas';
@@ -130,6 +130,7 @@ export default function SelectionBox({ dispatch_canvas }: SelectionBoxProps) {
                                 transform: `translate(${handle.x}px, ${handle.y}px)`
                             }}
                             className={cn('stroke-0.25 fill-white stroke-[#0b99ff]', handle.cursor)}
+                            onPointerDown={() => onResizeHandlePointerDown(handle.side, { x, y, width, height })}
                         />
                     ))}
                 </>

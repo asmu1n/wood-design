@@ -1,7 +1,7 @@
 import IconButton from './IconButton';
 import { useEffect, useRef, useState } from 'react';
 import { IoEllipseOutline, IoSquareOutline } from 'react-icons/io5';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/common';
 import { CanvasAction } from '../reducer/canvas';
 
 interface ShapeSelectionButtonProps {

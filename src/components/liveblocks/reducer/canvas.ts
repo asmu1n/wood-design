@@ -4,6 +4,7 @@ export type CanvasAction =
     | { type: 'SET_INSERT_MODE'; payload: { layerType: LayerType } }
     | { type: 'SET_DRAGGING_MODE'; payload: { origin: Point | null } }
     | { type: 'SET_RESIZING_MODE'; payload: { initialBounds: XYHW; corner: Side } }
+    | { type: 'SET_TRANSITION_MODE'; payload: { point: Point } }
     | { type: 'SET_PENCIL_DRAFT'; payload: [number, number, number][] | null }
     | { type: 'SET_SELECTION'; payload: string[] }
     | { type: 'SET_CURSOR'; payload: Point };
@@ -39,6 +40,12 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
                 mode: 'Resizing',
                 initialBounds: action.payload.initialBounds,
                 corner: action.payload.corner
+            };
+
+        case 'SET_TRANSITION_MODE':
+            return {
+                mode: 'Translating',
+                currentCursor: action.payload.point
             };
 
         case 'SET_PENCIL_DRAFT':

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import IconButton from './IconButton';
 import { BiPlus, BiPointer } from 'react-icons/bi';
 import { RiHand } from 'react-icons/ri';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/common';
 import { CanvasAction } from '../reducer/canvas';
 
 interface SelectionButtonProps {
