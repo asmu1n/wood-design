@@ -4,7 +4,7 @@ import { checkPointerButton, penPointsToPath, pointerEventToCanvasPoint, resizeB
 import { useMutation, useSelf, useStorage } from '@liveblocks/react';
 import LayerComponent from './canvas/LayerComponent';
 import { nanoid } from 'nanoid';
-import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
+import { LiveObject } from '@liveblocks/client';
 import { useCallback, useMemo, useReducer } from 'react';
 import ToolsBar from './ToolsBar';
 import PathLayer from './canvas/PathLayer';
@@ -12,103 +12,10 @@ import SelectionBox from './canvas/SelectionBox';
 import { cameraReducer, initialCamera } from './reducer/camera';
 import { canvasReducer, initialCanvasState } from './reducer/canvas';
 import { colorToCss, match } from '@/utils/common';
-
-const MAX_LAYERS = 100;
+import createLayer, { MAX_LAYERS } from './canvas/createLayer';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
-
-function createLayer(
-    {
-        storage,
-        setMyPresence
-    }: {
-        storage: LiveObject<{
-            roomColor: Color | null;
-            layers: LiveMap<string, LiveObject<Layer>>;
-            layerIds: LiveList<string>;
-        }>;
-        setMyPresence: (
-            patch: Partial<{
-                selection: string[];
-                cursor: Point | null;
-                penColor: Color | null;
-                pencilDraft: [x: number, y: number, pressure: number][] | null;
-            }>,
-            options?: {
-                addToHistory: boolean;
-            }
-        ) => void;
-    },
-    layerType: LayerType,
-    position: Point
-) {
-    const liveLayers = storage.get('layers');
-
-    if (liveLayers.size >= MAX_LAYERS) {
-        return;
-    }
-
-    const liveLayerIds = storage.get('layerIds');
-    const layerId = nanoid();
-    let layer: LiveObject<Layer> | null = null;
-
-    switch (layerType) {
-        case 'Rectangle': {
-            layer = new LiveObject<Layer>({
-                type: 'Rectangle',
-                x: position.x,
-                y: position.y,
-                height: 100,
-                width: 100,
-                stroke: { r: 217, g: 217, b: 217 },
-                fill: { r: 217, g: 217, b: 217 },
-                opacity: 1
-            });
-            break;
-        }
-
-        case 'Ellipse': {
-            layer = new LiveObject<Layer>({
-                type: 'Ellipse',
-                x: position.x,
-                y: position.y,
-                height: 100,
-                width: 100,
-                stroke: { r: 217, g: 217, b: 217 },
-                fill: { r: 217, g: 217, b: 217 },
-                opacity: 1
-            });
-            break;
-        }
-
-        case 'Text': {
-            layer = new LiveObject<Layer>({
-                type: 'Text',
-                x: position.x,
-                y: position.y,
-                text: 'Test',
-                fontSize: 16,
-                width: 100,
-                height: 100,
-                fontFamily: 'Arial',
-                fontWeight: 400,
-                lineHeight: 1.5,
-                textAlign: 'left',
-                stroke: { r: 217, g: 217, b: 217 },
-                fill: { r: 217, g: 217, b: 217 },
-                opacity: 1
-            });
-            break;
-        }
-    }
-
-    if (layer) {
-        liveLayers.set(layerId, layer);
-        liveLayerIds.push(layerId);
-        setMyPresence({ selection: [layerId] }, { addToHistory: true });
-    }
-}
 
 export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
@@ -193,16 +100,19 @@ export default function Canvas() {
 
             switch (canvasState.mode) {
                 case 'Inserting': {
+                    // finish insert a new layer
                     insertLayer(canvasState.layerType, point);
                     break;
                 }
 
                 case 'Dragging': {
+                    // finish move camera viewBox
                     dispatch_canvas({ type: 'SET_DRAGGING_MODE', payload: { origin: null } });
                     break;
                 }
 
                 case 'Inserting': {
+                    // finish draw a path layer to canvas
                     if (canvasState.layerType === 'Path') {
                         insertPath();
                     }
@@ -217,6 +127,7 @@ export default function Canvas() {
                 }
 
                 case 'None': {
+                    // cancel select layer
                     unselectedLayers();
                     dispatch_canvas({ type: 'SET_NONE_MODE' });
                     break;
@@ -232,12 +143,14 @@ export default function Canvas() {
             const point = pointerEventToCanvasPoint(e, camera);
 
             switch (canvasState.mode) {
+                // try to drag layer
                 case 'Dragging': {
                     dispatch_canvas({ type: 'SET_DRAGGING_MODE', payload: { origin: point } });
                     break;
                 }
 
                 case 'Inserting': {
+                    // try to draw a path layer to canvas
                     if (canvasState.layerType === 'Path') {
                         startDrawing(point, e.pressure);
                     }
@@ -277,6 +190,7 @@ export default function Canvas() {
 
             if (canvasState.mode === 'Dragging' || canvasState.mode === 'None' || canvasState.mode === 'Translating') {
                 if (!self.presence.selection.includes(layerId)) {
+                    // add layer to selection and push to history
                     setMyPresence({ selection: [layerId] }, { addToHistory: true });
                 }
             }
@@ -288,6 +202,14 @@ export default function Canvas() {
         },
         [canvasState.mode, canvasState]
     );
+
+    function onDoubleClick() {
+        // cancel resize layer
+        dispatch_canvas({
+            type: 'SET_NONE_MODE'
+        });
+    }
+
     //缩放按钮事件
     const onZoom = useMemo(() => {
         function zoomIn() {
@@ -340,6 +262,7 @@ export default function Canvas() {
                     onPointerMove={onPointerMove}
                     onPointerDown={onPointerDown}
                     onPointerUp={onPointerUp}
+                    onDoubleClick={onDoubleClick}
                     onWheel={onWheel}
                     className="h-full w-full select-none">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
@@ -348,6 +271,7 @@ export default function Canvas() {
                             <PathLayer
                                 id="pencil-draft"
                                 layer={{
+                                    // todo fixed params
                                     type: 'Path',
                                     x: 0,
                                     y: 0,

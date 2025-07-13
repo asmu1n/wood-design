@@ -24,18 +24,21 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
         //     return { mode: 'Pencil' };
 
         case 'SET_INSERT_MODE':
+            // insert a new layer
             return {
                 mode: 'Inserting',
                 layerType: action.payload.layerType
             };
 
         case 'SET_DRAGGING_MODE':
+            // start drag camera viewBox
             return {
                 mode: 'Dragging',
                 origin: action.payload.origin
             };
 
         case 'SET_RESIZING_MODE':
+            // start to resize a layer, when pointer up will finish and change to translating
             return {
                 mode: 'Resizing',
                 initialBounds: action.payload.initialBounds,
@@ -43,6 +46,7 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
             };
 
         case 'SET_TRANSITION_MODE':
+            // display selected box ready to resize layer
             return {
                 mode: 'Translating',
                 currentCursor: action.payload.point
