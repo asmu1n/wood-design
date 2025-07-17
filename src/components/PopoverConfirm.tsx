@@ -17,7 +17,7 @@ export default function PopoverConfirm({ confirmText, onConfirm, onCancel, child
             <PopoverTrigger asChild>{trigger}</PopoverTrigger>
             <Portal>
                 <PopoverContent>
-                    <div className="realtive flex flex-col gap-2 rounded-lg bg-slate-50 p-4 shadow-[5px_4px_6px_3px_rgba(0,0,0,0.15)]">
+                    <div className="relative flex flex-col gap-2 rounded-lg bg-slate-50 p-4 shadow-[5px_4px_6px_3px_rgba(0,0,0,0.15)]">
                         {title && <h3 className="text-lg font-medium">{title}</h3>}
                         <Close className="PopoverClose absolute top-1 right-1.5 text-slate-500" aria-label="Close" onClick={onCancel}>
                             X
