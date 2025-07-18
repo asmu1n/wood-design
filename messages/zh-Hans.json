@@ -38,5 +38,11 @@
     "too_fast": {
         "title": "请求过于频繁",
         "description": "看起来你的请求过于频繁，我们将你置于速率限制中，请您稍后再试"
+    },
+    "error": {
+        "title": "哎呀！",
+        "description": "出了点问题：",
+        "try_again": "再试一次",
+        "contact": "如果问题持续存在，请联系我们。"
     }
 }

@@ -9,7 +9,9 @@
         "delete": "Delete",
         "save": "Save",
         "close": "Close",
-        "submit": "Submit"
+        "submit": "Submit",
+        "reset": "Reset",
+        "loading": "Loading..."
     },
     "auth": {
         "login": "Login",
@@ -36,5 +38,11 @@
     "too_fast": {
         "title": "Too fast",
         "description": "Your request is too frequent, please try again later"
+    },
+    "error": {
+        "title": "Oops!",
+        "description": "Something went wrong:",
+        "try_again": "Try again",
+        "contact": "If the problem persists, please contact us."
     }
 }
