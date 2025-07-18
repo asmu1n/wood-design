@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
-    "packageManager": "yarn@4.6.0",
+    "packageManager": "yarn@4.9.2",
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build",
