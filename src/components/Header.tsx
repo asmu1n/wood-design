@@ -8,15 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Session } from 'next-auth';
 import { Button } from './ui/button';
 import { signOut } from '@/db/services/auth';
+import { useTranslations } from 'next-intl';
 
 export default function Header({ session }: { session?: Session }) {
     const pathname = usePathname();
-    const navBarList = [
-        {
-            href: '/library',
-            label: '图书馆'
-        }
-    ];
+    const t = useTranslations();
+    const navBarList = [];
 
     return (
         <header className="my-10 flex justify-between gap-5">
@@ -37,13 +34,15 @@ export default function Header({ session }: { session?: Session }) {
                     <Link href="/myProfile">
                         <Avatar>
                             <AvatarImage />
-                            <AvatarFallback className="bg-amber-100">{session?.user?.name?.slice(0, 2).toUpperCase() || '游客'}</AvatarFallback>
+                            <AvatarFallback className="bg-amber-100">
+                                {session?.user?.name?.slice(0, 2).toUpperCase() || t('auth.tourist')}
+                            </AvatarFallback>
                         </Avatar>
                     </Link>
                 </li>
                 <li>
                     <form action={signOut}>
-                        <Button>登出</Button>
+                        <Button>{t('auth.logout')}</Button>
                     </form>
                 </li>
             </ul>

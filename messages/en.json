@@ -1,0 +1,40 @@
+{
+    "common": {
+        "success": "Success",
+        "fail": "Fail",
+        "create": "Create",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "close": "Close",
+        "submit": "Submit"
+    },
+    "auth": {
+        "login": "Login",
+        "tourist": "Tourist",
+        "logout": "Logout",
+        "register": "Register",
+        "login_error": "Login failed",
+        "register_error": "Register failed",
+        "login_welcome": "Welcome back",
+        "register_welcome": "Register your account",
+        "login_description": "Login your account to access",
+        "register_description": "Please fill in the registration information and provide valid authentication information",
+        "login_with_email": "Email login",
+        "login_with_password": "Account password login",
+        "login_ask": "Create new account?",
+        "register_ask": "Already have an account?"
+    },
+    "upload": {
+        "uploading": "Uploading...",
+        "success": "Upload success",
+        "fail": "Upload failed",
+        "placeholder": "Upload file"
+    },
+    "too_fast": {
+        "title": "Too fast",
+        "description": "Your request is too frequent, please try again later"
+    }
+}

@@ -3,6 +3,7 @@ import { Input } from './ui/input';
 import { useEffect, useState } from 'react';
 import { cn, uploadFileByUrl } from '@/utils/common';
 import { toast } from '@/lib/hooks/useToast';
+import { useTranslations } from 'next-intl';
 
 interface UploadVideoProps {
     type: 'image' | 'file';
@@ -13,6 +14,7 @@ interface UploadVideoProps {
 }
 
 export default function UploadFile({ onFileChange, placeholder, type, variant, value }: UploadVideoProps) {
+    const t = useTranslations('upload');
     const [fileController, setFileController] = useState({
         uploaded: value ? true : false,
         disabled: false,
@@ -37,7 +39,7 @@ export default function UploadFile({ onFileChange, placeholder, type, variant, v
             const publicUrl = await uploadFileByUrl(file);
 
             if (!publicUrl) {
-                throw new Error('文件上传失败');
+                throw new Error(t('fail'));
             }
 
             setFileController({
@@ -51,8 +53,8 @@ export default function UploadFile({ onFileChange, placeholder, type, variant, v
         } catch (error) {
             console.error(error);
             toast({
-                title: '失败',
-                description: error instanceof Error ? error.message : '文件上传失败',
+                title: t('fail'),
+                description: error instanceof Error ? error.message : t('fail'),
                 variant: 'destructive'
             });
             setFileController(prev => ({ ...prev, disabled: false }));
@@ -99,7 +101,7 @@ export default function UploadFile({ onFileChange, placeholder, type, variant, v
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            <span className="font-medium text-green-700">文件上传成功</span>
+                            <span className="font-medium text-green-700">{t('success')}</span>
                         </>
                     ) : (
                         <>
@@ -112,12 +114,12 @@ export default function UploadFile({ onFileChange, placeholder, type, variant, v
                                         )}
                                         role="status"
                                         aria-label="loading"></div>
-                                    <span>上传中...</span>
+                                    <span>{t('uploading')}</span>
                                 </>
                             ) : (
                                 <>
                                     <Image src="/icons/upload.svg" alt="upload" width={20} height={20} className="object-contain" />
-                                    <p className={cn('text-base', styles.placeholder)}>{placeholder || '上传文件'}</p>
+                                    <p className={cn('text-base', styles.placeholder)}>{placeholder || t('placeholder')}</p>
                                 </>
                             )}
                         </>

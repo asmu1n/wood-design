@@ -101,6 +101,10 @@ declare global {
         width: number;
         height: number;
     }
+    declare module '*.svg' {
+        const content: string;
+        export default content;
+    }
 }
 
 type BaseLayer = Point & {

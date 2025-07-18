@@ -1,5 +1,6 @@
 import { Popover, PopoverContent, PopoverTrigger, Close, Portal, Arrow } from '@radix-ui/react-popover';
 import { Button } from './ui/button';
+import { useTranslations } from 'next-intl';
 
 interface PopoverConfirmProps {
     confirmText?: string;
@@ -12,6 +13,8 @@ interface PopoverConfirmProps {
 }
 
 export default function PopoverConfirm({ confirmText, onConfirm, onCancel, children, title, trigger }: PopoverConfirmProps) {
+    const t = useTranslations('common');
+
     return (
         <Popover>
             <PopoverTrigger asChild>{trigger}</PopoverTrigger>
@@ -26,10 +29,10 @@ export default function PopoverConfirm({ confirmText, onConfirm, onCancel, child
                         <div className="my-2">{children}</div>
                         <div className="text-center">
                             {/* <Button variant="link" className="text-slate-800 p-0" onClick={onCancel}>
-                                {cancelText || '取消'}
+                                {cancelText || t('confirm')}
                             </Button> */}
                             <Button variant="destructive" className="w-20 max-w-fit px-3 py-1" onClick={onConfirm}>
-                                {confirmText || '确认'}
+                                {confirmText || t('confirm')}
                             </Button>
                         </div>
                     </div>
