@@ -12,7 +12,7 @@ import SelectionBox from './canvas/SelectionBox';
 import { cameraReducer, initialCamera } from './reducer/camera';
 import { canvasReducer, initialCanvasState } from './reducer/canvas';
 import { colorToCss, match } from '@/utils/common';
-import createLayer, { MAX_LAYERS } from './canvas/createLayer';
+import { MAX_LAYERS, createLayer, setLiveLayer } from './canvas/layerOperations';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
@@ -79,15 +79,12 @@ export default function Canvas() {
         if (pencilDraft && pencilDraft.length > 1 && liveLayers.size < MAX_LAYERS) {
             const layerId = nanoid();
 
-            liveLayers.set(layerId, new LiveObject(penPointsToPath(pencilDraft, { r: 217, g: 217, b: 217 })));
-            const liveLayerIds = storage.get('layerIds');
-
-            liveLayerIds.push(layerId);
-            dispatch_canvas({ type: 'SET_NONE_MODE' });
+            setLiveLayer(storage, layerId, new LiveObject(penPointsToPath(pencilDraft, { r: 217, g: 217, b: 217 })));
+            // dispatch_canvas({ type: 'SET_NONE_MODE' });
             dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
             setMyPresence({ pencilDraft: null }, { addToHistory: true });
         } else {
-            dispatch_canvas({ type: 'SET_NONE_MODE' });
+            // dispatch_canvas({ type: 'SET_NONE_MODE' });
             dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
             setMyPresence({ pencilDraft: null }, { addToHistory: true });
         }
@@ -235,12 +232,7 @@ export default function Canvas() {
 
             const zoomSpeed = 0.1; // 缩放速度
             const scaleFactor = e.deltaY > 0 ? 1 - zoomSpeed : 1 + zoomSpeed; // 缩放因子
-            let newScale = camera.zoom * scaleFactor; // 更新缩放比例
-
-            // 限制缩放范围,新值超过范围时直接设置到边界
-            if (newScale < MIN_ZOOM || newScale > MAX_ZOOM) {
-                newScale = newScale < MIN_ZOOM ? MIN_ZOOM : MAX_ZOOM;
-            }
+            const newScale = camera.zoom * scaleFactor; // 更新缩放比例
 
             // 调整平移偏移量，使鼠标位置保持不变
             dispatch_camera({

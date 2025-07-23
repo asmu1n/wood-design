@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 
 export const MAX_LAYERS = 100;
 
-export default function createLayer(
+export function createLayer(
     {
         storage,
         setMyPresence
@@ -93,4 +93,20 @@ export default function createLayer(
         liveLayerIds.push(layerId);
         setMyPresence({ selection: [layerId] }, { addToHistory: true });
     }
+}
+
+export function setLiveLayer(
+    storage: LiveObject<{
+        roomColor: Color | null;
+        layers: LiveMap<string, LiveObject<Layer>>;
+        layerIds: LiveList<string>;
+    }>,
+    layerId: string,
+    layer: LiveObject<Layer>
+) {
+    const liveLayers = storage.get('layers');
+    const liveLayersIds = storage.get('layerIds');
+
+    liveLayers.set(layerId, layer);
+    liveLayersIds.push(layerId);
 }
