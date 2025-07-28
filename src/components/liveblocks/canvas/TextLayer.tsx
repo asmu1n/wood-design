@@ -73,7 +73,7 @@ export default function TextLayer({ id, layer, onSelect }: TextLayerProps) {
                 <text
                     onPointerDown={onSelect}
                     x={x}
-                    y={y + fontSize / 2}
+                    y={y + fontSize}
                     fontSize={fontSize}
                     fontFamily={fontFamily}
                     fontWeight={fontWeight}

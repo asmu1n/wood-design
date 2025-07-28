@@ -10,7 +10,19 @@ export default function RectangleLayer({ id, layer, onSelect }: RectangleLayerPr
     const { x, y, stroke, fill, cornerRadius, width, height, opacity } = layer;
 
     return (
-        <g>
+        <g className="group">
+            {/* hover border */}
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill="none"
+                stroke="#0b99ff"
+                strokeWidth={4}
+                className="pointer-events-none opacity-0 group-hover:opacity-100"
+            />
+            {/* main rect */}
             <rect
                 onPointerDown={onSelect}
                 style={{ transform: `translate(${x}px, ${y}px)` }}
