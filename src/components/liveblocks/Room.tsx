@@ -5,7 +5,12 @@ import { LiveblocksProvider, RoomProvider, ClientSideSuspense } from '@liveblock
 import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
 import DefaultLoading from '../DefaultLoading';
 
-export function Room({ children, roomId }: { children: ReactNode; roomId: string }) {
+interface RoomProps {
+    children: ReactNode;
+    roomId: string;
+}
+
+export function Room({ children, roomId }: RoomProps) {
     const roomParams = {
         id: roomId,
         initialPresence: {

@@ -19,7 +19,7 @@ export default function UploadFile({ onFileChange, placeholder, type, variant, v
         uploaded: value ? true : false,
         disabled: false,
         url: value || '',
-        name: value ? '已上传文件' : ''
+        name: value ? t('finish') : ''
     });
     const styles = {
         button: variant === 'dark' ? 'bg-dark-300' : 'bg-light-600 border-gray-100 border',

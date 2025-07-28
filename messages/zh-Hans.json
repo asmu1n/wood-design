@@ -33,7 +33,8 @@
         "uploading": "上传中...",
         "success": "上传成功",
         "fail": "上传失败",
-        "placeholder": "上传文件"
+        "placeholder": "上传文件",
+        "finish": "已上传成功"
     },
     "too_fast": {
         "title": "请求过于频繁",
@@ -44,5 +45,11 @@
         "description": "出了点问题：",
         "try_again": "再试一次",
         "contact": "如果问题持续存在，请联系我们。"
+    },
+    "tools": {
+        "select": "选择",
+        "select_shape": "选择图形",
+        "pencil": "手绘",
+        "text": "插入文本"
     }
 }

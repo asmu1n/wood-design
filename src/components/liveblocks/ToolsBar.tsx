@@ -6,6 +6,7 @@ import ZoomInButton from './toolsbar/ZoomInButton';
 import ZoomOutButton from './toolsbar/ZoomOutButton';
 import TextButton from './toolsbar/TextButton';
 import { CanvasAction } from './reducer/canvas';
+import { useTranslations } from 'next-intl';
 
 interface ToolsBarProps {
     canvasState: CanvasType;
@@ -19,27 +20,32 @@ interface ToolsBarProps {
 const shapeSelectList: LayerType[] = ['Rectangle', 'Ellipse'];
 
 function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, canZoomOut }: ToolsBarProps) {
+    const t = useTranslations('tools');
     const toolListConfig = [
         {
+            // use cursor to select layer from layers
             // isActive: canvasState.mode !== 'Pencil',
             isActive: true,
             Component: SelectionButton,
-            tips: '选择'
+            tips: t('select')
         },
         {
+            // select a shape and add a shapeLayer to layers
             isActive: canvasState.mode === 'Inserting' && shapeSelectList.includes(canvasState.layerType),
             Component: ShapesSelectionButton,
-            tips: '选择图形'
+            tips: t('select_shape')
         },
         {
+            // draw a new pathLayer and insert to layers
             isActive: canvasState.mode === 'Inserting' && canvasState.layerType === 'Path',
             Component: PencilButton,
-            tips: '手绘'
+            tips: t('pencil')
         },
         {
+            // input text and add a textLayer to layers
             isActive: canvasState.mode === 'Inserting' && canvasState.layerType === 'Text',
             Component: TextButton,
-            tips: '插入文本'
+            tips: t('text')
         }
     ];
 
