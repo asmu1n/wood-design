@@ -29,6 +29,29 @@ export default function Canvas() {
     // insert layer
     const insertLayer = useMutation(createLayer, []);
 
+    // translate selected layer
+    const translateSelectedLayer = useMutation(
+        ({ storage, self }, point: Point) => {
+            if (canvasState.mode !== 'Translating') {
+                return;
+            }
+
+            const offset = {
+                x: point.x - canvasState.currentCursor.x,
+                y: point.y - canvasState.currentCursor.y
+            };
+
+            for (const selectedId of self.presence.selection) {
+                const selectedLayer = storage.get('layers').get(selectedId);
+
+                if (selectedLayer) {
+                    selectedLayer.update({ x: selectedLayer.get('x') + offset.x, y: selectedLayer.get('y') + offset.y });
+                }
+            }
+        },
+        [canvasState]
+    );
+
     // select layer to resize
     const resizeSelectedLayer = useMutation(
         ({ storage, self }, point: Point) => {
@@ -131,7 +154,7 @@ export default function Canvas() {
                 }
             }
         },
-        [insertLayer, canvasState, camera]
+        [canvasState, camera]
     );
 
     // cursor click down event
@@ -176,6 +199,9 @@ export default function Canvas() {
                 })
                 .on({ mode: 'Resizing' }, () => {
                     resizeSelectedLayer(point);
+                })
+                .on({ mode: 'Translating' }, () => {
+                    translateSelectedLayer(point);
                 });
         },
         [canvasState, camera, continueDrawing]
