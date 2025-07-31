@@ -1,6 +1,6 @@
 import { useStorage } from '@liveblocks/react';
 import { memo } from 'react';
-import RectangleLayer from './RectangLayer';
+import RectangleLayer from './RectangleLayer';
 import EllipseLayer from './EllipseLayer';
 import PathLayer from './PathLayer';
 import TextLayer from './TextLayer';
