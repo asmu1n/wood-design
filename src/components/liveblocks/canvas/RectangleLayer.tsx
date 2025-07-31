@@ -10,11 +10,9 @@ export default function RectangleLayer({ id, layer, onSelect }: RectangleLayerPr
     const { x, y, stroke, fill, cornerRadius, width, height, opacity } = layer;
 
     return (
-        <g className="group">
+        <g style={{ transform: `translate(${x}px, ${y}px)` }} className="group">
             {/* hover border */}
             <rect
-                x={x}
-                y={y}
                 width={width}
                 height={height}
                 fill="none"
@@ -25,7 +23,6 @@ export default function RectangleLayer({ id, layer, onSelect }: RectangleLayerPr
             {/* main rect */}
             <rect
                 onPointerDown={onSelect}
-                style={{ transform: `translate(${x}px, ${y}px)` }}
                 width={width}
                 height={height}
                 opacity={opacity}

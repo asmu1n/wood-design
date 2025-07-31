@@ -21,9 +21,11 @@ export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
     const layerIds = useStorage(storage => storage.layerIds);
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
+    const selectedLayerId = useSelf(self => (self.presence.selection.length === 1 ? self.presence.selection[0] : null));
     const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
     const [canvasState, dispatch_canvas] = useReducer(canvasReducer, initialCanvasState);
-    const displaySelectionBox = canvasState.mode === 'Translating' || canvasState.mode === 'Resizing';
+    const displaySelectionBox =
+        (canvasState.mode === 'Translating' || canvasState.mode === 'Resizing' || canvasState.mode === 'None') && selectedLayerId;
     // const setMyPresence = useMyPresence();
 
     // insert layer
@@ -31,15 +33,10 @@ export default function Canvas() {
 
     // translate selected layer
     const translateSelectedLayer = useMutation(
-        ({ storage, self }, point: Point) => {
+        ({ storage, self }, offset: { x: number; y: number }) => {
             if (canvasState.mode !== 'Translating') {
                 return;
             }
-
-            const offset = {
-                x: point.x - canvasState.currentCursor.x,
-                y: point.y - canvasState.currentCursor.y
-            };
 
             for (const selectedId of self.presence.selection) {
                 const selectedLayer = storage.get('layers').get(selectedId);
@@ -142,13 +139,19 @@ export default function Canvas() {
 
                 case 'Resizing': {
                     // when click up the layer, finish `RESIZE` to `TRANSITION`
-                    dispatch_canvas({ type: 'SET_TRANSITION_MODE', payload: { point } });
+                    dispatch_canvas({ type: 'SET_TRANSITION_MODE' });
                     break;
                 }
 
                 case 'None': {
                     // cancel select layer
                     unselectedLayers();
+                    dispatch_canvas({ type: 'SET_NONE_MODE' });
+                    break;
+                }
+
+                case 'Translating': {
+                    // when click up the layer, finish `TRANSITION` to `NONE`
                     dispatch_canvas({ type: 'SET_NONE_MODE' });
                     break;
                 }
@@ -201,7 +204,9 @@ export default function Canvas() {
                     resizeSelectedLayer(point);
                 })
                 .on({ mode: 'Translating' }, () => {
-                    translateSelectedLayer(point);
+                    const offset = { x: e.movementX / camera.zoom, y: e.movementY / camera.zoom };
+
+                    translateSelectedLayer(offset);
                 });
         },
         [canvasState, camera, continueDrawing]
@@ -219,19 +224,20 @@ export default function Canvas() {
             }
 
             // when select layer, set transition mode and selection box will display and move to this layer
-            const pointer = pointerEventToCanvasPoint(e, camera);
 
-            dispatch_canvas({ type: 'SET_TRANSITION_MODE', payload: { point: pointer } });
+            // const pointer = pointerEventToCanvasPoint(e, camera);
+
+            dispatch_canvas({ type: 'SET_TRANSITION_MODE' });
         },
         [canvasState.mode, canvasState]
     );
 
-    function onDoubleClick() {
-        // cancel resize layer
-        dispatch_canvas({
-            type: 'SET_NONE_MODE'
-        });
-    }
+    // function onDoubleClick() {
+    //     // cancel resize layer
+    //     dispatch_canvas({
+    //         type: 'SET_NONE_MODE'
+    //     });
+    // }
 
     //缩放按钮事件
     const onZoom = useMemo(() => {
@@ -280,7 +286,7 @@ export default function Canvas() {
                     onPointerMove={onPointerMove}
                     onPointerDown={onPointerDown}
                     onPointerUp={onPointerUp}
-                    onDoubleClick={onDoubleClick}
+                    // onDoubleClick={onDoubleClick}
                     onWheel={onWheel}
                     className="h-full w-full select-none">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>

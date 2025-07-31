@@ -92,7 +92,7 @@ declare global {
           }
         | {
               mode: 'Translating';
-              currentCursor: Point;
+              //   currentCursor: Point;
           };
 
     type Side = 'Top' | 'Bottom' | 'Left' | 'Right' | 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';
