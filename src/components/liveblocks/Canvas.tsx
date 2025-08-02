@@ -68,6 +68,7 @@ export default function Canvas() {
         },
         [canvasState]
     );
+
     // unselect layers
     const unselectedLayers = useMutation(({ self, setMyPresence }) => {
         if (self.presence.selection.length > 0) {
@@ -105,11 +106,9 @@ export default function Canvas() {
             const layerId = nanoid();
 
             setLiveLayer(storage, layerId, new LiveObject(penPointsToPath(pencilDraft, { r: 217, g: 217, b: 217 })));
-            // dispatch_canvas({ type: 'SET_NONE_MODE' });
             dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
             setMyPresence({ pencilDraft: null }, { addToHistory: true });
         } else {
-            // dispatch_canvas({ type: 'SET_NONE_MODE' });
             dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
             setMyPresence({ pencilDraft: null }, { addToHistory: true });
         }
@@ -183,6 +182,7 @@ export default function Canvas() {
     const onLayerPointerDown = useMutation(
         ({ self, setMyPresence }, e: React.PointerEvent, layerId: string) => {
             e.stopPropagation();
+            history.pause();
 
             if (canvasState.mode === 'None') {
                 if (!self.presence.selection.includes(layerId)) {
@@ -197,7 +197,7 @@ export default function Canvas() {
 
             // const pointer = pointerEventToCanvasPoint(e, camera);
         },
-        [canvasState.mode]
+        [canvasState.mode, history]
     );
 
     // cursor move event
@@ -311,6 +311,10 @@ export default function Canvas() {
                 dispatch_canvas={dispatch_canvas}
                 canZoomIn={camera.zoom < MAX_ZOOM}
                 canZoomOut={camera.zoom > MIN_ZOOM}
+                canRedo={history.canRedo()}
+                canUndo={history.canUndo()}
+                redo={history.redo}
+                undo={history.undo}
                 {...onZoom}
             />
         </div>
