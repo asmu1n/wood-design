@@ -7,6 +7,8 @@ import ZoomOutButton from './toolsbar/ZoomOutButton';
 import TextButton from './toolsbar/TextButton';
 import { CanvasAction } from './reducer/canvas';
 import { useTranslations } from 'next-intl';
+import UndoButton from './toolsbar/UndoButton';
+import RedoButton from './toolsbar/ReDoButton';
 
 interface ToolsBarProps {
     canvasState: CanvasType;
@@ -15,11 +17,15 @@ interface ToolsBarProps {
     zoomOut: () => void;
     canZoomIn: boolean;
     canZoomOut: boolean;
+    canRedo: boolean;
+    canUndo: boolean;
+    redo: () => void;
+    undo: () => void;
 }
 
 const shapeSelectList: LayerType[] = ['Rectangle', 'Ellipse'];
 
-function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, canZoomOut }: ToolsBarProps) {
+function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, canZoomOut, canRedo, canUndo, redo, undo }: ToolsBarProps) {
     const t = useTranslations('tools');
     const toolListConfig = [
         {
@@ -55,14 +61,23 @@ function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, ca
                 {toolListConfig.map(tool => (
                     <tool.Component key={tool.tips} isActive={tool.isActive} dispatch_canvas={dispatch_canvas} canvasState={canvasState} />
                 ))}
-                <div className="w-0.25 self-stretch bg-black/10"></div>
                 <div className="flex items-center justify-center">
-                    <ZoomInButton zoomIn={zoomIn} canZoomIn={canZoomIn} />
-                    <ZoomOutButton zoomOut={zoomOut} canZoomOut={canZoomOut} />
+                    <OperationButtonList>
+                        <UndoButton onClick={undo} disabled={!canUndo} />
+                        <RedoButton onClick={redo} disabled={!canRedo} />
+                    </OperationButtonList>
+                    <OperationButtonList>
+                        <ZoomInButton onClick={zoomIn} disabled={!canZoomIn} />
+                        <ZoomOutButton onClick={zoomOut} disabled={!canZoomOut} />
+                    </OperationButtonList>
                 </div>
             </div>
         </div>
     );
+}
+
+function OperationButtonList({ children }: { children: React.ReactNode }) {
+    return <div className="flex items-center justify-center border-l-[1px] border-black/10">{children}</div>;
 }
 
 export default memo(ToolsBar);

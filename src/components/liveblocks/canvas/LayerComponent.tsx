@@ -1,5 +1,5 @@
 import { useStorage } from '@liveblocks/react';
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import RectangleLayer from './RectangleLayer';
 import EllipseLayer from './EllipseLayer';
 import PathLayer from './PathLayer';
@@ -13,12 +13,15 @@ interface LayerComponentProps {
 function LayerComponent({ id, onLayerPointerDown }: LayerComponentProps) {
     const layer = useStorage(root => root.layers.get(id));
 
+    const onSelect = useCallback(
+        (e: React.PointerEvent) => {
+            onLayerPointerDown(e, id);
+        },
+        [id, onLayerPointerDown]
+    );
+
     if (!layer) {
         return null;
-    }
-
-    function onSelect(e: React.PointerEvent) {
-        onLayerPointerDown(e, id);
     }
 
     switch (layer.type) {

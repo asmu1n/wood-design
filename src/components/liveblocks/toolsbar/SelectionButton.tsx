@@ -34,8 +34,8 @@ export default function SelectionButton({ isActive, canvasState, dispatch_canvas
         None: <BiPointer className="h-5 w-5 pr-1" />,
         Inserting: <BiPlus className="h-5 w-5 pr-1" />,
         Dragging: <RiHand className="h-5 w-5 pr-1" />,
-        Pencil: <BiPlus className="h-5 w-5 pr-1" />,
-        Resizing: <RiHand className="h-5 w-5 pr-1" />
+        Resizing: <BiPointer className="h-5 w-5 pr-1" />,
+        Translating: <BiPointer className="h-5 w-5 pr-1" />
     };
 
     const toolList: { text: string; mode: CanvasMode }[] = [
@@ -57,7 +57,7 @@ export default function SelectionButton({ isActive, canvasState, dispatch_canvas
         if (mode === 'None') {
             dispatch_canvas({ type: 'SET_NONE_MODE' });
         } else if (mode === 'Dragging') {
-            dispatch_canvas({ type: 'SET_DRAGGING_MODE', payload: { origin: null } });
+            dispatch_canvas({ type: 'SET_DRAGGING_MODE', payload: { disabled: true } });
         } else if (mode === 'Inserting') {
             dispatch_canvas({ type: 'SET_INSERT_MODE', payload: { layerType: 'Rectangle' } });
         }

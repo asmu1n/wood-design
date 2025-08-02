@@ -3,7 +3,7 @@ import logo from '@/assets/figma-logo.svg';
 import { useTranslations } from 'next-intl';
 
 export default function DefaultLoading() {
-    const t = useTranslations();
+    const t = useTranslations('common');
 
     return (
         <div className="flex h-screen flex-col items-center justify-center gap-2">

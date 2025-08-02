@@ -1,5 +1,5 @@
 import { cn } from '@/utils/common';
-import { useSelf, useStorage } from '@liveblocks/react';
+import { useHistory, useSelf, useStorage } from '@liveblocks/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CanvasAction } from '../reducer/canvas';
 
@@ -22,12 +22,14 @@ export default function SelectionBox({ dispatch_canvas }: SelectionBoxProps) {
     const layer = selectLayerId ? layers?.get(selectLayerId) : null;
     const textRef = useRef<SVGTextElement>(null);
     const [textWidth, setTextWidth] = useState(0);
+    const history = useHistory();
 
     const onResizeHandlePointerDown = useCallback(
         (corner: Side, initialBounds: XYHW) => {
+            history.pause();
             dispatch_canvas({ type: 'SET_RESIZING_MODE', payload: { initialBounds, corner } });
         },
-        [dispatch_canvas]
+        [dispatch_canvas, history]
     );
     const { width, height, x, y } = layer || { width: 100, height: 100, x: 0, y: 0 };
     const labelTextConfig = {

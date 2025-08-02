@@ -68,22 +68,19 @@ declare global {
 
     type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer;
 
-    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Pencil' | 'Resizing';
+    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Resizing' | 'Translating';
 
     type CanvasType =
         | {
               mode: 'None';
           }
-        // | {
-        //       mode: 'Pencil';
-        //   }
         | {
               mode: 'Inserting'; // insert layer or draw  a path
               layerType: LayerType;
           }
         | {
               mode: 'Dragging'; // when cursor  move on layer
-              origin: Point | null;
+              disabled: boolean;
           }
         | {
               mode: 'Resizing'; // when cursor move on layer's border
@@ -92,7 +89,6 @@ declare global {
           }
         | {
               mode: 'Translating';
-              //   currentCursor: Point;
           };
 
     type Side = 'Top' | 'Bottom' | 'Left' | 'Right' | 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';

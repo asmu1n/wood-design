@@ -2,11 +2,13 @@ export type CanvasAction =
     | { type: 'SET_NONE_MODE' }
     // | { type: 'SET_PENCIL_MODE' }
     | { type: 'SET_INSERT_MODE'; payload: { layerType: LayerType } }
-    | { type: 'SET_DRAGGING_MODE'; payload: { origin: Point | null } }
+    | {
+          type: 'SET_DRAGGING_MODE';
+          payload: { disabled: boolean };
+      }
     | { type: 'SET_RESIZING_MODE'; payload: { initialBounds: XYHW; corner: Side } }
     | {
           type: 'SET_TRANSITION_MODE';
-          // payload: { point: Point }
       }
     | { type: 'SET_PENCIL_DRAFT'; payload: [number, number, number][] | null }
     | { type: 'SET_SELECTION'; payload: string[] }
@@ -23,9 +25,7 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
         case 'SET_NONE_MODE':
             return { mode: 'None' };
 
-        // case 'SET_PENCIL_MODE':
-        //     return { mode: 'Pencil' };
-
+        //? trigger by select tool
         case 'SET_INSERT_MODE':
             // insert a new layer
             return {
@@ -33,13 +33,15 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
                 layerType: action.payload.layerType
             };
 
+        //? trigger by select tool and change disabled by pointDown on blank
         case 'SET_DRAGGING_MODE':
             // start drag camera viewBox
             return {
                 mode: 'Dragging',
-                origin: action.payload.origin
+                disabled: action.payload.disabled
             };
 
+        //? trigger by selection box
         case 'SET_RESIZING_MODE':
             // start to resize a layer, when pointer up will finish and change to translating
             return {
@@ -48,11 +50,11 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
                 corner: action.payload.corner
             };
 
+        //? trigger by pointerDown on layer
         case 'SET_TRANSITION_MODE':
             // move selected layer
             return {
                 mode: 'Translating'
-                // currentCursor: action.payload.point
             };
 
         case 'SET_PENCIL_DRAFT':
