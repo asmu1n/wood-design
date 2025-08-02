@@ -56,6 +56,7 @@ export default function TextLayer({ id, layer, onSelect }: TextLayerProps) {
             {isEditing ? (
                 <foreignObject x={x} y={y} width={width || 100} height={height || 100}>
                     <input
+                        placeholder={text}
                         ref={inputRef}
                         style={{
                             fontSize: fontSize + 'px',
@@ -70,18 +71,30 @@ export default function TextLayer({ id, layer, onSelect }: TextLayerProps) {
                     />
                 </foreignObject>
             ) : (
-                <text
-                    onPointerDown={onSelect}
-                    x={x}
-                    y={y + fontSize}
-                    fontSize={fontSize}
-                    fontFamily={fontFamily}
-                    fontWeight={fontWeight}
-                    stroke={stroke ? colorToCss(stroke) : '#ccc'}
-                    fill={fill ? colorToCss(fill) : '#ccc'}
-                    opacity={opacity}>
-                    {text}
-                </text>
+                <>
+                    <rect
+                        x={x}
+                        y={y}
+                        width={width}
+                        height={height}
+                        fill="none"
+                        stroke="#0b99ff"
+                        strokeWidth={4}
+                        className="pointer-events-none opacity-0 group-hover:opacity-100"
+                    />
+                    <text
+                        onPointerDown={onSelect}
+                        x={x}
+                        y={y + fontSize}
+                        fontSize={fontSize}
+                        fontFamily={fontFamily}
+                        fontWeight={fontWeight}
+                        stroke={stroke ? colorToCss(stroke) : '#ccc'}
+                        fill={fill ? colorToCss(fill) : '#ccc'}
+                        opacity={opacity}>
+                        {text}
+                    </text>
+                </>
             )}
         </g>
     );

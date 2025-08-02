@@ -10,10 +10,21 @@ export default function EllipseLayer({ id, layer, onSelect }: EllipseLayerProps)
     const { x, y, stroke, fill, width, height, opacity } = layer;
 
     return (
-        <g>
+        <g style={{ transform: `translate(${x}px, ${y}px)` }} className="group">
+            {/* hover border */}
+            <ellipse
+                cx={width / 2}
+                cy={height / 2}
+                rx={width / 2}
+                ry={height / 2}
+                fill="none"
+                stroke="#0b99ff"
+                strokeWidth={4}
+                className="pointer-events-none opacity-0 group-hover:opacity-100"
+            />
+            {/* main ellipse */}
             <ellipse
                 onPointerDown={onSelect}
-                style={{ transform: `translate(${x}px, ${y}px)` }}
                 cx={width / 2}
                 cy={height / 2}
                 rx={width / 2}

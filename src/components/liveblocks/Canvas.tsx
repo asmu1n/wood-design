@@ -139,14 +139,13 @@ export default function Canvas() {
 
                 case 'Resizing': {
                     // when click up the layer, finish `RESIZE` to `TRANSITION`
-                    dispatch_canvas({ type: 'SET_TRANSITION_MODE' });
+                    dispatch_canvas({ type: 'SET_NONE_MODE' });
                     break;
                 }
 
                 case 'None': {
                     // cancel select layer
                     unselectedLayers();
-                    dispatch_canvas({ type: 'SET_NONE_MODE' });
                     break;
                 }
 

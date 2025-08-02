@@ -20,15 +20,27 @@ export default function PathLayer({ id, layer, onSelect }: PathLayerProps) {
     );
 
     return (
-        <path
-            onPointerDown={onSelect}
-            style={{ transform: `translate(${x}px, ${y}px)` }}
-            d={path}
-            fill={colorToCss(fill)}
-            stroke={colorToCss(stroke) || '#ccc'}
-            strokeWidth={1}
-            opacity={opacity}
-            className="select-none"
-        />
+        <g style={{ transform: `translate(${x}px, ${y}px)` }} className="group">
+            {/* hover border */}
+            <path
+                d={path}
+                fill="none"
+                stroke="#0b99ff"
+                strokeWidth={4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="pointer-events-none opacity-0 group-hover:opacity-100"
+            />
+            {/* main path */}
+            <path
+                onPointerDown={onSelect}
+                d={path}
+                fill={colorToCss(fill)}
+                stroke={colorToCss(stroke) || '#ccc'}
+                strokeWidth={1}
+                opacity={opacity}
+                className="select-none"
+            />
+        </g>
     );
 }
