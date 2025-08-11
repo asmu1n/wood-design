@@ -34,7 +34,7 @@ export default function Canvas() {
         hasSelectedLayer
     );
     const displaySelectionNet = !!(canvasState.mode === 'SelectionNet' && canvasState.origin && canvasState.current);
-    const showDraft = canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0;
+    const showDraft = !!(canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0);
 
     // insert layer
     const insertLayer = useMutation(createLayer, []);
