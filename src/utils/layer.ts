@@ -140,3 +140,32 @@ export function getSvgPathFromStroke(stroke: number[][]): string {
 
     return d.join(' ');
 }
+
+export function findIntersectionLayerListWithRectangle(
+    layerIdList: readonly string[],
+    layerList: ReadonlyMap<string, Layer>,
+    origin: Point,
+    current: Point
+) {
+    const rect = {
+        x: Math.min(origin.x, current.x),
+        y: Math.min(origin.y, current.y),
+        width: Math.abs(origin.x - current.x),
+        height: Math.abs(origin.y - current.y)
+    };
+    const idList = layerIdList.reduce((acc, cur) => {
+        const layer = layerList.get(cur);
+
+        if (layer) {
+            const { x, y, width, height } = layer;
+
+            if (rect.x < x + width && rect.x + rect.width > x && rect.y < y + height && rect.y + rect.height > y) {
+                acc.push(cur);
+            }
+        }
+
+        return acc;
+    }, [] as string[]);
+
+    return idList;
+}

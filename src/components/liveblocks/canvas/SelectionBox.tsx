@@ -2,6 +2,7 @@ import { cn } from '@/utils/common';
 import { useHistory, useSelf, useStorage } from '@liveblocks/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CanvasAction } from '../reducer/canvas';
+import useSelectionBounds from '@/lib/hooks/useSelectionBounds';
 
 const textPadding = 16;
 const handleWidth = 10;
@@ -13,13 +14,14 @@ interface HandleConfig extends Point {
 
 interface SelectionBoxProps {
     dispatch_canvas: (action: CanvasAction) => void;
+    isShow: boolean;
 }
 
-export default function SelectionBox({ dispatch_canvas }: SelectionBoxProps) {
+export default function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxProps) {
     const selectLayerId = useSelf(me => (me.presence.selection.length === 1 ? me.presence.selection[0] : null));
-    const layers = useStorage(root => root.layers);
     const isShowingHandle = useStorage(root => selectLayerId && root.layers.get(selectLayerId)?.type !== 'Path');
-    const layer = selectLayerId ? layers?.get(selectLayerId) : null;
+    const bounds = useSelectionBounds();
+
     const textRef = useRef<SVGTextElement>(null);
     const [textWidth, setTextWidth] = useState(0);
     const history = useHistory();
@@ -31,7 +33,7 @@ export default function SelectionBox({ dispatch_canvas }: SelectionBoxProps) {
         },
         [dispatch_canvas, history]
     );
-    const { width, height, x, y } = layer || { width: 100, height: 100, x: 0, y: 0 };
+    const { width, height, x, y } = bounds || { width: 100, height: 100, x: 0, y: 0 };
     const labelTextConfig = {
         x: (x || 0) + (width || 100) / 2,
         y: (y || 0) + (height || 100) + 25,
@@ -97,7 +99,11 @@ export default function SelectionBox({ dispatch_canvas }: SelectionBoxProps) {
 
             setTextWidth(width);
         }
-    }, [layer]);
+    }, [bounds]);
+
+    if (!isShow) {
+        return null;
+    }
 
     return (
         <>

@@ -68,7 +68,7 @@ declare global {
 
     type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer;
 
-    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Resizing' | 'Translating';
+    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Resizing' | 'Translating' | 'Pressing' | 'SelectionNet';
 
     type CanvasType =
         | {
@@ -89,6 +89,15 @@ declare global {
           }
         | {
               mode: 'Translating';
+          }
+        | {
+              mode: 'SelectionNet';
+              origin: Point;
+              current?: Point;
+          }
+        | {
+              mode: 'Pressing';
+              origin: Point;
           };
 
     type Side = 'Top' | 'Bottom' | 'Left' | 'Right' | 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';

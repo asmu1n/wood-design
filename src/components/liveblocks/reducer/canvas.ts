@@ -10,9 +10,17 @@ export type CanvasAction =
     | {
           type: 'SET_TRANSITION_MODE';
       }
-    | { type: 'SET_PENCIL_DRAFT'; payload: [number, number, number][] | null }
-    | { type: 'SET_SELECTION'; payload: string[] }
-    | { type: 'SET_CURSOR'; payload: Point };
+    | {
+          type: 'SET_PRESSING_MODE';
+          payload: { origin: Point };
+      }
+    | {
+          type: 'SET_SELECTION_NET_MODE';
+          payload: { origin: Point; current?: Point };
+      };
+// | { type: 'SET_PENCIL_DRAFT'; payload: [number, number, number][] | null }
+// | { type: 'SET_SELECTION'; payload: string[] }
+// | { type: 'SET_CURSOR'; payload: Point };
 
 /**
  * 相关 Canvas 状态管理 reducer
@@ -57,11 +65,24 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
                 mode: 'Translating'
             };
 
-        case 'SET_PENCIL_DRAFT':
-        case 'SET_SELECTION':
-        case 'SET_CURSOR':
-            // 这些 action 只用于更新 presence，不改变 CanvasState
-            return state;
+        case 'SET_PRESSING_MODE':
+            // start to press a layer
+            return {
+                mode: 'Pressing',
+                origin: action.payload.origin
+            };
+        case 'SET_SELECTION_NET_MODE':
+            // start to select a layer
+            return {
+                mode: 'SelectionNet',
+                origin: action.payload.origin,
+                current: action.payload.current
+            };
+        // case 'SET_PENCIL_DRAFT':
+        // case 'SET_SELECTION':
+        // case 'SET_CURSOR':
+        // 这些 action 只用于更新 presence，不改变 CanvasState
+        // return state;
 
         default:
             return state;

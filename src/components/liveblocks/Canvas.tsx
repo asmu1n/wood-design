@@ -1,6 +1,6 @@
 'use client';
 
-import { checkPointerButton, penPointsToPath, pointerEventToCanvasPoint, resizeBounds } from '@/utils/layer';
+import { checkPointerButton, findIntersectionLayerListWithRectangle, penPointsToPath, pointerEventToCanvasPoint, resizeBounds } from '@/utils/layer';
 import { useHistory, useMutation, useSelf, useStorage } from '@liveblocks/react';
 import LayerComponent from './canvas/LayerComponent';
 import { nanoid } from 'nanoid';
@@ -11,8 +11,9 @@ import PathLayer from './canvas/PathLayer';
 import SelectionBox from './canvas/SelectionBox';
 import { cameraReducer, initialCamera } from './reducer/camera';
 import { canvasReducer, initialCanvasState } from './reducer/canvas';
-import { colorToCss, match } from '@/utils/common';
+import { _, colorToCss, match } from '@/utils/common';
 import { MAX_LAYERS, createLayer, setLiveLayer } from './canvas/layerOperations';
+import MultiSelectionBox from './canvas/MultiSelectionBox';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
@@ -25,10 +26,12 @@ export default function Canvas() {
     const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
     const [canvasState, dispatch_canvas] = useReducer(canvasReducer, initialCanvasState);
     const history = useHistory();
-    const displaySelectionBox =
-        (canvasState.mode === 'Translating' || canvasState.mode === 'Resizing' || canvasState.mode === 'None') && selectedLayerId;
+    const displaySelectionBox = !!(
+        (canvasState.mode === 'Translating' || canvasState.mode === 'Resizing' || canvasState.mode === 'None') &&
+        selectedLayerId
+    );
+    const displaySelectionNet = !!(canvasState.mode === 'SelectionNet' && canvasState.origin && canvasState.current);
     const showDraft = canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0;
-    // const setMyPresence = useMyPresence();
 
     // insert layer
     const insertLayer = useMutation(createLayer, []);
@@ -76,6 +79,7 @@ export default function Canvas() {
         }
     }, []);
 
+    // start drawing path
     const startDrawing = useMutation(
         ({ setMyPresence }, point: Point, pressure: number) => {
             setMyPresence({ pencilDraft: [[point.x, point.y, pressure]], penColor: { r: 217, g: 217, b: 217 } }, { addToHistory: true });
@@ -106,10 +110,10 @@ export default function Canvas() {
             const layerId = nanoid();
 
             setLiveLayer(storage, layerId, new LiveObject(penPointsToPath(pencilDraft, { r: 217, g: 217, b: 217 })));
-            dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
+            // dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
             setMyPresence({ pencilDraft: null }, { addToHistory: true });
         } else {
-            dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
+            // dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
             setMyPresence({ pencilDraft: null }, { addToHistory: true });
         }
     }, []);
@@ -149,6 +153,11 @@ export default function Canvas() {
                     break;
                 }
 
+                case 'Pressing': {
+                    unselectedLayers();
+                    break;
+                }
+
                 case 'Translating': {
                     // when click up the layer, finish `TRANSITION` to `NONE`
                     dispatch_canvas({ type: 'SET_NONE_MODE' });
@@ -174,6 +183,9 @@ export default function Canvas() {
                 })
                 .on({ mode: 'Inserting', layerType: 'Path' }, () => {
                     startDrawing(point, e.pressure);
+                })
+                .on(_, () => {
+                    dispatch_canvas({ type: 'SET_PRESSING_MODE', payload: { origin: point } });
                 });
         },
         [canvasState, camera]
@@ -200,16 +212,43 @@ export default function Canvas() {
         [canvasState.mode, history]
     );
 
+    // start multi select
+    // const startMultiSelect = useCallback((current: Point, origin: Point) => {
+    //     if (Math.abs(current.x - origin.x) + Math.abs(current.y - origin.y) > 5) {
+    //         dispatch_canvas({ type: 'SET_SELECTION_NET_MODE', payload: { origin, current } });
+    //     }
+    // }, []);
+
+    // update selection net
+    const updateSelectionNet = useMutation(
+        ({ storage, setMyPresence }, current: Point, origin: Point) => {
+            if (layerIds) {
+                const layerList = storage.get('layers').toImmutable();
+
+                dispatch_canvas({
+                    type: 'SET_SELECTION_NET_MODE',
+                    payload: {
+                        origin,
+                        current
+                    }
+                });
+                const idList = findIntersectionLayerListWithRectangle(layerIds, layerList, origin, current);
+
+                setMyPresence({ selection: idList });
+            }
+        },
+        [layerIds]
+    );
+
     // cursor move event
     const onPointerMove = useMutation(
         ({}, e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera);
+            const deltaX = e.movementX;
+            const deltaY = e.movementY;
 
             match(canvasState)
                 .on({ mode: 'Dragging', disabled: false }, () => {
-                    const deltaX = e.movementX;
-                    const deltaY = e.movementY;
-
                     dispatch_camera({ type: 'MOVE', payload: { deltaX, deltaY } });
                 })
                 .on({ mode: 'Inserting', layerType: 'Path' }, () => {
@@ -222,18 +261,21 @@ export default function Canvas() {
                     const offset = { x: e.movementX / camera.zoom, y: e.movementY / camera.zoom };
 
                     translateSelectedLayer(offset);
+                })
+                .on({ mode: 'Pressing' }, () => {
+                    const origin = (canvasState as { mode: 'Pressing'; origin: Point }).origin;
+
+                    if (Math.abs(deltaX) + Math.abs(deltaY) > 5) {
+                        dispatch_canvas({ type: 'SET_SELECTION_NET_MODE', payload: { origin, current: point } });
+                    }
+                    // startMultiSelect(point, (canvasState as { mode: 'Pressing'; origin: Point }).origin);
+                })
+                .on({ mode: 'SelectionNet' }, () => {
+                    updateSelectionNet(point, (canvasState as { mode: 'SelectionNet'; origin: Point }).origin);
                 });
         },
-        [canvasState, camera, continueDrawing]
+        [canvasState, camera, continueDrawing, updateSelectionNet]
     );
-    // layer select event
-
-    // function onDoubleClick() {
-    //     // cancel resize layer
-    //     dispatch_canvas({
-    //         type: 'SET_NONE_MODE'
-    //     });
-    // }
 
     //缩放按钮事件
     const onZoom = useMemo(() => {
@@ -302,7 +344,12 @@ export default function Canvas() {
                                 }}
                             />
                         )}
-                        {displaySelectionBox && <SelectionBox dispatch_canvas={dispatch_canvas} />}
+                        <SelectionBox dispatch_canvas={dispatch_canvas} isShow={displaySelectionBox} />
+                        <MultiSelectionBox
+                            origin={canvasState.mode === 'SelectionNet' ? canvasState.origin : null}
+                            current={canvasState.mode === 'SelectionNet' ? canvasState.current || null : null}
+                            isShow={displaySelectionNet}
+                        />
                     </g>
                 </svg>
             </div>
