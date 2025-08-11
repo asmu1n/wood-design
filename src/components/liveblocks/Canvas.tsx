@@ -22,13 +22,16 @@ export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
     const layerIds = useStorage(storage => storage.layerIds);
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
-    const selectedLayerId = useSelf(self => (self.presence.selection.length === 1 ? self.presence.selection[0] : null));
+    const hasSelectedLayer = useSelf(self => self.presence.selection.length > 0);
     const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
     const [canvasState, dispatch_canvas] = useReducer(canvasReducer, initialCanvasState);
     const history = useHistory();
     const displaySelectionBox = !!(
-        (canvasState.mode === 'Translating' || canvasState.mode === 'Resizing' || canvasState.mode === 'None') &&
-        selectedLayerId
+        (canvasState.mode === 'Translating' ||
+            canvasState.mode === 'Resizing' ||
+            canvasState.mode === 'None' ||
+            canvasState.mode === 'SelectionNet') &&
+        hasSelectedLayer
     );
     const displaySelectionNet = !!(canvasState.mode === 'SelectionNet' && canvasState.origin && canvasState.current);
     const showDraft = canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0;
@@ -155,10 +158,17 @@ export default function Canvas() {
 
                 case 'Pressing': {
                     unselectedLayers();
+                    dispatch_canvas({ type: 'SET_NONE_MODE' });
                     break;
                 }
 
                 case 'Translating': {
+                    // when click up the layer, finish `TRANSITION` to `NONE`
+                    dispatch_canvas({ type: 'SET_NONE_MODE' });
+                    break;
+                }
+
+                case 'SelectionNet': {
                     // when click up the layer, finish `TRANSITION` to `NONE`
                     dispatch_canvas({ type: 'SET_NONE_MODE' });
                     break;
@@ -211,7 +221,6 @@ export default function Canvas() {
         },
         [canvasState.mode, history]
     );
-
     // start multi select
     // const startMultiSelect = useCallback((current: Point, origin: Point) => {
     //     if (Math.abs(current.x - origin.x) + Math.abs(current.y - origin.y) > 5) {
@@ -229,7 +238,7 @@ export default function Canvas() {
                     type: 'SET_SELECTION_NET_MODE',
                     payload: {
                         origin,
-                        current
+                        current: current
                     }
                 });
                 const idList = findIntersectionLayerListWithRectangle(layerIds, layerList, origin, current);
@@ -324,7 +333,6 @@ export default function Canvas() {
                     onPointerMove={onPointerMove}
                     onPointerDown={onPointerDown}
                     onPointerUp={onPointerUp}
-                    // onDoubleClick={onDoubleClick}
                     onWheel={onWheel}
                     className="h-full w-full select-none">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>

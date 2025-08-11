@@ -69,34 +69,21 @@ export function pointerEventToCanvasPoint(e: React.PointerEvent, camera: Camera)
 }
 
 export function penPointsToPath(penPoints: DraftPoint[], color: Color): PathLayer {
-    let left = Number.POSITIVE_INFINITY;
-    let top = Number.POSITIVE_INFINITY;
-    let right = Number.NEGATIVE_INFINITY;
-    let bottom = Number.NEGATIVE_INFINITY;
+    const { left, top, right, bottom } = penPoints.reduce(
+        (acc, [x, y]) => {
+            if (!x || !y) {
+                return acc;
+            }
 
-    for (const point of penPoints) {
-        const [x, y] = point;
-
-        if (!x || !y) {
-            continue;
-        }
-
-        if (left > x) {
-            left = x;
-        }
-
-        if (top > y) {
-            top = y;
-        }
-
-        if (right < x) {
-            right = x;
-        }
-
-        if (bottom < y) {
-            bottom = y;
-        }
-    }
+            return {
+                left: Math.min(acc.left, x),
+                top: Math.min(acc.top, y),
+                right: Math.max(acc.right, x),
+                bottom: Math.max(acc.bottom, y)
+            };
+        },
+        { left: Number.POSITIVE_INFINITY, top: Number.POSITIVE_INFINITY, right: Number.NEGATIVE_INFINITY, bottom: Number.NEGATIVE_INFINITY }
+    );
 
     return {
         type: 'Path',
@@ -148,10 +135,10 @@ export function findIntersectionLayerListWithRectangle(
     current: Point
 ) {
     const rect = {
-        x: Math.min(origin.x, current.x),
-        y: Math.min(origin.y, current.y),
-        width: Math.abs(origin.x - current.x),
-        height: Math.abs(origin.y - current.y)
+        x: Math.min(origin.x, origin.x + current.x),
+        y: Math.min(origin.y, origin.y + current.y),
+        width: Math.abs(origin.x - (origin.x + current.x)),
+        height: Math.abs(origin.y - (origin.y + current.y))
     };
     const idList = layerIdList.reduce((acc, cur) => {
         const layer = layerList.get(cur);
