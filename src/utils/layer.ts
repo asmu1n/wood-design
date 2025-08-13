@@ -135,10 +135,10 @@ export function findIntersectionLayerListWithRectangle(
     current: Point
 ) {
     const rect = {
-        x: Math.min(origin.x, origin.x + current.x),
-        y: Math.min(origin.y, origin.y + current.y),
-        width: Math.abs(origin.x - (origin.x + current.x)),
-        height: Math.abs(origin.y - (origin.y + current.y))
+        minX: Math.min(origin.x, current.x),
+        minY: Math.min(origin.y, current.y),
+        maxX: Math.max(origin.x, current.x),
+        maxY: Math.max(origin.y, current.y)
     };
     const idList = layerIdList.reduce((acc, cur) => {
         const layer = layerList.get(cur);
@@ -146,7 +146,7 @@ export function findIntersectionLayerListWithRectangle(
         if (layer) {
             const { x, y, width, height } = layer;
 
-            if (rect.x < x + width && rect.x + rect.width > x && rect.y < y + height && rect.y + rect.height > y) {
+            if (x < rect.maxX && x + width > rect.minX && y < rect.maxY && y + height > rect.minY) {
                 acc.push(cur);
             }
         }

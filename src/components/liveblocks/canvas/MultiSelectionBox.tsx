@@ -6,8 +6,8 @@ export default function MultiSelectionBox({ origin, current, isShow }: { origin:
     return (
         <rect
             className="fill-blue-600/5 stroke-blue-600 stroke-[0.5px]"
-            x={origin.x}
-            y={origin.y}
+            x={Math.min(origin.x, current.x)}
+            y={Math.min(origin.y, current.y)}
             width={Math.abs(current.x - origin.x)}
             height={Math.abs(current.y - origin.y)}
         />

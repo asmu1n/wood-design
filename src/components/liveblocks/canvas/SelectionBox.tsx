@@ -1,6 +1,6 @@
 import { cn } from '@/utils/common';
 import { useHistory, useSelf, useStorage } from '@liveblocks/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { CanvasAction } from '../reducer/canvas';
 import useSelectionBounds from '@/lib/hooks/useSelectionBounds';
 
@@ -17,7 +17,7 @@ interface SelectionBoxProps {
     isShow: boolean;
 }
 
-export default function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxProps) {
+function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxProps) {
     const selectLayerId = useSelf(me => (me.presence.selection.length === 1 ? me.presence.selection[0] : null));
     const isShowingHandle = useStorage(root => selectLayerId && root.layers.get(selectLayerId)?.type !== 'Path');
     const bounds = useSelectionBounds();
@@ -146,3 +146,5 @@ export default function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxPr
         </>
     );
 }
+
+export default memo(SelectionBox);

@@ -273,8 +273,9 @@ export default function Canvas() {
                 })
                 .on({ mode: 'Pressing' }, () => {
                     const origin = (canvasState as { mode: 'Pressing'; origin: Point }).origin;
+                    const current = point;
 
-                    if (Math.abs(deltaX) + Math.abs(deltaY) > 5) {
+                    if (Math.abs(origin.x - current.x) + Math.abs(origin.y - current.y) > 5) {
                         dispatch_canvas({ type: 'SET_SELECTION_NET_MODE', payload: { origin, current: point } });
                     }
                     // startMultiSelect(point, (canvasState as { mode: 'Pressing'; origin: Point }).origin);

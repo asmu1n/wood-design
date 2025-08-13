@@ -1,25 +1,48 @@
 import { shallow, useSelf, useStorage } from '@liveblocks/react';
 
-function boundingBox(layerList: Layer[]): XYHW | null {
-    const first = layerList[0];
+function getLayerBounds(layer: Layer): XYHW {
+    const { x, y, width, height, type } = layer;
 
-    if (!first) {
+    switch (type) {
+        default:
+            return {
+                x,
+                y,
+                width,
+                height
+            };
+    }
+}
+
+function boundingBox(layerList: Layer[]): XYHW | null {
+    if (layerList.length === 0) {
         return null;
     }
 
-    return layerList.reduce(
-        (bounds, layer) => {
-            const { x, y, width, height } = layer;
+    const initial = {
+        minX: layerList[0].x,
+        minY: layerList[0].y,
+        maxX: layerList[0].x + layerList[0].width,
+        maxY: layerList[0].y + layerList[0].height
+    };
 
-            return {
-                x: Math.min(bounds.x, x),
-                y: Math.min(bounds.y, y),
-                width: Math.max(bounds.x + bounds.width, x + width) - bounds.x,
-                height: Math.max(bounds.y + bounds.height, y + height) - bounds.y
-            };
-        },
-        { x: first.x, y: first.y, width: first.width, height: first.height }
-    );
+    const { minX, minY, maxX, maxY } = layerList.reduce((bound, layer) => {
+        const { x, y, width, height } = getLayerBounds(layer);
+
+        return {
+            minX: Math.min(bound.minX, x),
+            minY: Math.min(bound.minY, y),
+            maxX: Math.max(bound.maxX, x + width),
+            maxY: Math.max(bound.maxY, y + height)
+        };
+    }, initial);
+
+    return {
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY
+    };
 }
 
 export default function useSelectionBounds() {
