@@ -21,7 +21,6 @@ function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxProps) {
     const selectLayerId = useSelf(me => (me.presence.selection.length === 1 ? me.presence.selection[0] : null));
     const isShowingHandle = useStorage(root => selectLayerId && root.layers.get(selectLayerId)?.type !== 'Path');
     const bounds = useSelectionBounds();
-
     const textRef = useRef<SVGTextElement>(null);
     const [textWidth, setTextWidth] = useState(0);
     const history = useHistory();
