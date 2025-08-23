@@ -1,6 +1,6 @@
 // Define Liveblocks types for your application
 
-import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
+import { LiveMap, LiveObject } from '@liveblocks/client';
 
 // https://liveblocks.io/docs/api-reference/liveblocks-react#Typing-your-data
 declare global {
@@ -21,7 +21,7 @@ declare global {
             // animals: LiveList<string>;
             roomColor: Color | null;
             layers: LiveMap<string, LiveObject<Layer>>;
-            layerIds: LiveList<string>;
+            // layerIds: LiveList<string>;
         };
 
         // Custom user info set when authenticating with a secret key

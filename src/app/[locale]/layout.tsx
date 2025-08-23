@@ -58,7 +58,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     return (
         <html lang={locale}>
             <head>{process.env.NODE_ENV === 'development' && <Script src="https://unpkg.com/react-scan/dist/auto.global.js"></Script>}</head>
-            <body className={`${ibmPlexSans.className} ${bebasNeue.variable} antialiased`}>
+            <body className={`${ibmPlexSans.className} ${bebasNeue.variable} overflow-hidden overscroll-none antialiased`}>
                 <NextIntlClientProvider>{children}</NextIntlClientProvider>
                 <Toaster />
             </body>

@@ -27,7 +27,9 @@ function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxProps) {
     const history = useHistory();
 
     const onResizeHandlePointerDown = useCallback(
-        (corner: Side, initialBounds: XYHW) => {
+        (corner: Side, initialBounds: XYHW, e: React.PointerEvent) => {
+            // avoid trigger onPointerDown and onLayerPointerDown
+            e.stopPropagation();
             history.pause();
             dispatch_canvas({ type: 'SET_RESIZING_MODE', payload: { initialBounds, corner } });
         },
@@ -138,7 +140,7 @@ function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxProps) {
                                 transform: `translate(${handle.x}px, ${handle.y}px)`
                             }}
                             className={cn('stroke-0.25 fill-white stroke-[#0b99ff] select-none', handle.cursor)}
-                            onPointerDown={() => onResizeHandlePointerDown(handle.side, { x, y, width, height })}
+                            onPointerDown={e => onResizeHandlePointerDown(handle.side, { x, y, width, height }, e)}
                         />
                     ))}
                 </>

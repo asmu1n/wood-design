@@ -1,26 +1,28 @@
 'use client';
 
-import { checkPointerButton, findIntersectionLayerListWithRectangle, penPointsToPath, pointerEventToCanvasPoint, resizeBounds } from '@/utils/layer';
+import { findIntersectionLayerListWithRectangle } from '@/utils/layer';
 import { useHistory, useMutation, useSelf, useStorage } from '@liveblocks/react';
 import LayerComponent from './canvas/LayerComponent';
-import { nanoid } from 'nanoid';
-import { LiveObject } from '@liveblocks/client';
-import { useCallback, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useMemo, useReducer } from 'react';
 import ToolsBar from './ToolsBar';
 import PathLayer from './canvas/PathLayer';
 import SelectionBox from './canvas/SelectionBox';
 import { cameraReducer, initialCamera } from './reducer/camera';
 import { canvasReducer, initialCanvasState } from './reducer/canvas';
-import { _, colorToCss, match } from '@/utils/common';
-import { MAX_LAYERS, createLayer, setLiveLayer } from './canvas/layerOperations';
+import { colorToCss } from '@/utils/common';
 import MultiSelectionBox from './canvas/MultiSelectionBox';
+import useDrawing from '@/lib/hooks/useDrawing';
+import useAddLayer from '@/lib/hooks/useAddLayer';
+import usePointer from '@/lib/hooks/usePointer';
+import useSelectedLayer from '@/lib/hooks/useSelectedLayer';
+import useDeleteLayer from '@/lib/hooks/useDeleteLayer';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
 
 export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
-    const layerIds = useStorage(storage => storage.layerIds);
+    const layerIds = useStorage(storage => storage.layers.keys().toArray());
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
     const hasSelectedLayer = useSelf(self => self.presence.selection.length > 0);
     const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
@@ -35,200 +37,16 @@ export default function Canvas() {
     );
     const displaySelectionNet = !!(canvasState.mode === 'SelectionNet' && canvasState.origin && canvasState.current);
     const showDraft = !!(canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0);
-
-    // insert layer
-    const insertLayer = useMutation(createLayer, []);
-
-    // translate selected layer
-    const translateSelectedLayer = useMutation(
-        ({ storage, self }, offset: { x: number; y: number }) => {
-            if (canvasState.mode !== 'Translating') {
-                return;
-            }
-
-            for (const selectedId of self.presence.selection) {
-                const selectedLayer = storage.get('layers').get(selectedId);
-
-                if (selectedLayer) {
-                    selectedLayer.update({ x: selectedLayer.get('x') + offset.x, y: selectedLayer.get('y') + offset.y });
-                }
-            }
-        },
-        [canvasState]
-    );
-
-    // select layer to resize
-    const resizeSelectedLayer = useMutation(
-        ({ storage, self }, point: Point) => {
-            if (canvasState.mode !== 'Resizing') {
-                return;
-            }
-
-            const bounds = resizeBounds(canvasState.initialBounds, canvasState.corner, point);
-            // update layers to set the new  width and height of the layer
-            const selectedLayer = storage.get('layers').get(self.presence.selection[0]);
-
-            if (selectedLayer) {
-                selectedLayer.update(bounds);
-            }
-        },
-        [canvasState]
-    );
-
+    const { insertLayer, insertPath } = useAddLayer();
+    const { startDrawing, continueDrawing } = useDrawing({ pencilDraft, canvasState });
+    const { translateSelectedLayer, resizeSelectedLayer } = useSelectedLayer({ canvasState });
+    const deleteSelectedLayer = useDeleteLayer();
     // unselect layers
     const unselectedLayers = useMutation(({ self, setMyPresence }) => {
         if (self.presence.selection.length > 0) {
             setMyPresence({ selection: [] });
         }
     }, []);
-
-    // start drawing path
-    const startDrawing = useMutation(
-        ({ setMyPresence }, point: Point, pressure: number) => {
-            setMyPresence({ pencilDraft: [[point.x, point.y, pressure]], penColor: { r: 217, g: 217, b: 217 } }, { addToHistory: true });
-        },
-        [history]
-    );
-
-    // continue drawing path
-    const continueDrawing = useMutation(
-        ({ setMyPresence, self }, point: Point, e: React.PointerEvent) => {
-            const { pencilDraft } = self.presence;
-
-            if (canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && checkPointerButton(e) === 'left') {
-                setMyPresence({
-                    pencilDraft: [...pencilDraft, [point.x, point.y, e.pressure]],
-                    penColor: { r: 217, g: 217, b: 217 }
-                });
-            }
-        },
-        [pencilDraft, canvasState.mode]
-    );
-
-    const insertPath = useMutation(({ storage, self, setMyPresence }) => {
-        const liveLayers = storage.get('layers');
-        const { pencilDraft } = self.presence;
-
-        if (pencilDraft && pencilDraft.length > 1 && liveLayers.size < MAX_LAYERS) {
-            const layerId = nanoid();
-
-            setLiveLayer(storage, layerId, new LiveObject(penPointsToPath(pencilDraft, { r: 217, g: 217, b: 217 })));
-            // dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
-            setMyPresence({ pencilDraft: null }, { addToHistory: true });
-        } else {
-            // dispatch_canvas({ type: 'SET_PENCIL_DRAFT', payload: null });
-            setMyPresence({ pencilDraft: null }, { addToHistory: true });
-        }
-    }, []);
-
-    // cursor click up event
-    const onPointerUp = useMutation(
-        ({}, e: React.PointerEvent) => {
-            const point = pointerEventToCanvasPoint(e, camera);
-
-            switch (canvasState.mode) {
-                case 'Inserting': {
-                    // finish insert a new layer
-                    if (canvasState.layerType === 'Path') {
-                        insertPath();
-                    } else {
-                        insertLayer(canvasState.layerType, point);
-                    }
-
-                    break;
-                }
-
-                case 'Dragging': {
-                    // finish move camera viewBox
-                    dispatch_canvas({ type: 'SET_DRAGGING_MODE', payload: { disabled: true } });
-                    break;
-                }
-
-                case 'Resizing': {
-                    // when click up the layer, finish `RESIZE` to `TRANSITION`
-                    dispatch_canvas({ type: 'SET_NONE_MODE' });
-                    break;
-                }
-
-                case 'None': {
-                    // cancel select layer
-                    unselectedLayers();
-                    break;
-                }
-
-                case 'Pressing': {
-                    unselectedLayers();
-                    dispatch_canvas({ type: 'SET_NONE_MODE' });
-                    break;
-                }
-
-                case 'Translating': {
-                    // when click up the layer, finish `TRANSITION` to `NONE`
-                    dispatch_canvas({ type: 'SET_NONE_MODE' });
-                    break;
-                }
-
-                case 'SelectionNet': {
-                    // when click up the layer, finish `TRANSITION` to `NONE`
-                    dispatch_canvas({ type: 'SET_NONE_MODE' });
-                    break;
-                }
-            }
-
-            history.resume();
-        },
-        [history, canvasState, camera]
-    );
-
-    // cursor click down event
-    const onPointerDown = useMutation(
-        ({}, e: React.PointerEvent) => {
-            const point = pointerEventToCanvasPoint(e, camera);
-
-            history.pause();
-
-            match(canvasState)
-                .on({ mode: 'Dragging', disabled: true }, () => {
-                    dispatch_canvas({ type: 'SET_DRAGGING_MODE', payload: { disabled: false } });
-                })
-                .on({ mode: 'Inserting', layerType: 'Path' }, () => {
-                    startDrawing(point, e.pressure);
-                })
-                .on(_, () => {
-                    dispatch_canvas({ type: 'SET_PRESSING_MODE', payload: { origin: point } });
-                });
-        },
-        [canvasState, camera]
-    );
-
-    const onLayerPointerDown = useMutation(
-        ({ self, setMyPresence }, e: React.PointerEvent, layerId: string) => {
-            e.stopPropagation();
-            history.pause();
-
-            if (canvasState.mode === 'None') {
-                if (!self.presence.selection.includes(layerId)) {
-                    // add layer to selection and push to history
-                    setMyPresence({ selection: [layerId] }, { addToHistory: true });
-                }
-
-                dispatch_canvas({ type: 'SET_TRANSITION_MODE' });
-            }
-
-            // when select layer, set transition mode and selection box will display and move to this layer
-
-            // const pointer = pointerEventToCanvasPoint(e, camera);
-        },
-        [canvasState.mode, history]
-    );
-    // start multi select
-    // const startMultiSelect = useCallback((current: Point, origin: Point) => {
-    //     if (Math.abs(current.x - origin.x) + Math.abs(current.y - origin.y) > 5) {
-    //         dispatch_canvas({ type: 'SET_SELECTION_NET_MODE', payload: { origin, current } });
-    //     }
-    // }, []);
-
-    // update selection net
     const updateSelectionNet = useMutation(
         ({ storage, setMyPresence }, current: Point, origin: Point) => {
             if (layerIds) {
@@ -248,43 +66,41 @@ export default function Canvas() {
         },
         [layerIds]
     );
+    const { onPointerDown, onPointerUp, onPointerMove } = usePointer({
+        canvasState,
+        camera,
+        insertLayer,
+        insertPath,
+        startDrawing,
+        continueDrawing,
+        resizeSelectedLayer,
+        translateSelectedLayer,
+        updateSelectionNet,
+        unselectedLayers,
+        dispatch_canvas,
+        dispatch_camera
+    });
 
-    // cursor move event
-    const onPointerMove = useMutation(
-        ({}, e: React.PointerEvent) => {
-            const point = pointerEventToCanvasPoint(e, camera);
-            const deltaX = e.movementX;
-            const deltaY = e.movementY;
+    const onLayerPointerDown = useMutation(
+        ({ self, setMyPresence }, e: React.PointerEvent, layerId: string) => {
+            // avoid trigger onPointerDown
+            e.stopPropagation();
+            history.pause();
 
-            match(canvasState)
-                .on({ mode: 'Dragging', disabled: false }, () => {
-                    dispatch_camera({ type: 'MOVE', payload: { deltaX, deltaY } });
-                })
-                .on({ mode: 'Inserting', layerType: 'Path' }, () => {
-                    continueDrawing(point, e);
-                })
-                .on({ mode: 'Resizing' }, () => {
-                    resizeSelectedLayer(point);
-                })
-                .on({ mode: 'Translating' }, () => {
-                    const offset = { x: e.movementX / camera.zoom, y: e.movementY / camera.zoom };
+            if (canvasState.mode === 'None') {
+                if (!self.presence.selection.includes(layerId)) {
+                    // add layer to selection and push to history
+                    setMyPresence({ selection: [layerId] }, { addToHistory: true });
+                }
 
-                    translateSelectedLayer(offset);
-                })
-                .on({ mode: 'Pressing' }, () => {
-                    const origin = (canvasState as { mode: 'Pressing'; origin: Point }).origin;
-                    const current = point;
+                dispatch_canvas({ type: 'SET_TRANSITION_MODE' });
+            }
 
-                    if (Math.abs(origin.x - current.x) + Math.abs(origin.y - current.y) > 5) {
-                        dispatch_canvas({ type: 'SET_SELECTION_NET_MODE', payload: { origin, current: point } });
-                    }
-                    // startMultiSelect(point, (canvasState as { mode: 'Pressing'; origin: Point }).origin);
-                })
-                .on({ mode: 'SelectionNet' }, () => {
-                    updateSelectionNet(point, (canvasState as { mode: 'SelectionNet'; origin: Point }).origin);
-                });
+            // when select layer, set transition mode and selection box will display and move to this layer
+
+            // const pointer = pointerEventToCanvasPoint(e, camera);
         },
-        [canvasState, camera, continueDrawing, updateSelectionNet]
+        [canvasState.mode, history]
     );
 
     //缩放按钮事件
@@ -325,6 +141,33 @@ export default function Canvas() {
             });
         },
         [camera]
+    );
+
+    useEffect(
+        function addKeyDownEventListener() {
+            function onKeyDown(e: KeyboardEvent) {
+                const activeElement = document.activeElement;
+                const isInputField = activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement;
+
+                if (isInputField) {
+                    return;
+                }
+
+                switch (e.key) {
+                    case 'Backspace': {
+                        deleteSelectedLayer();
+                        break;
+                    }
+                }
+            }
+
+            document.addEventListener('keydown', onKeyDown);
+
+            return () => {
+                document.removeEventListener('keydown', onKeyDown);
+            };
+        },
+        [deleteSelectedLayer]
     );
 
     return (
