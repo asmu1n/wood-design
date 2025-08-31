@@ -14,8 +14,9 @@ import MultiSelectionBox from './canvas/MultiSelectionBox';
 import useDrawing from '@/lib/hooks/useDrawing';
 import useAddLayer from '@/lib/hooks/useAddLayer';
 import usePointer from '@/lib/hooks/usePointer';
-import useSelectedLayer from '@/lib/hooks/useSelectedLayer';
+import useUpdateLayer from '@/lib/hooks/useUpdateLayer';
 import useDeleteLayer from '@/lib/hooks/useDeleteLayer';
+import useSelectLayer from '@/lib/hooks/useSelectLayer';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
@@ -39,14 +40,9 @@ export default function Canvas() {
     const showDraft = !!(canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0);
     const { insertLayer, insertPath } = useAddLayer();
     const { startDrawing, continueDrawing } = useDrawing({ pencilDraft, canvasState });
-    const { translateSelectedLayer, resizeSelectedLayer } = useSelectedLayer({ canvasState });
+    const { translateSelectedLayer, resizeSelectedLayer } = useUpdateLayer({ canvasState });
     const deleteSelectedLayer = useDeleteLayer();
-    // unselect layers
-    const unselectedLayers = useMutation(({ self, setMyPresence }) => {
-        if (self.presence.selection.length > 0) {
-            setMyPresence({ selection: [] });
-        }
-    }, []);
+    const { unselectedLayers, selectAllLayers } = useSelectLayer(layerIds);
     const updateSelectionNet = useMutation(
         ({ storage, setMyPresence }, current: Point, origin: Point) => {
             if (layerIds) {
@@ -158,6 +154,27 @@ export default function Canvas() {
                         deleteSelectedLayer();
                         break;
                     }
+
+                    case 'z': {
+                        if (e.metaKey || e.ctrlKey) {
+                            if (e.shiftKey) {
+                                history.redo();
+                            } else {
+                                history.undo();
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case 'a': {
+                        if (e.metaKey || e.ctrlKey) {
+                            selectAllLayers();
+                            dispatch_canvas({ type: 'SET_NONE_MODE' });
+                        }
+
+                        break;
+                    }
                 }
             }
 
@@ -167,7 +184,7 @@ export default function Canvas() {
                 document.removeEventListener('keydown', onKeyDown);
             };
         },
-        [deleteSelectedLayer]
+        [deleteSelectedLayer, history, selectAllLayers]
     );
 
     return (

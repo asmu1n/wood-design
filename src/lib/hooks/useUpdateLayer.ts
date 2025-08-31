@@ -5,7 +5,7 @@ interface UseSelectedLayerProps {
     canvasState: CanvasType;
 }
 
-export default function useSelectedLayer({ canvasState }: UseSelectedLayerProps) {
+export default function useUpdateLayer({ canvasState }: UseSelectedLayerProps) {
     // translate selected layer
     const translateSelectedLayer = useMutation(
         ({ storage, self }, offset: { x: number; y: number }) => {
