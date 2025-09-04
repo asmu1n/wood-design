@@ -17,6 +17,9 @@ export type CanvasAction =
     | {
           type: 'SET_SELECTION_NET_MODE';
           payload: { origin: Point; current?: Point };
+      }
+    | {
+          type: 'SET_DETAIL_MODE';
       };
 // | { type: 'SET_PENCIL_DRAFT'; payload: [number, number, number][] | null }
 // | { type: 'SET_SELECTION'; payload: string[] }
@@ -77,6 +80,10 @@ export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasTy
                 mode: 'SelectionNet',
                 origin: action.payload.origin,
                 current: action.payload.current
+            };
+        case 'SET_DETAIL_MODE':
+            return {
+                mode: 'Detailing'
             };
         // case 'SET_PENCIL_DRAFT':
         // case 'SET_SELECTION':

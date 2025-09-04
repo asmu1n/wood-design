@@ -106,6 +106,9 @@ export default function usePointer({
                 .on({ mode: 'Inserting', layerType: 'Path' }, () => {
                     startDrawing(point, e.pressure);
                 })
+                .on({ mode: 'Detailing' }, () => {
+                    dispatch_canvas({ type: 'SET_NONE_MODE' });
+                })
                 .on({ mode: 'None' }, () => {
                     dispatch_canvas({ type: 'SET_PRESSING_MODE', payload: { origin: point } });
                 });

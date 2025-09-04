@@ -98,6 +98,9 @@ declare global {
         | {
               mode: 'Pressing';
               origin: Point;
+          }
+        | {
+              mode: 'Detailing';
           };
 
     type Side = 'Top' | 'Bottom' | 'Left' | 'Right' | 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';

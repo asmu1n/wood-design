@@ -17,6 +17,7 @@ import usePointer from '@/lib/hooks/usePointer';
 import useUpdateLayer from '@/lib/hooks/useUpdateLayer';
 import useDeleteLayer from '@/lib/hooks/useDeleteLayer';
 import useSelectLayer from '@/lib/hooks/useSelectLayer';
+import SelectionTools from './canvas/SelectionTools';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
@@ -33,6 +34,7 @@ export default function Canvas() {
         (canvasState.mode === 'Translating' ||
             canvasState.mode === 'Resizing' ||
             canvasState.mode === 'None' ||
+            canvasState.mode === 'Detailing' ||
             canvasState.mode === 'SelectionNet') &&
         hasSelectedLayer
     );
@@ -83,7 +85,9 @@ export default function Canvas() {
             e.stopPropagation();
             history.pause();
 
-            if (canvasState.mode === 'None') {
+            if (e.nativeEvent.button === 2) {
+                dispatch_canvas({ type: 'SET_DETAIL_MODE' });
+            } else if (canvasState.mode === 'None' || canvasState.mode === 'Detailing') {
                 if (!self.presence.selection.includes(layerId)) {
                     // add layer to selection and push to history
                     setMyPresence({ selection: [layerId] }, { addToHistory: true });
@@ -190,6 +194,7 @@ export default function Canvas() {
     return (
         <div>
             <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
+                <SelectionTools camera={camera} visible={canvasState.mode === 'Detailing'} />
                 <svg
                     onPointerMove={onPointerMove}
                     onPointerDown={onPointerDown}
