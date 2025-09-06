@@ -122,6 +122,7 @@ type BaseLayer = Point & {
     fill: Color;
     stroke: Color;
     opacity: number;
+    zIndex: number;
 };
 
 export {};

@@ -24,7 +24,18 @@ const MIN_ZOOM = 0.1;
 
 export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
-    const layerIds = useStorage(storage => storage.layers.keys().toArray());
+    const layers = useStorage(storage => storage.layers);
+    const layerIds = layers
+        ?.entries()
+        .toArray()
+        .sort((a, b) => a[1].zIndex - b[1].zIndex)
+        .map(layer => layer[0]);
+
+    console.log({
+        layers,
+        layerIds
+    });
+
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
     const hasSelectedLayer = useSelf(self => self.presence.selection.length > 0);
     const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
@@ -44,7 +55,7 @@ export default function Canvas() {
     const { startDrawing, continueDrawing } = useDrawing({ pencilDraft, canvasState });
     const { translateSelectedLayer, resizeSelectedLayer } = useUpdateLayer({ canvasState });
     const deleteSelectedLayer = useDeleteLayer();
-    const { unselectedLayers, selectAllLayers } = useSelectLayer(layerIds);
+    const { unselectedLayers, selectAllLayers } = useSelectLayer(layerIds || []);
     const updateSelectionNet = useMutation(
         ({ storage, setMyPresence }, current: Point, origin: Point) => {
             if (layerIds) {
@@ -84,11 +95,16 @@ export default function Canvas() {
             // avoid trigger onPointerDown
             e.stopPropagation();
             history.pause();
+            const selection = self.presence.selection;
 
             if (e.nativeEvent.button === 2) {
+                if (selection.length === 0) {
+                    setMyPresence({ selection: [layerId] }, { addToHistory: true });
+                }
+
                 dispatch_canvas({ type: 'SET_DETAIL_MODE' });
             } else if (canvasState.mode === 'None' || canvasState.mode === 'Detailing') {
-                if (!self.presence.selection.includes(layerId)) {
+                if (!selection.includes(layerId)) {
                     // add layer to selection and push to history
                     setMyPresence({ selection: [layerId] }, { addToHistory: true });
                 }
@@ -194,12 +210,12 @@ export default function Canvas() {
     return (
         <div>
             <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
-                <SelectionTools camera={camera} visible={canvasState.mode === 'Detailing'} />
                 <svg
                     onPointerMove={onPointerMove}
                     onPointerDown={onPointerDown}
                     onPointerUp={onPointerUp}
                     onWheel={onWheel}
+                    onContextMenu={e => e.preventDefault()}
                     className="h-full w-full select-none">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
                         {layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId} onLayerPointerDown={onLayerPointerDown} />)}
@@ -211,6 +227,7 @@ export default function Canvas() {
                                     type: 'Path',
                                     x: 0,
                                     y: 0,
+                                    zIndex: 999,
                                     stroke: { r: 217, g: 217, b: 217 },
                                     fill: { r: 217, g: 217, b: 217 },
                                     opacity: 1,
@@ -227,6 +244,7 @@ export default function Canvas() {
                     </g>
                 </svg>
             </div>
+            <SelectionTools camera={camera} visible={canvasState.mode === 'Detailing'} />
             <ToolsBar
                 canvasState={canvasState}
                 dispatch_canvas={dispatch_canvas}

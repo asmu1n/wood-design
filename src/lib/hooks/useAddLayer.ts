@@ -27,7 +27,8 @@ export default function useAddLayer() {
                     width: 100,
                     stroke: { r: 217, g: 217, b: 217 },
                     fill: { r: 217, g: 217, b: 217 },
-                    opacity: 1
+                    opacity: 1,
+                    zIndex: 1
                 });
                 break;
             }
@@ -41,7 +42,8 @@ export default function useAddLayer() {
                     width: 100,
                     stroke: { r: 217, g: 217, b: 217 },
                     fill: { r: 217, g: 217, b: 217 },
-                    opacity: 1
+                    opacity: 1,
+                    zIndex: 1
                 });
                 break;
             }
@@ -61,7 +63,8 @@ export default function useAddLayer() {
                     textAlign: 'left',
                     stroke: { r: 217, g: 217, b: 217 },
                     fill: { r: 217, g: 217, b: 217 },
-                    opacity: 1
+                    opacity: 1,
+                    zIndex: 1
                 });
                 break;
             }

@@ -94,7 +94,8 @@ export function penPointsToPath(penPoints: DraftPoint[], color: Color): PathLaye
         height: bottom - top,
         stroke: color,
         fill: color,
-        opacity: 1
+        opacity: 1,
+        zIndex: 1
     };
 }
 
