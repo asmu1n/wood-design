@@ -144,6 +144,7 @@ export default function usePointer({
                     if (Math.abs(origin.x - current.x) + Math.abs(origin.y - current.y) > 5) {
                         dispatch_canvas({ type: 'SET_SELECTION_NET_MODE', payload: { origin, current: point } });
                     }
+
                     // startMultiSelect(point, (canvasState as { mode: 'Pressing'; origin: Point }).origin);
                 })
                 .on({ mode: 'SelectionNet' }, () => {

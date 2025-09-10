@@ -1,6 +1,6 @@
 import { useMutation } from '@liveblocks/react';
 
-export default function useSelectLayer(layerIds: string[] | null) {
+export default function useSelectLayer(layerIds: readonly string[] | null) {
     const unselectedLayers = useMutation(({ self, setMyPresence }) => {
         if (self.presence.selection.length > 0) {
             setMyPresence({ selection: [] }, { addToHistory: true });
@@ -9,7 +9,7 @@ export default function useSelectLayer(layerIds: string[] | null) {
     const selectAllLayers = useMutation(
         ({ setMyPresence }) => {
             if (layerIds) {
-                setMyPresence({ selection: layerIds }, { addToHistory: true });
+                setMyPresence({ selection: [...layerIds] }, { addToHistory: true });
             }
         },
         [layerIds]

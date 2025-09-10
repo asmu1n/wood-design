@@ -18,24 +18,14 @@ import useUpdateLayer from '@/lib/hooks/useUpdateLayer';
 import useDeleteLayer from '@/lib/hooks/useDeleteLayer';
 import useSelectLayer from '@/lib/hooks/useSelectLayer';
 import SelectionTools from './canvas/SelectionTools';
+import useLayerList from '@/lib/hooks/useLayerList';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
 
 export default function Canvas() {
     const roomColor = useStorage(storage => storage.roomColor);
-    const layers = useStorage(storage => storage.layers);
-    const layerIds = layers
-        ?.entries()
-        .toArray()
-        .sort((a, b) => a[1].zIndex - b[1].zIndex)
-        .map(layer => layer[0]);
-
-    console.log({
-        layers,
-        layerIds
-    });
-
+    const { layerIds } = useLayerList();
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
     const hasSelectedLayer = useSelf(self => self.presence.selection.length > 0);
     const [camera, dispatch_camera] = useReducer(cameraReducer, initialCamera);
@@ -51,7 +41,7 @@ export default function Canvas() {
     );
     const displaySelectionNet = !!(canvasState.mode === 'SelectionNet' && canvasState.origin && canvasState.current);
     const showDraft = !!(canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && pencilDraft.length > 0);
-    const { insertLayer, insertPath } = useAddLayer();
+    const { insertLayer, insertPath } = useAddLayer(dispatch_canvas);
     const { startDrawing, continueDrawing } = useDrawing({ pencilDraft, canvasState });
     const { translateSelectedLayer, resizeSelectedLayer } = useUpdateLayer({ canvasState });
     const deleteSelectedLayer = useDeleteLayer();
@@ -65,7 +55,7 @@ export default function Canvas() {
                     type: 'SET_SELECTION_NET_MODE',
                     payload: {
                         origin,
-                        current: current
+                        current
                     }
                 });
                 const idList = findIntersectionLayerListWithRectangle(layerIds, layerList, origin, current);
@@ -210,6 +200,7 @@ export default function Canvas() {
     return (
         <div>
             <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
+                <SelectionTools camera={camera} visible={canvasState.mode === 'Detailing'} />
                 <svg
                     onPointerMove={onPointerMove}
                     onPointerDown={onPointerDown}
@@ -227,7 +218,6 @@ export default function Canvas() {
                                     type: 'Path',
                                     x: 0,
                                     y: 0,
-                                    zIndex: 999,
                                     stroke: { r: 217, g: 217, b: 217 },
                                     fill: { r: 217, g: 217, b: 217 },
                                     opacity: 1,
@@ -244,7 +234,6 @@ export default function Canvas() {
                     </g>
                 </svg>
             </div>
-            <SelectionTools camera={camera} visible={canvasState.mode === 'Detailing'} />
             <ToolsBar
                 canvasState={canvasState}
                 dispatch_canvas={dispatch_canvas}

@@ -1,18 +1,18 @@
 import { useMutation, useSelf } from '@liveblocks/react';
+import useLayerList from './useLayerList';
 
 export default function useDeleteLayer() {
+    const { removeLayer } = useLayerList();
     const selection = useSelf(self => self.presence.selection);
 
     return useMutation(
-        ({ storage, setMyPresence }) => {
-            const liveLayers = storage.get('layers');
-
+        ({ setMyPresence }) => {
             for (const selectedId of selection || []) {
-                liveLayers.delete(selectedId);
+                removeLayer(selectedId);
             }
 
             setMyPresence({ selection: [] }, { addToHistory: true });
         },
-        [selection]
+        [selection, removeLayer]
     );
 }

@@ -1,5 +1,6 @@
+import useLayerList from '@/lib/hooks/useLayerList';
 import useSelectionBounds from '@/lib/hooks/useSelectionBounds';
-import { useMutation, useSelf } from '@liveblocks/react';
+import { useSelf } from '@liveblocks/react';
 import { memo } from 'react';
 import { BsArrowDown, BsArrowUp } from 'react-icons/bs';
 
@@ -7,41 +8,15 @@ function SelectionTools({ camera, visible }: { camera: Camera; visible: boolean 
     const selectionBound = useSelectionBounds();
     const selection = useSelf(me => me.presence.selection);
     const selectionSet = new Set(selection);
-
-    const updateLayerZIndex = useMutation(
-        ({ storage }, isIncrease: boolean) => {
-            const layers = storage.get('layers');
-
-            for (const id of selectionSet) {
-                const layer = layers.get(id);
-
-                if (layer) {
-                    const zIndex = layer.get('zIndex');
-
-                    if (isIncrease) {
-                        if (zIndex < 999) {
-                            layer.update({ zIndex: zIndex + 1 });
-                        }
-                    } else {
-                        if (zIndex > 1) {
-                            layer.update({ zIndex: zIndex - 1 });
-                        }
-                    }
-                }
-            }
-        },
-        [selectionSet]
-    );
+    const { updateLayerId } = useLayerList();
 
     function bringToFront() {
-        updateLayerZIndex(true);
+        updateLayerId([...selectionSet], true);
     }
 
     function moveToBack() {
-        updateLayerZIndex(false);
+        updateLayerId([...selectionSet], false);
     }
-
-    console.log(selectionBound);
 
     if (!selectionBound || !visible) {
         return null;
