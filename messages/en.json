@@ -50,6 +50,8 @@
         "select": "Select",
         "select_shape": "Select shape",
         "pencil": "Pencil",
-        "text": "Text"
+        "text": "Text",
+        "bring_to_front": "Bring to front",
+        "send_to_back": "Send to back"
     }
 }

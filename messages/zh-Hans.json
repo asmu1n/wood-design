@@ -50,6 +50,8 @@
         "select": "选择",
         "select_shape": "选择图形",
         "pencil": "手绘",
-        "text": "插入文本"
+        "text": "插入文本",
+        "bring_to_front": "置于最前",
+        "send_to_back": "置于最后"
     }
 }
