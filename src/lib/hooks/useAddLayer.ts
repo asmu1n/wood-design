@@ -4,14 +4,16 @@ import { LiveObject } from '@liveblocks/client';
 import { useMutation } from '@liveblocks/react';
 import { nanoid } from 'nanoid';
 import useLayerList from './useLayerList';
+import useSelectLayer from './useSelectLayer';
 
 const MAX_LAYERS = 100;
 
 export default function useAddLayer(dispatch_canvas: (action: CanvasAction) => void) {
     const { addLayer } = useLayerList();
+    const { selectLayer } = useSelectLayer();
     // insert layer
     const insertLayer = useMutation(
-        ({ storage, setMyPresence }, layerType: LayerType, position: Point) => {
+        ({ storage }, layerType: LayerType, position: Point) => {
             const liveLayers = storage.get('layers');
 
             if (liveLayers.size >= MAX_LAYERS) {
@@ -73,7 +75,7 @@ export default function useAddLayer(dispatch_canvas: (action: CanvasAction) => v
 
             if (layer) {
                 addLayer(layer, layerId);
-                setMyPresence({ selection: [layerId] }, { addToHistory: true });
+                selectLayer(layerId);
                 dispatch_canvas({ type: 'SET_NONE_MODE' });
             }
         },

@@ -124,4 +124,18 @@ type BaseLayer = Point & {
     opacity: number;
 };
 
-export {};
+interface UpdateLayerParams {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    opacity?: number;
+    stroke?: string;
+    fill?: string;
+    fontSize?: number;
+    fontFamily?: string;
+    fontWeight?: number;
+    cornerRadius?: number;
+}
+
+export { UpdateLayerParams };

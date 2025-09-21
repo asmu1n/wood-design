@@ -94,8 +94,7 @@ export function penPointsToPath(penPoints: DraftPoint[], color: Color): PathLaye
         height: bottom - top,
         stroke: color,
         fill: color,
-        opacity: 1,
-        zIndex: 1
+        opacity: 1
     };
 }
 
@@ -156,4 +155,10 @@ export function findIntersectionLayerListWithRectangle(
     }, [] as string[]);
 
     return idList;
+}
+
+const COLORS = ['#DC2626', '#D97706', '#059669', '#7C3AED', '#DB2777'];
+
+export function connectionIdToColor(connectionId: number): string {
+    return COLORS[connectionId % COLORS.length]!;
 }

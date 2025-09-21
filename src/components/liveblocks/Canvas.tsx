@@ -19,11 +19,18 @@ import useDeleteLayer from '@/lib/hooks/useDeleteLayer';
 import useSelectLayer from '@/lib/hooks/useSelectLayer';
 import SelectionTools from './canvas/SelectionTools';
 import useLayerList from '@/lib/hooks/useLayerList';
+import SideBars from '../sidebars';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
 
-export default function Canvas() {
+interface CanvasProps {
+    roomName: string;
+    roomId: string;
+    othersWithAccessToRoom: User[];
+}
+
+export default function Canvas({ roomName, roomId, othersWithAccessToRoom }: CanvasProps) {
     const roomColor = useStorage(storage => storage.roomColor);
     const { layerIds } = useLayerList();
     const pencilDraft = useSelf(self => self.presence.pencilDraft);
@@ -45,7 +52,7 @@ export default function Canvas() {
     const { startDrawing, continueDrawing } = useDrawing({ pencilDraft, canvasState });
     const { translateSelectedLayer, resizeSelectedLayer } = useUpdateLayer({ canvasState });
     const deleteSelectedLayer = useDeleteLayer();
-    const { unselectedLayers, selectAllLayers } = useSelectLayer(layerIds || []);
+    const { unselectedLayers, selectAllLayers, selectLayer } = useSelectLayer(layerIds || []);
     const updateSelectionNet = useMutation(
         ({ storage, setMyPresence }, current: Point, origin: Point) => {
             if (layerIds) {
@@ -81,7 +88,7 @@ export default function Canvas() {
     });
 
     const onLayerPointerDown = useMutation(
-        ({ self, setMyPresence }, e: React.PointerEvent, layerId: string) => {
+        ({ self }, e: React.PointerEvent, layerId: string) => {
             // avoid trigger onPointerDown
             e.stopPropagation();
             history.pause();
@@ -89,14 +96,14 @@ export default function Canvas() {
 
             if (e.nativeEvent.button === 2) {
                 if (selection.length === 0) {
-                    setMyPresence({ selection: [layerId] }, { addToHistory: true });
+                    selectLayer(layerId, true);
                 }
 
                 dispatch_canvas({ type: 'SET_DETAIL_MODE' });
             } else if (canvasState.mode === 'None' || canvasState.mode === 'Detailing') {
                 if (!selection.includes(layerId)) {
                     // add layer to selection and push to history
-                    setMyPresence({ selection: [layerId] }, { addToHistory: true });
+                    selectLayer(layerId, true);
                 }
 
                 dispatch_canvas({ type: 'SET_TRANSITION_MODE' });
@@ -199,7 +206,7 @@ export default function Canvas() {
 
     return (
         <div>
-            <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="h-screen touch-none">
+            <div style={{ backgroundColor: roomColor ? colorToCss(roomColor) : '#1e1e1e' }} className="relative h-screen touch-none">
                 <SelectionTools camera={camera} visible={canvasState.mode === 'Detailing'} />
                 <svg
                     onPointerMove={onPointerMove}
@@ -234,6 +241,7 @@ export default function Canvas() {
                     </g>
                 </svg>
             </div>
+
             <ToolsBar
                 canvasState={canvasState}
                 dispatch_canvas={dispatch_canvas}
@@ -245,6 +253,7 @@ export default function Canvas() {
                 undo={history.undo}
                 {...onZoom}
             />
+            <SideBars roomName={roomName} roomId={roomId} othersWithAccessToRoom={othersWithAccessToRoom} />
         </div>
     );
 }
