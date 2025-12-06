@@ -90,17 +90,16 @@ function TextSection({ layer, updateLayer }: { layer: Layer; updateLayer: (updat
                         options={['Inter', 'Arial', 'Times New Roman']}
                     />
                     <div className="flex w-full gap-2">
-                        <SectionItemTemplate label="Size">
+                        <SectionItemTemplate label="Size" className="flex-1">
                             <NumberInput
                                 value={layer.fontSize}
                                 onChange={number => {
                                     updateLayer({ fontSize: number });
                                 }}
-                                classNames="w-full"
                                 icon={<p>W</p>}
                             />
                         </SectionItemTemplate>
-                        <SectionItemTemplate label="Weight">
+                        <SectionItemTemplate label="Weight" className="flex-1">
                             <Dropdown
                                 value={layer.fontWeight.toString()}
                                 onChange={value => {
@@ -186,27 +185,27 @@ function AppearanceSection({ layer, updateLayer }: { layer: Layer; updateLayer: 
 
 function FillSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     return (
-        <SectionItemTemplate label="Fill">
+        <SectionTemplate title="Fill">
             <ColorPicker
                 value={colorToCss(layer.fill)}
                 onUpdateColor={color => {
                     updateLayer({ fill: color, stroke: color });
                 }}
             />
-        </SectionItemTemplate>
+        </SectionTemplate>
     );
 }
 
 function StrokeSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     return (
-        <SectionItemTemplate label="Stroke">
+        <SectionTemplate title="Stroke">
             <ColorPicker
                 value={colorToCss(layer.stroke)}
                 onUpdateColor={color => {
                     updateLayer({ stroke: color });
                 }}
             />
-        </SectionItemTemplate>
+        </SectionTemplate>
     );
 }
 
@@ -234,7 +233,7 @@ export function SectionTemplate({ title, children }: ItemTemplateProps) {
     return (
         <>
             <div className="border-b border-gray-200"></div>
-            <div className="flex flex-col gap-2 p-4">
+            <div className="flex flex-col gap-2 py-4">
                 <span className="mb-2 text-[11px] font-medium">{title}</span>
                 {children}
             </div>
