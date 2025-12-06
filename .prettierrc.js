@@ -1,7 +1,6 @@
-import * as prettierPlugin from 'prettier-plugin-tailwindcss';
-
+/** @type {import('prettier').Config & import('prettier-plugin-tailwindcss').PluginOptions} */
 const prettierConfig = {
-    plugins: [prettierPlugin],
+    plugins: ['prettier-plugin-tailwindcss'],
     printWidth: 150,
     tabWidth: 4,
     // 强制使用单引号
