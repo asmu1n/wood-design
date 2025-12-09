@@ -20,6 +20,7 @@ import useSelectLayer from '@/lib/hooks/useSelectLayer';
 import SelectionTools from './canvas/SelectionTools';
 import useLayerList from '@/lib/hooks/useLayerList';
 import SideBars from '../sidebars';
+import MultiplayerGuides from './canvas/MultiplayerGuides';
 
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.1;
@@ -72,7 +73,7 @@ export default function Canvas({ roomName, roomId, othersWithAccessToRoom }: Can
         },
         [layerIds]
     );
-    const { onPointerDown, onPointerUp, onPointerMove } = usePointer({
+    const { onPointerDown, onPointerUp, onPointerMove, onPointerLeave } = usePointer({
         canvasState,
         camera,
         insertLayer,
@@ -212,11 +213,13 @@ export default function Canvas({ roomName, roomId, othersWithAccessToRoom }: Can
                     onPointerMove={onPointerMove}
                     onPointerDown={onPointerDown}
                     onPointerUp={onPointerUp}
+                    onPointerLeave={onPointerLeave}
                     onWheel={onWheel}
                     onContextMenu={e => e.preventDefault()}
                     className="h-full w-full select-none">
                     <g style={{ transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})` }}>
                         {layerIds?.map(layerId => <LayerComponent key={layerId} id={layerId} onLayerPointerDown={onLayerPointerDown} />)}
+                        <MultiplayerGuides />
                         {showDraft && (
                             <PathLayer
                                 id="pencil-draft"

@@ -231,13 +231,10 @@ interface ItemTemplateProps {
 
 export function SectionTemplate({ title, children }: ItemTemplateProps) {
     return (
-        <>
-            <div className="border-b border-gray-200"></div>
-            <div className="flex flex-col gap-2 py-4">
-                <span className="mb-2 text-[11px] font-medium">{title}</span>
-                {children}
-            </div>
-        </>
+        <div className="flex flex-col gap-2 border-t border-gray-200 p-4">
+            <span className="mb-2 text-[11px] font-medium">{title}</span>
+            {children}
+        </div>
     );
 }
 

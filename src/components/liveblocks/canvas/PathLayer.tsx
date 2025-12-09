@@ -4,7 +4,7 @@ import { getStroke } from 'perfect-freehand';
 
 interface PathLayerProps {
     id: string;
-    layer: Omit<PathLayer, 'width' | 'height'> & { width?: number; height?: number };
+    layer: Omit<PathLayer, 'width' | 'height' | 'stroke'> & { width?: number; height?: number; stroke?: Color };
     onSelect?: (e: React.PointerEvent) => void;
 }
 

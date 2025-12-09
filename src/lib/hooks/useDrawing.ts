@@ -19,6 +19,7 @@ export default function useDrawing({ pencilDraft, canvasState }: UseDrawingProps
 
             if (canvasState.mode === 'Inserting' && canvasState.layerType === 'Path' && pencilDraft && checkPointerButton(e) === 'left') {
                 setMyPresence({
+                    cursor: point,
                     pencilDraft: [...pencilDraft, [point.x, point.y, e.pressure]],
                     penColor: { r: 217, g: 217, b: 217 }
                 });

@@ -117,7 +117,7 @@ export default function usePointer({
     );
     // cursor move event
     const onPointerMove = useMutation(
-        ({}, e: React.PointerEvent) => {
+        ({ setMyPresence }, e: React.PointerEvent) => {
             const point = pointerEventToCanvasPoint(e, camera);
             const deltaX = e.movementX;
             const deltaY = e.movementY;
@@ -150,13 +150,23 @@ export default function usePointer({
                 .on({ mode: 'SelectionNet' }, () => {
                     updateSelectionNet(point, (canvasState as { mode: 'SelectionNet'; origin: Point }).origin);
                 });
+            setMyPresence({
+                cursor: point
+            });
         },
         [canvasState, camera, continueDrawing, updateSelectionNet]
     );
+    // cursor leave view
+    const onPointerLeave = useMutation(({ setMyPresence }) => {
+        setMyPresence({
+            cursor: null
+        });
+    }, []);
 
     return {
         onPointerUp,
         onPointerDown,
-        onPointerMove
+        onPointerMove,
+        onPointerLeave
     };
 }
