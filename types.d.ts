@@ -17,10 +17,10 @@ declare global {
         pageIndex?: number;
         limit?: number;
     }
-    interface QueryParams<P = unknown> extends P {
-        pageIndex: number;
-        limit: number;
-    }
+    type QueryParams<T = Record<string, unknown>> = T & {
+        pageIndex?: number;
+        limit?: number;
+    };
     type AuthCredentials = z.infer<typeof registerSchema>;
 
     type Point = {

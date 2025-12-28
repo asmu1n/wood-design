@@ -88,10 +88,10 @@ export function queryFilter<T extends Record<string, any>>(filterConfig: Record<
 
     Object.entries(filterParams).forEach(([key, value]) => {
         if (value || value === false || value === 0) {
-            const filter = filterConfig[key as keyof typeof filterConfig];
+            const getFilter = filterConfig[key as keyof typeof filterConfig];
 
-            if (filter) {
-                filters.push(filter(value));
+            if (getFilter) {
+                filters.push(getFilter(value));
             }
         }
     });
@@ -258,4 +258,30 @@ function validatorNoEmpty<T>(data: T): boolean {
     return true;
 }
 
-export { validatorNoEmpty, match, _, not, or, exists };
+type AttemptSuccess<T> = readonly [null, T];
+type AttemptFailure<E> = readonly [E, null];
+type AttemptResult<E, T> = AttemptSuccess<T> | AttemptFailure<E>;
+type AttemptResultAsync<E, T> = Promise<AttemptResult<E, T>>;
+
+function attempt<T, E = Error>(operation: Promise<T>): AttemptResultAsync<E, T>;
+function attempt<T, E = Error>(operation: () => Promise<T>): AttemptResultAsync<E, T>;
+function attempt<T, E = Error>(operation: () => T): AttemptResult<E, T>;
+function attempt<T, E = Error>(operation: Promise<T> | (() => T | Promise<T>)): AttemptResult<E, T> | AttemptResultAsync<E, T> {
+    if (operation instanceof Promise) {
+        return operation.then((value: T) => [null, value] as const).catch((error: E) => [error, null] as const);
+    }
+
+    try {
+        const result = operation();
+
+        if (result instanceof Promise || (result && typeof result === 'object' && 'then' in result && typeof (result as any).then === 'function')) {
+            return (result as Promise<T>).then((value: T) => [null, value] as const).catch((error: E) => [error, null] as const);
+        }
+
+        return [null, result] as const;
+    } catch (error) {
+        return [error as E, null] as const;
+    }
+}
+
+export { validatorNoEmpty, match, _, not, or, exists, attempt };

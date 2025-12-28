@@ -6,7 +6,7 @@ export const STATUS_ENUM = pgEnum('status', ['PENDING', 'APPROVED', 'REJECTED'])
 export const ROLE_ENUM = pgEnum('user_role', ['USER', 'ADMIN']);
 
 const users = pgTable('users', {
-    id: uuid('id').notNull().primaryKey().defaultRandom().unique(),
+    id: uuid('id').primaryKey().defaultRandom(),
     name: varchar('name', { length: 255 }).notNull(),
     email: text('email').notNull().unique(),
     password: text('password').notNull(),

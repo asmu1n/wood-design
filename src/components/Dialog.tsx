@@ -6,6 +6,7 @@ interface DialogProps<T> {
     trigger?: T extends boolean ? never : React.ReactNode;
     title?: string;
     description?: string;
+    footer?: React.ReactNode;
     children: React.ReactNode;
 }
 

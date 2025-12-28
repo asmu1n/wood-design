@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 // import { deleteInvitation, shareRoom } from '~/app/actions/rooms';
 import UserAvatar from './UserAvatar';
+import { Button } from '../ui/button';
 
 export default function ShareMenu({ roomId, othersWithAccessToRoom }: { roomId: string; othersWithAccessToRoom: User[] }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,9 +17,9 @@ export default function ShareMenu({ roomId, othersWithAccessToRoom }: { roomId: 
 
     return (
         <div>
-            <button onClick={() => setIsOpen(true)} className="h-fit w-fit rounded-md bg-[#0c8ce9] px-4 py-2 text-[11px] text-white">
+            <Button onClick={() => setIsOpen(true)} className="h-fit w-fit rounded-md bg-[#0c8ce9] px-4 py-2 text-[11px] text-white">
                 Share
-            </button>
+            </Button>
             {isOpen && (
                 <div className="bg-opacity-50 fixed inset-0 z-10 flex items-center justify-center bg-gray-600">
                     <div className="flex w-full max-w-md flex-col rounded-xl bg-white shadow-xl">

@@ -21,15 +21,15 @@ interface SideBarProps {
 }
 
 export default function SideBars({ roomName, roomId, othersWithAccessToRoom }: SideBarProps) {
-    const [visible, setVisible] = useState(false);
+    const [isLeftMinimized, setIsLeftMinimized] = useState(false);
 
     return (
         <>
             {/* Left Sidebar */}
-            <LeftSidebar visible={visible} roomId={roomId} roomName={roomName} setVisible={setVisible} />
+            <LeftSidebar isMinimized={isLeftMinimized} roomId={roomId} roomName={roomName} onUpdateMinimized={setIsLeftMinimized} />
 
             {/* Right Sidebar */}
-            <RightSidebar visible={visible} roomId={roomId} othersWithAccessToRoom={othersWithAccessToRoom} />
+            <RightSidebar isMinimized={isLeftMinimized} roomId={roomId} othersWithAccessToRoom={othersWithAccessToRoom} />
         </>
     );
 }
@@ -43,7 +43,7 @@ function UserAvatars({ className }: UserAvatarsProps) {
     const others = useOthers();
 
     return (
-        <div className={cn('flex gap-2 overflow-x-scroll text-xs', className)}>
+        <div className={cn('flex gap-2 text-xs', className)}>
             {me && <UserAvatar color={connectionIdToColor(me.connectionId)} name={me.info.name} />}
             {others.map(other => (
                 <UserAvatar key={other.connectionId} color={connectionIdToColor(other.connectionId)} name={other.info.name} />
@@ -53,12 +53,12 @@ function UserAvatars({ className }: UserAvatarsProps) {
 }
 
 interface RightSidebarProps {
-    visible: boolean;
+    isMinimized: boolean;
     roomId: string;
     othersWithAccessToRoom: User[];
 }
 
-function RightSidebar({ visible, roomId, othersWithAccessToRoom }: RightSidebarProps) {
+function RightSidebar({ isMinimized, roomId, othersWithAccessToRoom }: RightSidebarProps) {
     const selection = useSelf(me => me.presence.selection);
     const selectedLayer = selection?.length === 1 ? selection[0] : null;
     const updateLayer = useMutation(
@@ -83,23 +83,23 @@ function RightSidebar({ visible, roomId, othersWithAccessToRoom }: RightSidebarP
 
     return (
         <>
-            {!visible || layer ? (
+            {!isMinimized || layer ? (
                 <div
                     className={cn(
-                        'fixed right-0 flex w-[240px] flex-col border-l border-gray-200 bg-white',
-                        visible && layer && 'top-3 right-3 bottom-3 rounded-xl',
-                        !visible && !layer && 'h-screen',
-                        !visible && layer && 'top-0 bottom-0 h-screen'
+                        'fixed right-0 flex w-[240px] flex-col border-l border-gray-200 bg-white px-4 py-2',
+                        isMinimized && layer && 'top-3 right-3 bottom-3 rounded-xl',
+                        !isMinimized && !layer && 'h-screen',
+                        !isMinimized && layer && 'top-0 bottom-0 h-screen'
                     )}>
-                    <div className="flex items-center justify-between pr-2">
-                        <UserAvatars className="max-w-36 p-3" />
+                    <div className="flex items-center justify-between">
+                        <UserAvatars className="max-w-36" />
                         <ShareMenu roomId={roomId} othersWithAccessToRoom={othersWithAccessToRoom} />
                     </div>
                     <div className="border-b border-gray-200"></div>
                     <LayerInfo layer={layer} updateLayer={updateLayer} />
                 </div>
             ) : (
-                <div className="fixed top-3 right-3 flex h-[48px] w-[250px] items-center justify-between rounded-xl border bg-white pr-2">
+                <div className="fixed top-3 right-3 flex h-[48px] w-[250px] items-center justify-between rounded-xl border bg-white px-4">
                     <UserAvatars className="max-w-36 p-3" />
                     <ShareMenu roomId={roomId} othersWithAccessToRoom={othersWithAccessToRoom} />
                 </div>
@@ -111,25 +111,29 @@ function RightSidebar({ visible, roomId, othersWithAccessToRoom }: RightSidebarP
 interface LeftSidebarProps {
     roomName: string;
     roomId: string;
-    visible: boolean;
-    setVisible: (visible: boolean) => void;
+    isMinimized: boolean;
+    onUpdateMinimized: (isMinimized: boolean) => void;
 }
 
-function LeftSidebar({ roomName, visible, setVisible }: LeftSidebarProps) {
+function LeftSidebar({ roomName, isMinimized, onUpdateMinimized }: LeftSidebarProps) {
     const { layers, layerIds } = useLayerList();
     const selection = useSelf(me => me.presence.selection);
     const reversedLayerIds = [...(layerIds || [])].reverse();
 
+    function handleToggleMinimized() {
+        onUpdateMinimized(!isMinimized);
+    }
+
     return (
         <>
-            {!visible ? (
-                <div className="fixed left-0 flex h-screen w-[240px] flex-col border-r border-gray-200 bg-white">
+            {!isMinimized ? (
+                <div className="fixed top-0 left-0 flex h-screen w-[240px] flex-col border-r border-gray-200 bg-white">
                     <div className="p-4">
                         <div className="flex justify-between">
                             <Link href="/dashboard">
                                 <Image src="/figma-logo.svg" alt="Figma logo" width={18} height={18} />
                             </Link>
-                            <PiSidebarSimpleThin onClick={() => setVisible(true)} className="h-5 w-5 cursor-pointer" />
+                            <PiSidebarSimpleThin onClick={handleToggleMinimized} className="h-5 w-5 cursor-pointer" />
                         </div>
                         <h2 className="mt-2 scroll-m-20 text-[13px] font-medium">{roomName}</h2>
                     </div>
@@ -143,10 +147,10 @@ function LeftSidebar({ roomName, visible, setVisible }: LeftSidebarProps) {
             ) : (
                 <div className="fixed start-3 top-3 flex h-[48px] w-[250px] items-center justify-between rounded-xl border bg-white p-4">
                     <Link href="/dashboard">
-                        <Image src="/figma-logo.svg" alt="Figma logo" className="h-[18px w-[18px]" />
+                        <Image src="/figma-logo.svg" alt="Figma logo" width={18} height={18} />
                     </Link>
                     <h2 className="scroll-m-20 text-[13px] font-medium">{roomName}</h2>
-                    <PiSidebarSimpleThin onClick={() => setVisible(false)} className="h-5 w-5 cursor-pointer" />
+                    <PiSidebarSimpleThin onClick={handleToggleMinimized} className="h-5 w-5 cursor-pointer" />
                 </div>
             )}
         </>
