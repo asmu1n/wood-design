@@ -99,6 +99,10 @@ async function removeAllowedUser({ roomId, userId }: removeAllowedUserParams) {
         throw new Error('房间不存在');
     }
 
+    if (room[0].createUserId === userId) {
+        throw new Error('不能删除创建者');
+    }
+
     const currentAllowedUsers = room[0].allowedUserIds || [];
 
     if (!currentAllowedUsers.includes(userId)) {
@@ -156,7 +160,7 @@ interface triggerUserPermissionParams extends updateUserPermissionParams {
 async function _updateUserPermission({ roomId, processedUserId, accessType = 'ONLY_READ' }: updateUserPermissionParams) {
     const permissions = getAccess(accessType);
 
-    await liveblocks.updateRoom(roomId, {
+    return liveblocks.updateRoom(roomId, {
         usersAccesses: {
             [processedUserId]: permissions
         }
@@ -181,18 +185,17 @@ async function _invitedUserToRoom({ roomId, processedUserId, accessType = 'ONLY_
             }
         });
 
-        await addAllowedUser({ roomId, userId: processedUserId });
+        return addAllowedUser({ roomId, userId: processedUserId });
     }
 }
 
 async function _removeUserFromRoom({ roomId, userId }: { roomId: string; userId: string }) {
-    await liveblocks.updateRoom(roomId, {
+    await removeAllowedUser({ roomId, userId });
+    return liveblocks.updateRoom(roomId, {
         usersAccesses: {
             [userId]: [] as any // 空数组表示移除所有权限
         }
     });
-
-    await removeAllowedUser({ roomId, userId });
 }
 
 async function triggerUserPermission(
@@ -228,6 +231,10 @@ async function triggerUserPermission(
         }
 
         case 'REMOVE': {
+            if (processedUserId === actionUserId) {
+                throw new Error('不能删除自己');
+            }
+
             return _removeUserFromRoom({ roomId, userId: processedUserId });
         }
     }

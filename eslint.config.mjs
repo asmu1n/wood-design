@@ -13,7 +13,23 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+    {
+        ignores: ['eslint.config.mjs']
+    },
     ...compat.extends('next/core-web-vitals', 'next/typescript'),
+    {
+        files: ['**/*.ts', '**/*.tsx'], // 仅对 TS/TSX 文件启用需要类型信息的规则
+        languageOptions: {
+            parserOptions: {
+                projectService: true,
+                tsconfigRootDir: __dirname
+            }
+        },
+        rules: {
+            '@typescript-eslint/no-floating-promises': 'warn',
+            '@typescript-eslint/await-thenable': 'warn'
+        }
+    },
     {
         plugins: {
             prettier: prettierPlugin,

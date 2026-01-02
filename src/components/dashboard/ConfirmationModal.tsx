@@ -11,7 +11,9 @@ interface ConfirmationModalProps {
 }
 
 function ConfirmationModal({ isOpen, onSetOpen, onConfirm, message }: ConfirmationModalProps) {
-    if (!isOpen) return null;
+    if (!isOpen) {
+        return null;
+    }
 
     return (
         <Dialog open={isOpen} onUpdateOpenState={onSetOpen} footer={<ConfirmFooter onConfirm={onConfirm} />}>

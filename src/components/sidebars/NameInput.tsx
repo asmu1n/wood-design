@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
+import { Input } from '../ui/input';
 
 export default function NumberInput({
     value,
@@ -50,16 +51,7 @@ export default function NumberInput({
 
     return (
         <div className={`relative h-fit ${classNames ?? 'w-28'}`}>
-            <input
-                type="number"
-                value={inputValue}
-                onChange={handleChange}
-                onBlur={handleCommit}
-                onKeyDown={handleKeyDown}
-                min={min}
-                max={max}
-                className={`h-fit w-full rounded-lg border border-[#f5f5f5] bg-[#f5f5f5] px-2 py-1 pl-6 text-xs hover:border-[#e8e8e8]`}
-            />
+            <Input type="number" value={inputValue} onChange={handleChange} onBlur={handleCommit} onKeyDown={handleKeyDown} min={min} max={max} />
             {React.isValidElement(icon) && icon.type === 'p' ? (
                 <p className="absolute top-[50%] left-2 -translate-y-1/2 text-[10px] text-gray-400">
                     {(icon as React.ReactElement<{ children: React.ReactNode }>).props.children}

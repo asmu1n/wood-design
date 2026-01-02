@@ -3,14 +3,16 @@
 import { ReactNode } from 'react';
 import { LiveblocksProvider, RoomProvider, ClientSideSuspense } from '@liveblocks/react/suspense';
 import { LiveList, LiveMap, LiveObject } from '@liveblocks/client';
+import { UserInfoProvider, type UserInfo } from '@/store/userInfo';
 import DefaultLoading from '../DefaultLoading';
 
 interface RoomProps {
     children: ReactNode;
+    userInfo: UserInfo;
     roomId: string;
 }
 
-export function Room({ children, roomId }: RoomProps) {
+export function Room({ children, userInfo, roomId }: RoomProps) {
     const roomParams = {
         id: roomId,
         initialPresence: {
@@ -28,9 +30,11 @@ export function Room({ children, roomId }: RoomProps) {
 
     return (
         <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-            <RoomProvider {...roomParams}>
-                <ClientSideSuspense fallback={<DefaultLoading />}>{children}</ClientSideSuspense>
-            </RoomProvider>
+            <UserInfoProvider CustomState={userInfo}>
+                <RoomProvider {...roomParams}>
+                    <ClientSideSuspense fallback={<DefaultLoading />}>{children}</ClientSideSuspense>
+                </RoomProvider>
+            </UserInfoProvider>
         </LiveblocksProvider>
     );
 }
