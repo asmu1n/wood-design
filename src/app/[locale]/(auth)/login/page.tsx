@@ -3,23 +3,25 @@
 import AuthForm, { FormItemConfig } from '@/components/AuthForm';
 import { loginSchema } from '@/lib/validations';
 import { LoginWithCredentials } from '@/db/services/auth';
+import { useTranslations } from 'next-intl';
 
 export default function SignIn() {
+    const t = useTranslations();
     const loginFormConfig: FormItemConfig<Pick<AuthCredentials, 'email' | 'password'>>[] = [
         {
             key: 'email',
-            label: '邮箱',
+            label: t('form.email'),
             type: 'email',
             options: {
-                placeholder: '请输入邮箱'
+                placeholder: t('form.email_placeholder')
             }
         },
         {
             key: 'password',
-            label: '密码',
+            label: t('form.password'),
             type: 'password',
             options: {
-                placeholder: '请输入密码'
+                placeholder: t('form.password_placeholder')
             }
         }
     ];

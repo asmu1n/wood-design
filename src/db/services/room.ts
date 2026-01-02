@@ -3,6 +3,7 @@ import rooms, { roomUpdateSchema } from '@/db/schema/rooms';
 import { eq, arrayContains, and, desc, count } from 'drizzle-orm';
 import { validateUserPermission } from '@/lib/roomPermission';
 import { queryFilter } from '@/utils/common';
+import { getTranslations } from 'next-intl/server';
 
 interface UpdateRoomTitleParams {
     actionUserId: string;
@@ -11,6 +12,7 @@ interface UpdateRoomTitleParams {
 }
 
 async function updateRoomTitle({ actionUserId, roomId, updateName }: UpdateRoomTitleParams) {
+    const t = await getTranslations('auth');
     const validResult = validateUserPermission({
         roomId,
         checkUserId: actionUserId,
@@ -18,7 +20,7 @@ async function updateRoomTitle({ actionUserId, roomId, updateName }: UpdateRoomT
     });
 
     if (!validResult) {
-        throw new Error('用户没有权限');
+        throw new Error(t('no_permission'));
     }
 
     const saferParams = roomUpdateSchema.parse({
@@ -37,6 +39,7 @@ interface DeleteRoomParams {
 }
 
 async function deleteRoom({ actionUserId, roomId }: DeleteRoomParams) {
+    const t = await getTranslations('auth');
     const validResult = validateUserPermission({
         roomId,
         checkUserId: actionUserId,
@@ -44,7 +47,7 @@ async function deleteRoom({ actionUserId, roomId }: DeleteRoomParams) {
     });
 
     if (!validResult) {
-        throw new Error('用户没有权限');
+        throw new Error(t('no_permission'));
     }
 
     return db.delete(rooms).where(eq(rooms.id, roomId));
@@ -95,4 +98,10 @@ async function getRoomList({ ownerUserId, pageIndex = 1, limit = 10 }: QueryPara
     return { data: items, total };
 }
 
-export { updateRoomTitle, deleteRoom, getAllowedRoomByUserId, getRoomList };
+async function getRoomById(roomId: string) {
+    const result = await db.select().from(rooms).where(eq(rooms.id, roomId)).limit(1);
+
+    return result[0];
+}
+
+export { updateRoomTitle, deleteRoom, getAllowedRoomByUserId, getRoomList, getRoomById };

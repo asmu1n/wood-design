@@ -2,12 +2,11 @@ import { auth } from '@/lib/config/auth';
 import { redirect } from 'next/navigation';
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-    //TODO 暂时不重定向
-    // const session = await auth();
+    const session = await auth();
 
-    // if (session) {
-    //     redirect('/');
-    // }
+    if (session) {
+        redirect('/dashboard');
+    }
 
     return (
         <main className="flex min-h-screen items-center justify-center bg-white px-4">

@@ -5,9 +5,10 @@ import React, { useRef } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import { attempt, cn } from '@/utils/common';
-import { updateRoomTitleAction, deleteRoomAction, createRoomAction } from '@/actions/room';
-import { Button } from '../ui/button';
+import { updateRoomTitleAction, deleteRoomAction } from '@/actions/room';
 import { toast } from '@/lib/hooks/useToast';
+import { Input } from '../ui/input';
+import { useTranslations } from 'next-intl';
 
 const PASTEL_COLORS = [
     'rgb(255, 182, 193)', // pink
@@ -28,7 +29,8 @@ interface RoomViewProps {
 export default function RoomsView({ userId, displayRooms }: RoomViewProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const router = useRouter();
-    const outerDivRef = useRef<HTMLDivElement>(null);
+    const contentDivRef = useRef<HTMLDivElement>(null);
+    const t = useTranslations();
 
     const roomColors = useMemo(() => {
         return displayRooms.map((room, index) => ({
@@ -37,26 +39,9 @@ export default function RoomsView({ userId, displayRooms }: RoomViewProps) {
         }));
     }, [displayRooms]);
 
-    async function handleCreateRoom() {
-        try {
-            await createRoomAction({ createUserId: userId, name: 'Test233' });
-            toast({
-                variant: 'success',
-                title: '创建成功',
-                description: '房间已成功创建'
-            });
-        } catch {
-            toast({
-                variant: 'destructive',
-                title: '创建失败',
-                description: '请稍后重试'
-            });
-        }
-    }
-
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (outerDivRef.current && !outerDivRef.current.contains(e.target as Node)) {
+            if (contentDivRef.current && !contentDivRef.current.contains(e.target as Node)) {
                 setSelected(null);
             }
         };
@@ -67,7 +52,7 @@ export default function RoomsView({ userId, displayRooms }: RoomViewProps) {
     }, []);
 
     return (
-        <div ref={outerDivRef} className="flex flex-col gap-10">
+        <div ref={contentDivRef} className="flex flex-col gap-10">
             <div className="flex flex-wrap gap-4">
                 {displayRooms.map(room => {
                     const roomColor = roomColors.find(rc => rc.id === room.id)?.color ?? PASTEL_COLORS[0]!;
@@ -78,7 +63,7 @@ export default function RoomsView({ userId, displayRooms }: RoomViewProps) {
                                 id={room.id}
                                 title={room.name}
                                 userId={userId}
-                                description={`创建于 ${room.createdAt?.toLocaleDateString()}`}
+                                description={t('dashboard.created_at', { date: room.createdAt ? room.createdAt.toLocaleDateString() : '' })}
                                 color={roomColor}
                                 selected={selected === room.id}
                                 select={() => setSelected(room.id)}
@@ -89,7 +74,6 @@ export default function RoomsView({ userId, displayRooms }: RoomViewProps) {
                     );
                 })}
             </div>
-            <Button onClick={handleCreateRoom}>Create Room</Button>
         </div>
     );
 }
@@ -110,6 +94,7 @@ function SingleRoom({ id, userId, title, description, color, selected, select, n
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(title);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const t = useTranslations();
 
     const handleKeyPress = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
@@ -125,14 +110,14 @@ function SingleRoom({ id, userId, title, description, color, selected, select, n
             if (error) {
                 toast({
                     variant: 'destructive',
-                    title: '更名失败',
-                    description: '请稍后重试'
+                    title: t('dashboard.rename_fail'),
+                    description: error.message
                 });
             } else {
                 toast({
                     variant: 'success',
-                    title: '更名成功',
-                    description: '房间名称已更新'
+                    title: t('dashboard.rename_success'),
+                    description: t('dashboard.room_renamed')
                 });
             }
         }
@@ -150,14 +135,14 @@ function SingleRoom({ id, userId, title, description, color, selected, select, n
         if (error) {
             toast({
                 variant: 'destructive',
-                title: '更名失败',
-                description: '请稍后重试'
+                title: t('dashboard.rename_fail'),
+                description: error.message
             });
         } else {
             toast({
                 variant: 'success',
-                title: '更名成功',
-                description: '房间名称已更新'
+                title: t('dashboard.rename_success'),
+                description: t('dashboard.room_renamed')
             });
         }
     };
@@ -168,14 +153,14 @@ function SingleRoom({ id, userId, title, description, color, selected, select, n
         if (error) {
             toast({
                 variant: 'destructive',
-                title: '删除失败',
-                description: '只有创建者可以删除房间'
+                title: t('dashboard.delete_fail'),
+                description: error.message
             });
         } else {
             toast({
                 variant: 'success',
-                title: '删除成功',
-                description: '房间已从列表中移除'
+                title: t('dashboard.delete_success'),
+                description: t('dashboard.room_deleted')
             });
         }
 
@@ -210,14 +195,14 @@ function SingleRoom({ id, userId, title, description, color, selected, select, n
                 <p className="text-md font-medium select-none">{title}</p>
             </div>
             {isEditing && canEdit ? (
-                <input
+                <Input
                     type="text"
                     value={editedTitle}
                     onChange={e => setEditedTitle(e.target.value)}
                     onBlur={handleBlur}
                     onKeyPress={handleKeyPress}
                     autoFocus
-                    className="mt-2 rounded-md border border-gray-200 px-2 py-0.5 text-[13px] outline-none"
+                    className="h-8"
                 />
             ) : (
                 <p onClick={() => setIsEditing(true)} className="mt-2 cursor-pointer text-[13px] font-medium select-none hover:text-blue-500">
@@ -229,7 +214,7 @@ function SingleRoom({ id, userId, title, description, color, selected, select, n
                 isOpen={showConfirmationModal}
                 onSetOpen={setShowConfirmationModal}
                 onConfirm={confirmDelete}
-                message="确定要删除这个房间吗？"
+                message={t('dashboard.delete_confirm')}
             />
         </div>
     );

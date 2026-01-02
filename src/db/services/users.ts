@@ -1,4 +1,4 @@
-import { and, desc, SQL, arrayOverlaps } from 'drizzle-orm';
+import { and, desc, SQL, arrayOverlaps, inArray } from 'drizzle-orm';
 import db from '@/lib/config/database';
 import users from '@/db/schema/users';
 import { queryFilter } from '@/utils/common';
@@ -42,10 +42,18 @@ function selectUserByEmail(email: string) {
     });
 }
 
+//批量 id查询用户
+function selectUsersByIds(userIds: string[]) {
+    return db.query.users.findMany({
+        where: (table, { inArray }) => inArray(table.id, userIds)
+    });
+}
+
 //分页查询用户
 function queryUser({ limit = 10, pageIndex = 0, ...filterParams }: QueryParams) {
     const filterConfigMap = {
-        role: (value: 'USER' | 'ADMIN') => arrayOverlaps(users.roles, [value])
+        role: (value: 'USER' | 'ADMIN') => arrayOverlaps(users.roles, [value]),
+        ids: (value: string[]) => inArray(users.id, value)
     };
 
     const filters: SQL[] = queryFilter(filterConfigMap, filterParams);
@@ -61,7 +69,7 @@ function queryUser({ limit = 10, pageIndex = 0, ...filterParams }: QueryParams) 
     ]);
 }
 
-async function vaildUser({ userId, email }: { userId?: string; email?: string }) {
+async function validUser({ userId, email }: { userId?: string; email?: string }) {
     if (!userId && !email) {
         return false;
     }
@@ -81,4 +89,4 @@ async function vaildUser({ userId, email }: { userId?: string; email?: string })
     return false;
 }
 
-export { selectUserById, selectUserByEmail, queryUser, getUserState, vaildUser };
+export { selectUserById, selectUserByEmail, selectUsersByIds, queryUser, getUserState, validUser };

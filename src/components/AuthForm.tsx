@@ -35,7 +35,7 @@ interface AuthFormProps<T extends FieldValues> {
 export default function AuthForm<T extends FieldValues>({ type, schema, formConfig, onSubmit }: AuthFormProps<T>) {
     const isLogin = type === 'LOGIN' || type === 'LOGIN_EMAIL';
     const router = useRouter();
-    const t = useTranslations('auth');
+    const t = useTranslations();
 
     async function handleSubmit(data: T) {
         try {
@@ -45,8 +45,7 @@ export default function AuthForm<T extends FieldValues>({ type, schema, formConf
                 throw new Error(result.message);
             } else if (result?.success === true) {
                 toast({
-                    title: t('common.success'),
-                    description: result.message
+                    title: t('common.success')
                 });
 
                 if (type !== 'LOGIN_EMAIL') {
@@ -56,7 +55,7 @@ export default function AuthForm<T extends FieldValues>({ type, schema, formConf
         } catch (error) {
             toast({
                 title: t('common.fail'),
-                description: error instanceof Error ? error.message : isLogin ? t('login_error') : t('register_error'),
+                description: error instanceof Error ? error.message : isLogin ? t('auth.login_error') : t('auth.register_error'),
                 variant: 'destructive'
             });
         }
@@ -64,26 +63,26 @@ export default function AuthForm<T extends FieldValues>({ type, schema, formConf
 
     return (
         <div className="flex flex-col gap-4">
-            <h1 className="text-primary text-2xl font-semibold">{isLogin ? t('login_welcome') : t('register_welcome')}</h1>
-            <p className="text-light-100">{isLogin ? t('login_description') : t('register_description')}</p>
+            <h1 className="text-primary text-2xl font-semibold">{isLogin ? t('auth.login_welcome') : t('auth.register_welcome')}</h1>
+            <p className="text-light-100">{isLogin ? t('auth.login_description') : t('auth.register_description')}</p>
             <FlexForm
                 formInputClass=""
                 schema={schema}
                 formConfig={formConfig}
                 onSubmit={handleSubmit}
-                button={{ children: isLogin ? t('login') : t('register') }}
+                button={{ children: isLogin ? t('auth.login') : t('auth.register') }}
                 parentClass="space-y-6 border border-gray-300 rounded-md p-4 dark:border-gray-700"
             />
             <p className="m-1 text-center text-base font-medium">
-                <span className="mr-1">{isLogin ? t('login_ask') : t('register_ask')}</span>
+                <span className="mr-1">{isLogin ? t('auth.login_ask') : t('auth.register_ask')}</span>
                 <Link className="font-bold text-blue-400 duration-300 hover:text-blue-600" href={isLogin ? '/register' : '/login'}>
-                    {isLogin ? t('register') : t('login')}
+                    {isLogin ? t('auth.register') : t('auth.login')}
                 </Link>
             </p>
             {isLogin && (
                 <p className="text-center text-base font-medium">
                     <Link className="font-bold text-blue-400 duration-300 hover:text-blue-600" href={type === 'LOGIN' ? '/loginWithEmail' : '/login'}>
-                        {type === 'LOGIN' ? t('login_with_email') : t('login_with_password')}
+                        {type === 'LOGIN' ? t('auth.login_with_email') : t('auth.login_with_password')}
                     </Link>
                 </p>
             )}

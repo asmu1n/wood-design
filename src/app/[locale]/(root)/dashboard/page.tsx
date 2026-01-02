@@ -16,6 +16,8 @@ import {
     PaginationNext,
     PaginationPrevious
 } from '@/components/ui/pagination';
+import CreateRoom from '@/components/dashboard/CreateRoom';
+import { getTranslations } from 'next-intl/server';
 
 interface QueryParams {
     pageIndex?: string | number;
@@ -25,6 +27,7 @@ interface QueryParams {
 export default async function Page({ searchParams }: { searchParams: Promise<QueryParams> }) {
     const session = await auth();
     const { pageIndex: rawPageIndex = 1, visibleMode = 'ALL' } = await searchParams;
+    const t = await getTranslations();
 
     const pageIndex = Number(rawPageIndex);
 
@@ -58,7 +61,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Que
                                     'rounded-md px-3 py-1 text-[12px] font-medium transition-colors',
                                     visibleMode === 'ALL' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:bg-gray-50'
                                 )}>
-                                所有
+                                {t('dashboard.all')}
                             </Link>
                             <Link
                                 href={`?visibleMode=OWNED&pageIndex=1`}
@@ -66,12 +69,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<Que
                                     'rounded-md px-3 py-1 text-[12px] font-medium transition-colors',
                                     visibleMode === 'OWNED' ? 'bg-gray-100 text-black' : 'text-gray-500 hover:bg-gray-50'
                                 )}>
-                                我的
+                                {t('dashboard.owned')}
                             </Link>
                         </div>
                     </div>
                 </div>
+
                 <div className="flex h-full flex-col gap-10 overflow-y-auto p-8">
+                    <CreateRoom userId={user.id} />
+
                     <RoomsView userId={user.id} displayRooms={rooms} />
 
                     {totalPages > 1 && (

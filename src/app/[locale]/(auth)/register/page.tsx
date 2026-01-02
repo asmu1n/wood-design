@@ -3,30 +3,32 @@
 import AuthForm, { FormItemConfig } from '@/components/AuthForm';
 import { registerSchema } from '@/lib/validations';
 import { Register } from '@/db/services/auth';
+import { useTranslations } from 'next-intl';
 
 export default function Registry() {
+    const t = useTranslations();
     const registerFormConfig: FormItemConfig<AuthCredentials>[] = [
         {
             key: 'name',
-            label: '姓名',
+            label: t('form.name'),
             options: {
-                placeholder: '请输入姓名'
+                placeholder: t('form.name_placeholder')
             }
         },
         {
             key: 'email',
-            label: '邮箱',
+            label: t('form.email'),
             type: 'email',
             options: {
-                placeholder: '请输入邮箱'
+                placeholder: t('form.email_placeholder')
             }
         },
         {
             key: 'password',
-            label: '密码',
+            label: t('form.password'),
             type: 'password',
             options: {
-                placeholder: '请输入密码'
+                placeholder: t('form.password_placeholder')
             }
         }
     ];

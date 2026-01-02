@@ -1,5 +1,4 @@
 import { twMerge, twJoin, type ClassNameValue } from 'tailwind-merge';
-import { toast } from '@/lib/hooks/useToast';
 import { SQL } from 'drizzle-orm';
 
 // 动态样式组合以及合并函数
@@ -44,15 +43,11 @@ export async function uploadFileByUrl(file: File) {
         if (upload.ok) {
             return publicUrl;
         } else {
-            throw new Error('上传失败');
+            throw new Error('Upload failed');
         }
     } catch (error) {
         console.error(error);
-        toast({
-            title: '失败',
-            description: '上传失败',
-            variant: 'destructive'
-        });
+        throw error;
     }
 }
 

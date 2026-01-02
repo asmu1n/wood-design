@@ -3,15 +3,17 @@
 import { loginWithEmailSchema } from '@/lib/validations';
 import { LoginWithEmail } from '@/db/services/auth';
 import AuthForm, { FormItemConfig } from '@/components/AuthForm';
+import { useTranslations } from 'next-intl';
 
 export default function SignInWithEmail() {
+    const t = useTranslations();
     const loginWithEmailConfig: FormItemConfig<Pick<AuthCredentials, 'email'>>[] = [
         {
             key: 'email',
-            label: '邮箱',
+            label: t('form.email'),
             type: 'email',
             options: {
-                placeholder: '请输入邮箱'
+                placeholder: t('form.email_placeholder')
             }
         }
     ];

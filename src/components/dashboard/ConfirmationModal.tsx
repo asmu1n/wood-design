@@ -1,6 +1,7 @@
 import Dialog from '../Dialog';
 import { Button } from '../ui/button';
 import { DialogClose } from '../ui/dialog';
+import { useTranslations } from 'next-intl';
 
 interface ConfirmationModalProps {
     isOpen: boolean;
@@ -13,7 +14,7 @@ function ConfirmationModal({ isOpen, onSetOpen, onConfirm, message }: Confirmati
     if (!isOpen) return null;
 
     return (
-        <Dialog open={isOpen} setOpen={onSetOpen} footer={<ConfirmFooter onConfirm={onConfirm} />}>
+        <Dialog open={isOpen} onUpdateOpenState={onSetOpen} footer={<ConfirmFooter onConfirm={onConfirm} />}>
             {message}
         </Dialog>
     );
@@ -24,12 +25,14 @@ interface ConfirmFooterProps {
 }
 
 function ConfirmFooter({ onConfirm }: ConfirmFooterProps) {
+    const t = useTranslations();
+
     return (
         <>
             <DialogClose asChild>
-                <Button>Cancel</Button>
+                <Button>{t('common.cancel')}</Button>
             </DialogClose>
-            <Button onClick={onConfirm}>Confirm</Button>
+            <Button onClick={onConfirm}>{t('common.confirm')}</Button>
         </>
     );
 }
