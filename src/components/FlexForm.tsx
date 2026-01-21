@@ -22,6 +22,21 @@ export interface FlexFormProps<T extends FieldValues> {
     button?: SubmitButtonProps;
 }
 
+/**
+ * Render a configurable form bound to a Zod schema and a declarative field configuration.
+ *
+ * Renders form fields described by `formConfig`, applies validation from `schema`, and calls
+ * `onSubmit` with the form data when submitted. Supports custom field slots, file/image uploads,
+ * textarea and default input types, and accepts optional class overrides and a submit button config.
+ *
+ * @param schema - Zod schema used for form validation and parsing
+ * @param formConfig - Array of field configuration objects describing keys, labels, types, defaults, descriptions, options, and optional custom slots
+ * @param button - Configuration for the submit control (content, disabled state, or replacement rendering)
+ * @param onSubmit - Callback invoked with the form data when the form is submitted
+ * @param width - Optional CSS width for the form; when a number is provided it is treated as pixels
+ * @param formClass - Optional object of CSS class names to customize parent, item, label, and input styling
+ * @returns The rendered form element configured according to the provided schema and formConfig
+ */
 export default function FlexForm<T extends FieldValues>({ schema, formConfig, button, onSubmit, width, ...formClass }: FlexFormProps<T>) {
     const defaultValues = {} as DefaultValues<T>;
 

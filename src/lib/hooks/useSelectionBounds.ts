@@ -1,5 +1,11 @@
 import { shallow, useSelf, useStorage } from '@liveblocks/react';
 
+/**
+ * Compute the axis-aligned bounding box for a layer.
+ *
+ * @param layer - The layer whose position and dimensions should be used
+ * @returns An object with `x`, `y`, `width`, and `height` representing the layer's bounding box
+ */
 function getLayerBounds(layer: Layer): XYHW {
     const { x, y, width, height, type } = layer;
 
@@ -14,6 +20,12 @@ function getLayerBounds(layer: Layer): XYHW {
     }
 }
 
+/**
+ * Compute the axis-aligned bounding box that encloses all layers in a list.
+ *
+ * @param layerList - Array of layers to include when computing the bounding box
+ * @returns The enclosing rectangle as `{ x, y, width, height }`, or `null` if `layerList` is empty
+ */
 function boundingBox(layerList: Layer[]): XYHW | null {
     if (layerList.length === 0) {
         return null;
@@ -45,6 +57,14 @@ function boundingBox(layerList: Layer[]): XYHW | null {
     };
 }
 
+/**
+ * Compute the bounding box of the currently selected layers.
+ *
+ * Reads the current user's selection from presence and the shared storage layers to compute
+ * the minimal rectangle that encloses all selected layers.
+ *
+ * @returns The `XYHW` rectangle that encloses all selected layers, or `null` if no layers are selected
+ */
 export default function useSelectionBounds() {
     const selection = useSelf(self => self.presence.selection);
 

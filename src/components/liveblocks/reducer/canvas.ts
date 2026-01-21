@@ -26,10 +26,11 @@ export type CanvasAction =
 // | { type: 'SET_CURSOR'; payload: Point };
 
 /**
- * 相关 Canvas 状态管理 reducer
- * @param state 当前 canvas 状态
- * @param action 操作类型
- * @returns 更新后的 canvas 状态
+ * Apply a canvas action to the current canvas state and produce the new state.
+ *
+ * @param state - The current canvas state to update
+ * @param action - The action describing the state transition to apply
+ * @returns The updated canvas state; if the action type is unrecognized, the original `state` is returned unchanged
  */
 export function canvasReducer(state: CanvasType, action: CanvasAction): CanvasType {
     switch (action.type) {

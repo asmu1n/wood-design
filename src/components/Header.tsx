@@ -10,6 +10,14 @@ import { Button } from './ui/button';
 import { signOut } from '@/db/services/auth';
 import { useTranslations } from 'next-intl';
 
+/**
+ * Renders the top navigation header with logo, profile avatar, and sign-out control.
+ *
+ * The avatar shows the user's initials when a session is provided or a translated guest label otherwise.
+ *
+ * @param session - Optional authenticated session used to derive the avatar fallback text
+ * @returns The header element containing a logo link, optional navigation items, a profile avatar link, and a sign-out button
+ */
 export default function Header({ session }: { session?: Session }) {
     const pathname = usePathname();
     const t = useTranslations();

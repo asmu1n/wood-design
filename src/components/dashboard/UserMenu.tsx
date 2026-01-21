@@ -8,6 +8,12 @@ import { Button } from '../ui/button';
 import PopoverConfirm from '../PopoverConfirm';
 import { useTranslations } from 'next-intl';
 
+/**
+ * Renders a compact user menu trigger (avatar, email, chevron) that opens a confirmation popover containing a logout button.
+ *
+ * @param email - The user's email; when `null`, "Anonymous" is shown as the display name.
+ * @returns The UserMenu React element.
+ */
 export default function UserMenu({ email }: { email: string | null }) {
     const t = useTranslations();
 

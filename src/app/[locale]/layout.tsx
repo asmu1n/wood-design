@@ -47,6 +47,12 @@ export const metadata: Metadata = {
     description: 'WoodBook is a book lending platform that connects readers with book lovers.'
 };
 
+/**
+ * Validates the requested locale and renders the top-level HTML shell with global fonts, internationalization provider, and notification toaster.
+ *
+ * @param params - A promise that resolves to an object with a `locale` string used to set the document `lang`. If the locale is not listed in the router's locales, this triggers a notFound() response (404).
+ * @returns The React HTML document root with `lang` set to the validated locale, wrapping `children` with `NextIntlClientProvider` and rendering a `Toaster`.
+ */
 export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
     // Ensure that the incoming `locale` is valid
     const { locale } = await params;

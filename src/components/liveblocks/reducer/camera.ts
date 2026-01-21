@@ -8,10 +8,16 @@ export type CameraAction =
     | { type: 'SET_ZOOM'; payload: { scale: number; clientX: number; clientY: number } };
 
 /**
- * 相机状态管理 reducer
- * @param state 当前相机状态
- * @param action 操作类型
- * @returns 更新后的相机状态
+ * Update the camera state in response to pan and zoom actions.
+ *
+ * Supports:
+ * - MOVE: shift position by `deltaX` and `deltaY`.
+ * - ZOOM_IN / ZOOM_OUT: adjust zoom in steps while clamping between `MIN_ZOOM` and `MAX_ZOOM`.
+ * - SET_ZOOM: set zoom (clamped between `MIN_ZOOM` and `MAX_ZOOM`) and adjust `x`/`y` so the specified `clientX`/`clientY` remains fixed relative to the canvas content.
+ *
+ * @param state - Current camera state
+ * @param action - Action describing the update to apply
+ * @returns The updated camera state
  */
 export function cameraReducer(state: Camera, action: CameraAction): Camera {
     switch (action.type) {

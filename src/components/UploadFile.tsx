@@ -13,6 +13,20 @@ interface UploadVideoProps {
     value: string | null;
 }
 
+/**
+ * Renders a styled file upload UI that handles selecting, uploading, previewing, and resetting a single file.
+ *
+ * The component uploads the chosen file via `uploadFileByUrl`, shows upload status and a success state,
+ * displays an image preview when `type` is "image", and notifies the parent of changes via `onFileChange`.
+ *
+ * @param onFileChange - Callback invoked with the uploaded file's public URL when upload succeeds, or `null` when the file is reset.
+ * @param placeholder - Optional placeholder text shown when no file is selected.
+ * @param type - File type to accept and preview behavior; `"image"` enables an image preview, otherwise accepts video files.
+ * @param variant - Visual theme for the component; affects colors for `"dark"` or `"light"` variants.
+ * @param value - Initial file URL; when provided the component starts in the uploaded state.
+ *
+ * @returns The upload file React element.
+ */
 export default function UploadFile({ onFileChange, placeholder, type, variant, value }: UploadVideoProps) {
     const t = useTranslations('upload');
     const [fileController, setFileController] = useState({

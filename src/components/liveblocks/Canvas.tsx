@@ -31,6 +31,17 @@ interface CanvasProps {
     othersWithAccessToRoom: User[];
 }
 
+/**
+ * Renders the collaborative drawing canvas with layers, selection tools, zoom/pan, and multiplayer presence.
+ *
+ * The component wires user input (pointer, wheel, keyboard) to canvas and camera state, displays layers and
+ * live drawing drafts, and provides UI chrome (ToolsBar, SideBars) for undo/redo, zoom, and room context.
+ *
+ * @param roomName - The human-readable name of the room shown in the SideBars
+ * @param roomId - The unique room identifier passed to the SideBars
+ * @param othersWithAccessToRoom - Array of other users with access to the room, used for multiplayer UI
+ * @returns The Canvas React element containing the interactive SVG drawing surface and associated UI
+ */
 export default function Canvas({ roomName, roomId, othersWithAccessToRoom }: CanvasProps) {
     const roomColor = useStorage(storage => storage.roomColor);
     const { layerIds } = useLayerList();

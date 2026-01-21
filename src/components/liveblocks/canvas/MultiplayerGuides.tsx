@@ -5,6 +5,11 @@ import PathLayer from './PathLayer';
 import { connectionIdToColor } from '@/utils/layer';
 import { hexToRgb } from '@/utils/common';
 
+/**
+ * Renders a Cursor component for each connected peer.
+ *
+ * @returns A React fragment containing a Cursor element for every other user's connection ID.
+ */
 function Cursors() {
     const idList = useOthersConnectionIds();
 
@@ -17,6 +22,14 @@ function Cursors() {
     );
 }
 
+/**
+ * Renders path previews for other users' pencil drafts on the canvas.
+ *
+ * For each connected peer that has a `pencilDraft` in presence, a `PathLayer` is created
+ * using the peer's id, draft points, and pen color. Peers without a `pencilDraft` are omitted.
+ *
+ * @returns A React fragment containing `PathLayer` elements for each other user's pencil draft.
+ */
 function Drafts() {
     const others = useOthersMapped(
         other => ({
@@ -51,6 +64,11 @@ function Drafts() {
     return <>{othersContent}</>;
 }
 
+/**
+ * Render real-time collaboration guides consisting of peer cursors and live pencil drafts.
+ *
+ * @returns A React fragment containing peer cursor indicators and their live pencil draft layers.
+ */
 function MultiplayerGuides() {
     return (
         <>

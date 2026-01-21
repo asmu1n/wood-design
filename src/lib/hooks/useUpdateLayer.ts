@@ -5,6 +5,14 @@ interface UseSelectedLayerProps {
     canvasState: CanvasType;
 }
 
+/**
+ * Create Liveblocks mutations that update selected layers according to the current canvas state.
+ *
+ * @param canvasState - The canvas state that controls behavior (mode, initialBounds, corner, and current selection).
+ * @returns An object with two mutation handlers:
+ *  - `translateSelectedLayer` — applies an `{ x, y }` offset to every selected layer when `canvasState.mode` is `'Translating'`.
+ *  - `resizeSelectedLayer` — computes new bounds from a given point and updates the first selected layer when `canvasState.mode` is `'Resizing'`.
+ */
 export default function useUpdateLayer({ canvasState }: UseSelectedLayerProps) {
     // translate selected layer
     const translateSelectedLayer = useMutation(

@@ -17,6 +17,15 @@ interface SelectionBoxProps {
     isShow: boolean;
 }
 
+/**
+ * Renders a selectable bounding box with a size label and optional resize handles for the current selection.
+ *
+ * Renders an SVG rectangle matching the selection bounds, a floating badge that displays the rounded width and height, and — if the selected layer type allows handles — eight resize handles that start a resize interaction when pressed.
+ *
+ * @param dispatch_canvas - Dispatcher for canvas actions; used to enter resizing mode when a handle is pressed.
+ * @param isShow - Whether the selection box should be visible; when false, the component renders nothing.
+ * @returns The SVG elements that make up the selection rectangle, label badge, label text, and optional resize handles, or `null` when `isShow` is false.
+ */
 function SelectionBox({ dispatch_canvas, isShow }: SelectionBoxProps) {
     const selectLayerId = useSelf(me => (me.presence.selection.length === 1 ? me.presence.selection[0] : null));
     const isShowingHandle = useStorage(root => selectLayerId && root.layers.get(selectLayerId)?.type !== 'Path');

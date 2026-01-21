@@ -10,6 +10,18 @@ interface ColorPickerProps {
 
 const validColorRegex = /^#[0-9a-f]{6}$/i;
 
+/**
+ * Renders a text input with a color swatch and popup hex color picker for editing a hex color value.
+ *
+ * The component validates input against `#` followed by six hex digits, calls `onUpdateColor` when a valid
+ * color is committed or selected, resets the input to `value` on blur if invalid, and closes the popup
+ * when clicking outside.
+ *
+ * @param value - Current hex color string (e.g., `#aabbcc`) shown in the input and swatch.
+ * @param onUpdateColor - Called with a valid hex color when the user commits or selects a color.
+ * @param className - Optional additional CSS classes applied to the root container.
+ * @returns The color-picker React element.
+ */
 export default function ColorPicker({ value, onUpdateColor, className }: ColorPickerProps) {
     const [inputValue, setInputValue] = useState(value);
     const [isPickerOpen, setIsPickerOpen] = useState(false);

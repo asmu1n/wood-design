@@ -6,6 +6,13 @@ interface PencilButtonProps {
     dispatch_canvas: (action: CanvasAction) => void;
 }
 
+/**
+ * Renders a pencil tool button that indicates active state and, when clicked, sets the canvas insert mode to create a Path.
+ *
+ * @param isActive - Whether the button is visually active
+ * @param dispatch_canvas - Callback that accepts a `CanvasAction`; invoked to dispatch the `SET_INSERT_MODE` action with payload `{ layerType: 'Path' }` when the button is clicked
+ * @returns The IconButton element containing the pencil SVG icon
+ */
 export default function PencilButton({ isActive, dispatch_canvas }: PencilButtonProps) {
     return (
         <IconButton isActive={isActive} onClick={() => dispatch_canvas({ type: 'SET_INSERT_MODE', payload: { layerType: 'Path' } })}>

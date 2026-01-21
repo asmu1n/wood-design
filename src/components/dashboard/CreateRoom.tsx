@@ -14,6 +14,15 @@ interface CreateRoomProps {
     userId: string;
 }
 
+/**
+ * Render a clickable tile that opens a dialog for entering a room name and creating a new room.
+ *
+ * The component validates the entered name, dispatches a create-room action, displays success or error toasts,
+ * closes the dialog and clears the input on success, and disables the confirm control while the operation is pending.
+ *
+ * @param userId - The ID to associate as the room creator when creating a room
+ * @returns The component's rendered JSX
+ */
 export default function CreateRoom({ userId }: CreateRoomProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [roomName, setRoomName] = useState('');

@@ -1,6 +1,15 @@
 import { cn } from '@/utils/common';
 import { ChangeEvent, useEffect, useState } from 'react';
 
+/**
+ * Renders a stylized select input whose selection is kept in sync with the provided `value`.
+ *
+ * @param value - Currently selected option value displayed by the dropdown
+ * @param onChange - Callback invoked with the newly selected value when the user changes selection
+ * @param options - Array of option strings to render as selectable items
+ * @param className - Optional additional class names applied to the wrapper element
+ * @returns The dropdown React element
+ */
 export default function Dropdown({
     value,
     onChange,

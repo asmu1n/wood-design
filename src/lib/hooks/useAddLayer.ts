@@ -8,6 +8,14 @@ import useSelectLayer from './useSelectLayer';
 
 const MAX_LAYERS = 100;
 
+/**
+ * Provides Liveblocks mutation handlers to create and insert canvas layers.
+ *
+ * @param dispatch_canvas - Callback to dispatch canvas-level actions (e.g., mode changes).
+ * @returns An object with two mutation handlers:
+ *  - `insertLayer`: creates and inserts a new Rectangle, Ellipse, or Text layer at a given position (no-op if the total layers reach the MAX_LAYERS limit), selects the new layer, and resets the canvas mode.
+ *  - `insertPath`: converts the current `pencilDraft` from presence into a path layer if it contains more than one point and there is capacity, adds the new path layer, and clears `pencilDraft` from presence (clears `pencilDraft` regardless of creation).
+ */
 export default function useAddLayer(dispatch_canvas: (action: CanvasAction) => void) {
     const { addLayer } = useLayerList();
     const { selectLayer } = useSelectLayer();

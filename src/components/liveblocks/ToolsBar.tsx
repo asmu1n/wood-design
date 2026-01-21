@@ -25,6 +25,21 @@ interface ToolsBarProps {
 
 const shapeSelectList: LayerType[] = ['Rectangle', 'Ellipse'];
 
+/**
+ * Render the floating tools toolbar that displays canvas tool buttons and grouped operation controls.
+ *
+ * @param canvasState - Current canvas state used to determine active tool and layer type
+ * @param dispatch_canvas - Dispatcher for canvas actions
+ * @param zoomIn - Handler to increase canvas zoom
+ * @param zoomOut - Handler to decrease canvas zoom
+ * @param canZoomIn - Whether zoom-in is currently allowed
+ * @param canZoomOut - Whether zoom-out is currently allowed
+ * @param canRedo - Whether redo is currently available
+ * @param canUndo - Whether undo is currently available
+ * @param redo - Handler to perform redo
+ * @param undo - Handler to perform undo
+ * @returns The toolbar JSX element containing tool buttons and grouped undo/redo and zoom controls
+ */
 function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, canZoomOut, canRedo, canUndo, redo, undo }: ToolsBarProps) {
     const t = useTranslations('tools');
     const toolListConfig = [
@@ -76,6 +91,12 @@ function ToolsBar({ canvasState, dispatch_canvas, zoomIn, zoomOut, canZoomIn, ca
     );
 }
 
+/**
+ * Renders a horizontal container for grouped operation buttons with a left separator.
+ *
+ * @param children - The button elements to render inside the group
+ * @returns The wrapper div element that arranges `children` horizontally and adds a left border
+ */
 function OperationButtonList({ children }: { children: React.ReactNode }) {
     return <div className="flex items-center justify-center border-l-[1px] border-black/10">{children}</div>;
 }

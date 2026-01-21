@@ -6,6 +6,13 @@ interface ZoomOutButtonProps {
     disabled: boolean;
 }
 
+/**
+ * Renders a zoom-out icon button that calls the provided handler when activated.
+ *
+ * @param onClick - Callback invoked when the button is clicked (if not disabled).
+ * @param disabled - Whether the button is disabled and non-interactive.
+ * @returns The rendered IconButton element containing a zoom-out icon.
+ */
 export default function ZoomOutButton({ onClick, disabled }: ZoomOutButtonProps) {
     return (
         <IconButton onClick={onClick} disabled={disabled}>

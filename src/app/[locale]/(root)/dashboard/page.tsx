@@ -24,6 +24,12 @@ interface QueryParams {
     visibleMode?: 'ALL' | 'OWNED';
 }
 
+/**
+ * Render the dashboard page displaying the user's menu, a room creation form, a list of rooms, and pagination controls.
+ *
+ * @param searchParams - A promise that resolves to query parameters. Expected keys: `pageIndex` (defaults to 1) and `visibleMode` (`'ALL'` or `'OWNED'`, defaults to `'ALL'`); these control pagination and which rooms are shown.
+ * @returns A React element representing the dashboard, or `null` when there is no authenticated user or the user cannot be found.
+ */
 export default async function Page({ searchParams }: { searchParams: Promise<QueryParams> }) {
     const session = await auth();
     const { pageIndex: rawPageIndex = 1, visibleMode = 'ALL' } = await searchParams;
