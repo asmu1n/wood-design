@@ -1,12 +1,23 @@
 import { twMerge, twJoin, type ClassNameValue } from 'tailwind-merge';
 import { SQL } from 'drizzle-orm';
 
-// 动态样式组合以及合并函数
+/**
+ * Compose and merge Tailwind CSS class names.
+ *
+ * @param inputs - One or more class name values to compose (strings, arrays, or objects)
+ * @returns A single space-separated class name string with Tailwind-specific conflicts resolved
+ */
 export function cn(...inputs: ClassNameValue[]) {
     return twMerge(twJoin(inputs));
 }
 
-//签发授权上传Url到R2
+/**
+ * Uploads a file by requesting a signed upload URL from the server, performing the upload, and returning the file's public URL.
+ *
+ * @param file - The File object to upload (its name and MIME type are sent to request the signed URL).
+ * @returns The public URL where the uploaded file is accessible.
+ * @throws Error when obtaining the upload URL or performing the upload fails.
+ */
 export async function uploadFileByUrl(file: File) {
     try {
         const getUrl = await fetch('/api/upload', {
@@ -51,7 +62,11 @@ export async function uploadFileByUrl(file: File) {
     }
 }
 
-// 判断是服务端还是客户端组件
+/**
+ * Logs whether the current runtime is a server or a client environment.
+ *
+ * Prints "server component" when `window` is undefined; otherwise prints "client component".
+ */
 export function isServer() {
     if (typeof window == 'undefined') {
         console.log('server component');
@@ -65,7 +80,13 @@ interface transformUrlParams {
     params: Record<string, string | number>;
 }
 
-//GET请求参数拼接
+/**
+ * Build a URL by resolving a base URL against the current location and appending query parameters from an object.
+ *
+ * @param baseUrl - The base URL string to resolve (may be relative or absolute)
+ * @param params - An object mapping query parameter names to values; only entries with truthy values are appended
+ * @returns The constructed `URL` with the given query parameters appended
+ */
 export function transformGetParams({ baseUrl, params }: transformUrlParams) {
     const url = new URL(baseUrl, window.location.href);
 
@@ -78,6 +99,13 @@ export function transformGetParams({ baseUrl, params }: transformUrlParams) {
     return url;
 }
 
+/**
+ * Builds SQL filter expressions from provided parameters using a key-to-filter factory mapping.
+ *
+ * @param filterConfig - An object mapping parameter keys to functions that produce an `SQL` filter from a parameter value.
+ * @param filterParams - Parameter values to convert into filters; values that are truthy, `false`, or `0` will be processed.
+ * @returns An array of `SQL` filters produced by calling the corresponding factory for each applicable parameter.
+ */
 export function queryFilter<T extends Record<string, any>>(filterConfig: Record<keyof T, (value: any) => SQL>, filterParams: T): SQL[] {
     const filters: SQL[] = [];
 
@@ -94,6 +122,12 @@ export function queryFilter<T extends Record<string, any>>(filterConfig: Record<
     return filters;
 }
 
+/**
+ * Converts a Color object to a hexadecimal CSS color string.
+ *
+ * @param rgb - An object with numeric `r`, `g`, and `b` components (0–255). If omitted, the function produces a transparent color.
+ * @returns `transparent` if `rgb` is undefined, otherwise a hex color string in the format `#rrggbb`
+ */
 export function colorToCss(rgb?: Color) {
     if (!rgb) {
         return 'transparent';
@@ -102,6 +136,12 @@ export function colorToCss(rgb?: Color) {
     return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
 }
 
+/**
+ * Converts a 7-character hex color string into its RGB components.
+ *
+ * @param hex - A hex color string in the form `#RRGGBB`
+ * @returns An object with `r`, `g`, and `b` numeric components (0–255)
+ */
 export function hexToRgb(hex: string): Color {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -117,6 +157,12 @@ class Not<T> {
     constructor(public value: T) {}
 }
 
+/**
+ * Wraps a pattern value to indicate it should be negated in pattern matching.
+ *
+ * @param value - The pattern or value to negate
+ * @returns A `Not` instance that represents the negation of `value` for use in matchers
+ */
 function not<T>(value: T): Not<T> {
     return new Not(value);
 }
@@ -128,6 +174,12 @@ class Or<T> {
     constructor(public patterns: Pattern<T>[]) {}
 }
 
+/**
+ * Creates an OR-pattern group from the provided patterns.
+ *
+ * @param patterns - One or more patterns; the resulting group matches if any pattern matches a value.
+ * @returns An `Or` instance that succeeds when any of the provided `patterns` matches.
+ */
 function or<T>(...patterns: Pattern<T>[]): Or<T> {
     return new Or(patterns);
 }
@@ -136,7 +188,11 @@ class Exists {
     constructor() {}
 }
 
-// 添加 exists 辅助函数
+/**
+ * Creates an existence matcher for pattern matching.
+ *
+ * @returns An `Exists` instance representing an existence check
+ */
 function exists() {
     return new Exists();
 }
@@ -229,10 +285,25 @@ class Matcher<T> {
     }
 }
 
+/**
+ * Creates a Matcher for the provided value.
+ *
+ * @param value - The value to match against patterns using the matcher.
+ * @returns A Matcher initialized with `value` for chaining pattern handlers.
+ */
 function match<T>(value: T): Matcher<T> {
     return new Matcher(value);
 }
 
+/**
+ * Determines whether a value is considered non-empty using the utility's rules.
+ *
+ * The function treats the following as empty: `null`, `undefined`, and the empty string `''`.
+ * Numbers are considered non-empty (including `0`). Plain objects are non-empty when they have at least one own key. Arrays are non-empty when their length is greater than zero. All other values are treated as non-empty.
+ *
+ * @param data - The value to evaluate for emptiness
+ * @returns `true` if `data` is considered non-empty, `false` otherwise
+ */
 function validatorNoEmpty<T>(data: T): boolean {
     if (data === null || data === undefined || data === '') {
         return false;
@@ -261,6 +332,12 @@ type AttemptResultAsync<E, T> = Promise<AttemptResult<E, T>>;
 function attempt<T, E = Error>(operation: Promise<T>): AttemptResultAsync<E, T>;
 function attempt<T, E = Error>(operation: () => Promise<T>): AttemptResultAsync<E, T>;
 function attempt<T, E = Error>(operation: () => T): AttemptResult<E, T>;
+/**
+ * Executes an operation and returns a tuple representing either its successful result or the error that occurred.
+ *
+ * @param operation - A Promise or a function that returns a value or a Promise of a value.
+ * @returns A tuple where the first element is `null` and the second is the result value on success, or the first is the error and the second is `null` on failure.
+ */
 function attempt<T, E = Error>(operation: Promise<T> | (() => T | Promise<T>)): AttemptResult<E, T> | AttemptResultAsync<E, T> {
     if (operation instanceof Promise) {
         return operation.then((value: T) => [null, value] as const).catch((error: E) => [error, null] as const);

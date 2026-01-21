@@ -7,6 +7,15 @@ interface ErrorPageProps {
     reset: () => void;
 }
 
+/**
+ * Render a full-page error UI that displays the provided error message and a retry control.
+ *
+ * Shows the error's message inside a styled card and renders a button that invokes `reset` when clicked.
+ *
+ * @param error - The Error object (optionally extended) whose `message` will be displayed to the user
+ * @param reset - Callback invoked to retry or reset the error state when the user clicks the retry button
+ * @returns The rendered error page element
+ */
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
     const t = useTranslations('error');
 

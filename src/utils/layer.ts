@@ -1,5 +1,13 @@
 import { match } from './common';
 
+/**
+ * Compute a new bounding box by resizing `initialBounds` from the specified `corner` to the given `point`.
+ *
+ * @param initialBounds - The starting rectangle expressed as { x, y, width, height }
+ * @param corner - The corner or edge being dragged (e.g., 'Left', 'TopRight')
+ * @param point - The target point to which the corner/edge is moved
+ * @returns A new bounding box `{ x, y, width, height }` updated for the resize. Width and height are clamped to be at least 1
+ */
 export function resizeBounds(initialBounds: XYHW, corner: Side, point: Point): XYHW {
     const result = { ...initialBounds };
 
@@ -56,6 +64,13 @@ export function resizeBounds(initialBounds: XYHW, corner: Side, point: Point): X
     return result;
 }
 
+/**
+ * Convert a pointer event's client coordinates into canvas coordinates using the camera's translation and zoom.
+ *
+ * @param e - The pointer event containing clientX and clientY
+ * @param camera - Camera state with `x` and `y` translation and `zoom` scale
+ * @returns A point in canvas space with `x` and `y` rounded to the nearest integer
+ */
 export function pointerEventToCanvasPoint(e: React.PointerEvent, camera: Camera): Point {
     // 需要考虑到缩放和位移
     const { clientX, clientY } = e;
@@ -68,6 +83,17 @@ export function pointerEventToCanvasPoint(e: React.PointerEvent, camera: Camera)
     };
 }
 
+/**
+ * Convert a sequence of pen points into a positioned PathLayer with normalized points and bounding box.
+ *
+ * Computes the axis-aligned bounding box of all valid pen points (ignoring points with missing x or y),
+ * normalizes each point's coordinates to the top-left of that box, and produces a PathLayer using `color`
+ * for both stroke and fill with opacity 1.
+ *
+ * @param penPoints - Array of `[x, y, pressure?]` tuples representing pen sample positions; entries missing `x` or `y` are ignored when computing the bounds.
+ * @param color - Color used for the path's `stroke` and `fill`.
+ * @returns A PathLayer whose `x`/`y` are the bounding box origin, `width`/`height` are the box dimensions, and `points` are the original pen points translated to the box-local coordinates (pressure preserved).
+ */
 export function penPointsToPath(penPoints: DraftPoint[], color: Color): PathLayer {
     const { left, top, right, bottom } = penPoints.reduce(
         (acc, [x, y]) => {
@@ -98,6 +124,12 @@ export function penPointsToPath(penPoints: DraftPoint[], color: Color): PathLaye
     };
 }
 
+/**
+ * Map a React PointerEvent's buttons value to a human-readable mouse button label.
+ *
+ * @param e - The pointer event to inspect
+ * @returns `'left'` if the left button is indicated, `'right'` if the right button is indicated, `'middle'` if the middle button is indicated, `'unknown'` otherwise
+ */
 export function checkPointerButton(e: React.PointerEvent) {
     const config: Record<string, string> = {
         1: 'left',
@@ -109,6 +141,12 @@ export function checkPointerButton(e: React.PointerEvent) {
     return config[button] || 'unknown';
 }
 
+/**
+ * Create an SVG path data string from a polyline stroke.
+ *
+ * @param stroke - Array of `[x, y]` points defining the stroke coordinates
+ * @returns SVG path data string; empty string if `stroke` is empty
+ */
 export function getSvgPathFromStroke(stroke: number[][]): string {
     if (!stroke.length) return '';
 
@@ -128,6 +166,15 @@ export function getSvgPathFromStroke(stroke: number[][]): string {
     return d.join(' ');
 }
 
+/**
+ * Finds layer IDs whose axis-aligned rectangles intersect the rectangle defined by two points.
+ *
+ * @param layerIdList - Ordered list of layer IDs to test
+ * @param layerList - Map of layer ID to Layer containing `x`, `y`, `width`, and `height`
+ * @param origin - One corner of the selection rectangle
+ * @param current - Opposite corner of the selection rectangle
+ * @returns Array of layer IDs from `layerIdList` whose bounding rectangles overlap the selection rectangle
+ */
 export function findIntersectionLayerListWithRectangle(
     layerIdList: readonly string[],
     layerList: ReadonlyMap<string, Layer>,
@@ -159,6 +206,12 @@ export function findIntersectionLayerListWithRectangle(
 
 const COLORS = ['#DC2626', '#D97706', '#059669', '#7C3AED', '#DB2777'];
 
+/**
+ * Map a numeric connection identifier to a color from the predefined palette.
+ *
+ * @param connectionId - Numeric identifier used to select a color
+ * @returns A color string from the predefined palette corresponding to `connectionId`
+ */
 export function connectionIdToColor(connectionId: number): string {
     return COLORS[connectionId % COLORS.length]!;
 }

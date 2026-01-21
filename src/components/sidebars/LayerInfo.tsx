@@ -12,6 +12,13 @@ interface LayerInfoProps {
     updateLayer: (update: UpdateLayerParams) => void;
 }
 
+/**
+ * Render the layer inspector sidebar, showing controls for the selected layer or page settings when no layer is selected.
+ *
+ * @param layer - The currently selected layer, or `null` to show page-level settings
+ * @param updateLayer - Callback invoked with partial layer updates to apply changes to the selected layer
+ * @returns The sidebar UI as a React element containing sectioned controls for editing layer properties or the page color
+ */
 export default function LayerInfo({ layer, updateLayer }: LayerInfoProps) {
     const roomColor = useStorage(root => root.roomColor);
 
@@ -44,6 +51,13 @@ export default function LayerInfo({ layer, updateLayer }: LayerInfoProps) {
     );
 }
 
+/**
+ * Render controls for editing a layer's X and Y coordinates.
+ *
+ * @param layer - The layer whose position is being edited.
+ * @param updateLayer - Callback invoked with a partial update object (e.g., `{ x: number }` or `{ y: number }`) to apply changes to the layer.
+ * @returns A JSX element containing labeled numeric inputs for the layer's `x` and `y` values.
+ */
 function PositionSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     return (
         <>
@@ -73,6 +87,15 @@ function PositionSection({ layer, updateLayer }: { layer: Layer; updateLayer: (u
     );
 }
 
+/**
+ * Render the "Typography" section for editing properties of a Text layer.
+ *
+ * Renders font family, font size, and font weight controls when `layer.type` is `"Text"`.
+ *
+ * @param layer - The layer to edit; expected to be a Text layer.
+ * @param updateLayer - Callback that applies the provided layer property updates.
+ * @returns The Typography section UI for a Text layer, or `null` when `layer.type` is not `"Text"`.
+ */
 function TextSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     if (layer.type !== 'Text') {
         return null;
@@ -115,6 +138,15 @@ function TextSection({ layer, updateLayer }: { layer: Layer; updateLayer: (updat
     );
 }
 
+/**
+ * Render the "Layout" section with width and height controls for a Path layer.
+ *
+ * Renders two numeric inputs labeled "W" and "H" that update the layer's `width` and `height` via `updateLayer`. Returns `null` when the provided layer is not of type `Path`.
+ *
+ * @param layer - The layer to display and edit; must be a `Path` layer for controls to be shown.
+ * @param updateLayer - Callback invoked with partial layer properties to apply updates (e.g., `{ width: number }`).
+ * @returns A JSX element containing the layout controls, or `null` if the layer is not a `Path`.
+ */
 function PathSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     if (layer.type !== 'Path') {
         return null;
@@ -148,6 +180,15 @@ function PathSection({ layer, updateLayer }: { layer: Layer; updateLayer: (updat
     );
 }
 
+/**
+ * Renders appearance controls for a layer.
+ *
+ * Displays an opacity control for all layers and, when the layer is a rectangle, a corner-radius control.
+ *
+ * @param layer - The layer whose appearance is being edited.
+ * @param updateLayer - Callback invoked with partial layer properties to apply updates (e.g., `{ opacity: number }`, `{ cornerRadius: number }`).
+ * @returns A section containing controls for adjusting opacity and, for rectangle layers, corner radius.
+ */
 function AppearanceSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     return (
         <SectionTemplate title="Appearance">
@@ -183,6 +224,13 @@ function AppearanceSection({ layer, updateLayer }: { layer: Layer; updateLayer: 
     );
 }
 
+/**
+ * Render the "Fill" section with a color picker that updates the layer's fill and stroke colors.
+ *
+ * @param layer - The layer whose current fill is shown and will be updated
+ * @param updateLayer - Callback invoked with the updated layer properties; receives an object containing `fill` and `stroke` set to the chosen color
+ * @returns The rendered Fill section
+ */
 function FillSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     return (
         <SectionTemplate title="Fill">
@@ -196,6 +244,13 @@ function FillSection({ layer, updateLayer }: { layer: Layer; updateLayer: (updat
     );
 }
 
+/**
+ * Displays a stroke color picker for a layer and applies chosen colors to the layer.
+ *
+ * @param layer - The layer whose stroke color is being edited.
+ * @param updateLayer - Callback invoked with an update object when the stroke color changes.
+ * @returns A React element containing a stroke color picker that updates the layer's `stroke` property.
+ */
 function StrokeSection({ layer, updateLayer }: { layer: Layer; updateLayer: (update: UpdateLayerParams) => void }) {
     return (
         <SectionTemplate title="Stroke">
@@ -209,6 +264,13 @@ function StrokeSection({ layer, updateLayer }: { layer: Layer; updateLayer: (upd
     );
 }
 
+/**
+ * Render the "Page" section containing a color picker for the page/room background.
+ *
+ * @param roomColor - Current room color as a `Color` object, or `null` when unset
+ * @param setRoomColor - Callback invoked with an RGB `Color` when a new color is selected
+ * @returns The JSX element for the Page section with a ColorPicker control
+ */
 function PageSection({ roomColor, setRoomColor }: { roomColor: Color | null; setRoomColor: (color: Color) => void }) {
     return (
         <SectionTemplate title="Page">
@@ -229,6 +291,13 @@ interface ItemTemplateProps {
     children: React.ReactNode;
 }
 
+/**
+ * Renders a titled section container used to group related controls in the sidebar.
+ *
+ * @param title - The heading text displayed above the section content
+ * @param children - Elements to render within the section body
+ * @returns A container element with the title and the provided children
+ */
 export function SectionTemplate({ title, children }: ItemTemplateProps) {
     return (
         <div className="flex flex-col gap-2 border-t border-gray-200 p-4">
@@ -244,6 +313,13 @@ interface SectionItemTemplateProps {
     children: React.ReactNode;
 }
 
+/**
+ * Render a labeled vertical container for grouping inputs or controls.
+ *
+ * @param label - The small label text displayed above the children
+ * @param className - Optional additional CSS class names applied to the outer container
+ * @returns The container element containing the label and the provided children
+ */
 function SectionItemTemplate({ label, className, children }: SectionItemTemplateProps) {
     return (
         <div className={cn('flex flex-col gap-1', className)}>

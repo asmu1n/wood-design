@@ -15,6 +15,17 @@ const toolList: { shape: 'Rectangle' | 'Ellipse'; text: string }[] = [
     { shape: 'Ellipse', text: '圆' }
 ];
 
+/**
+ * Render a shape selection control that shows the current shape icon and a dropdown to choose between Rectangle and Ellipse.
+ *
+ * The control displays an icon button for the active insert shape and a toggle to open a small menu of shape options.
+ * Selecting an option dispatches a `SET_INSERT_MODE` action with the chosen `layerType`. The dropdown closes when clicking outside the control.
+ *
+ * @param isActive - Whether the shape tool is currently active (affects primary button styling)
+ * @param canvasState - Current canvas state; used to derive the active insert mode and its `layerType`
+ * @param dispatch_canvas - Dispatcher for canvas actions; called with `{ type: 'SET_INSERT_MODE', payload: { layerType } }` when a shape is chosen
+ * @returns A JSX element containing the shape selection button and dropdown menu
+ */
 export default function ShapeSelectionButton({ isActive, canvasState, dispatch_canvas }: ShapeSelectionButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);

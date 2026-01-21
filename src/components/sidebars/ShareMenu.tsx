@@ -24,6 +24,13 @@ interface UserAccessInfo {
     errorMessage?: string;
 }
 
+/**
+ * Render a share dialog that lets the current user invite others by email and manage who has access to a room.
+ *
+ * @param roomId - The identifier of the room to share.
+ * @param othersWithAccessToRoom - List of users who currently have access to the room.
+ * @returns The dialog JSX element containing an email input and share action, and a list of current users with controls to revoke access and show per-user error messages.
+ */
 export default function ShareMenu({ roomId, othersWithAccessToRoom }: ShareMenuProps) {
     const [email, setEmail] = useState('');
     const [error, setError] = useState<string | undefined>(undefined);

@@ -5,6 +5,11 @@ import { registerSchema } from '@/lib/validations';
 import { Register } from '@/db/services/auth';
 import { useTranslations } from 'next-intl';
 
+/**
+ * Renders a localized registration form that collects name, email, and password.
+ *
+ * @returns A JSX element containing the registration form configured with the registration validation schema and the submit handler.
+ */
 export default function Registry() {
     const t = useTranslations();
     const registerFormConfig: FormItemConfig<AuthCredentials>[] = [

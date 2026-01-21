@@ -1,5 +1,12 @@
 import IconButton from './IconButton';
 
+/**
+ * Renders a redo action IconButton containing a redo/refresh SVG icon.
+ *
+ * @param onClick - Callback invoked when the button is clicked.
+ * @param disabled - Whether the button is disabled and non-interactive.
+ * @returns The IconButton element displaying the redo icon.
+ */
 export default function RedoButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
     return (
         <IconButton onClick={onClick} disabled={disabled}>

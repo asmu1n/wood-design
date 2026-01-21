@@ -13,6 +13,20 @@ interface PopoverConfirmProps {
     onCancel?: () => void;
 }
 
+/**
+ * Renders a confirmation popover anchored to a provided trigger element.
+ *
+ * Renders optional title, close control, custom content, and a destructive confirm button. The confirm button label uses `confirmText` when provided or falls back to the translated "confirm" text.
+ *
+ * @param confirmText - Optional label to display on the confirm button; overrides the default translated label.
+ * @param children - Content to render inside the popover body.
+ * @param title - Optional heading text shown at the top of the popover.
+ * @param trigger - Element used as the popover trigger; rendered as the trigger child.
+ * @param displayClose - When true, shows a close control in the popover header that calls `onCancel` when clicked.
+ * @param onConfirm - Optional handler invoked when the confirm button is clicked; the confirm button is rendered only when this handler is provided.
+ * @param onCancel - Optional handler invoked when the close control is clicked.
+ * @returns A React element that displays the configured confirmation popover.
+ */
 export default function PopoverConfirm({ confirmText, children, title, trigger, displayClose, onConfirm, onCancel }: PopoverConfirmProps) {
     const t = useTranslations('common');
 

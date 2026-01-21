@@ -11,6 +11,14 @@ interface SelectionButtonProps {
     dispatch_canvas: (action: CanvasAction) => void;
 }
 
+/**
+ * Renders a tool-selection control that displays the current canvas mode, provides a toggleable tool menu, and dispatches actions to change modes.
+ *
+ * @param isActive - Whether the main action button appears active.
+ * @param canvasState - The current canvas state; its `mode` field determines the selected tool.
+ * @param dispatch_canvas - Function to dispatch canvas-related actions (e.g., set none, dragging, or insert modes).
+ * @returns The JSX element containing the main action button, toggle button, and dropdown tool list.
+ */
 export default function SelectionButton({ isActive, canvasState, dispatch_canvas }: SelectionButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);

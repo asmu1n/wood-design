@@ -5,6 +5,14 @@ import { selectUserById, selectUsersByIds } from '@/db/services/users';
 import { auth } from '@/lib/config/auth';
 import { redirect } from 'next/navigation';
 
+/**
+ * Render the dashboard page for the room specified by the route `id`.
+ *
+ * Authenticates the request, loads the room and current user, fetches users allowed to access the room, and returns a Room component that contains the Canvas. Redirects to `/login` if there is no authenticated session or the user cannot be loaded.
+ *
+ * @param params - A promise resolving to an object with the route parameter `id`
+ * @returns A JSX element rendering the room dashboard containing the Canvas component
+ */
 export default async function DashboardPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 

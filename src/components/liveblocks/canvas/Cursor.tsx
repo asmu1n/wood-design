@@ -6,6 +6,12 @@ interface CursorProps {
     connectionId: number;
 }
 
+/**
+ * Renders an SVG cursor icon positioned at the remote user's presence coordinates.
+ *
+ * @param connectionId - Identifier of the remote connection whose cursor presence to render
+ * @returns An SVG <path> element translated to the user's `x` and `y` coordinates, or `null` if no cursor is available
+ */
 function Cursor({ connectionId }: CursorProps) {
     const cursor = useOther(connectionId, user => user.presence.cursor);
 

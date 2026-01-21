@@ -2,6 +2,11 @@ import Image from 'next/image';
 import logo from '@/assets/figma-logo.svg';
 import { useTranslations } from 'next-intl';
 
+/**
+ * Renders a full-screen, centered loading placeholder with an animated logo and translated label.
+ *
+ * @returns A JSX element containing a bouncing logo and a translated "loading" text centered on the viewport.
+ */
 export default function DefaultLoading() {
     const t = useTranslations('common');
 

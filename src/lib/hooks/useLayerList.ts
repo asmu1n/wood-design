@@ -1,6 +1,16 @@
 import type { LiveObject } from '@liveblocks/client';
 import { useMutation, useStorage } from '@liveblocks/react';
 
+/**
+ * Provides accessors and mutations for managing layer identifiers and their corresponding layer objects in Liveblocks storage.
+ *
+ * @returns An object containing:
+ * - `layerIds` — the live list of layer identifiers from storage.
+ * - `layers` — the live map of layerId to `Layer` live objects.
+ * - `addLayer` — a mutation that appends a layerId to `layerIds` and stores the associated `Layer` under `layers`.
+ * - `removeLayer` — a mutation that removes a layerId from `layerIds` (if present) and deletes its entry from `layers`.
+ * - `updateLayerId` — a mutation that reorders the provided selection of layerIds; when `isUp` is `true` the selected IDs are moved toward the end, otherwise toward the start, preserving their relative order.
+ */
 export default function useLayerList() {
     const layerIds = useStorage(root => root.layerIds);
     const layers = useStorage(root => root.layers);

@@ -10,6 +10,13 @@ interface LayerComponentProps {
     onLayerPointerDown: (e: React.PointerEvent, layerId: string) => void;
 }
 
+/**
+ * Render the layer identified by `id` using the component that matches its `type`.
+ *
+ * @param id - The identifier of the layer to retrieve and render
+ * @param onLayerPointerDown - Callback invoked when the rendered layer receives a pointer-down event; called with the pointer event and the layer `id`
+ * @returns The JSX element for the matching layer type, or `null` if the layer is not found or its type is unsupported
+ */
 function LayerComponent({ id, onLayerPointerDown }: LayerComponentProps) {
     const layer = useStorage(root => root.layers.get(id));
 

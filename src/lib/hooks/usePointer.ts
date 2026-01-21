@@ -19,6 +19,15 @@ interface UsePointerProps {
     dispatch_camera: (action: CameraAction) => void;
 }
 
+/**
+ * Create and return pointer event handlers wired to canvas and camera state for managing drawing, selection, camera movement, and layer operations.
+ *
+ * @returns An object containing four pointer handlers:
+ * - `onPointerUp` — finalizes insertions, finishes drags/resizes/translations, clears selections, and resumes history.
+ * - `onPointerDown` — pauses history and starts dragging, path drawing, or pressing-based selection depending on mode.
+ * - `onPointerMove` — updates cursor presence and performs camera movement, drawing continuation, resizing, translation, or selection-net updates based on mode.
+ * - `onPointerLeave` — clears the presence cursor.
+ */
 export default function usePointer({
     canvasState,
     camera,

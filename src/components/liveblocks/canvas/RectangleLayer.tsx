@@ -6,6 +6,14 @@ interface RectangleLayerProps {
     onSelect: (e: React.PointerEvent) => void;
 }
 
+/**
+ * Render an SVG group containing a selectable rectangle and a hover-only border.
+ *
+ * @param id - Unique identifier for the layer.
+ * @param layer - Rectangle layer data (position, size, fill/stroke colors, corner radius, and opacity) used to position and style the rectangle.
+ * @param onSelect - Pointer event handler invoked when the main rectangle receives a pointer down event.
+ * @returns The SVG <g> element that wraps the hover border and the main rectangle.
+ */
 export default function RectangleLayer({ id, layer, onSelect }: RectangleLayerProps) {
     const { x, y, stroke, fill, cornerRadius, width, height, opacity } = layer;
 

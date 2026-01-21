@@ -7,6 +7,15 @@ interface IconButtonProps {
     disabled?: boolean;
 }
 
+/**
+ * Render an icon-styled button with optional active and disabled states.
+ *
+ * @param onClick - Callback invoked when the button is clicked.
+ * @param children - Content rendered inside the button (typically an icon).
+ * @param isActive - When true, applies the active styling (blue text).
+ * @param disabled - When true, disables interaction and applies disabled styling.
+ * @returns The button element configured with icon layout and state-dependent styles.
+ */
 export default function IconButton({ onClick, children, isActive, disabled }: IconButtonProps) {
     return (
         <button

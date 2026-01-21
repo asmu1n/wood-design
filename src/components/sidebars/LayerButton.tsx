@@ -13,6 +13,17 @@ interface LayerButtonProps {
     isSelected: boolean;
 }
 
+/**
+ * Renders a button representing a layer's type and updates the user's selection when clicked.
+ *
+ * The button displays an icon and label corresponding to `type`, applies a selected style when
+ * `isSelected` is true, and when clicked sets the user's presence selection to `layerId` (recording history).
+ *
+ * @param layerId - The identifier of the layer that will become selected when the button is clicked
+ * @param type - The layer's type which determines the displayed icon and label; if omitted, nothing is rendered
+ * @param isSelected - Whether the button should display the selected visual state
+ * @returns A button element for the layer, or `null` if `type` is not provided
+ */
 export default function LayerButton({ layerId, type, isSelected }: LayerButtonProps) {
     const updateSelection = useMutation(({ setMyPresence }, layerId: string) => {
         setMyPresence({ selection: [layerId] }, { addToHistory: true });

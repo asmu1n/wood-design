@@ -10,6 +10,15 @@ interface ConfirmationModalProps {
     message: string;
 }
 
+/**
+ * Render a confirmation modal dialog when `isOpen` is true.
+ *
+ * @param isOpen - Whether the modal is visible
+ * @param onSetOpen - Callback invoked with the new open state to update the parent component
+ * @param onConfirm - Callback invoked when the user confirms the action
+ * @param message - Message content displayed inside the modal
+ * @returns The modal React element when open, or `null` when closed
+ */
 function ConfirmationModal({ isOpen, onSetOpen, onConfirm, message }: ConfirmationModalProps) {
     if (!isOpen) {
         return null;
@@ -26,6 +35,14 @@ interface ConfirmFooterProps {
     onConfirm: () => void;
 }
 
+/**
+ * Render footer actions for a confirmation dialog.
+ *
+ * Renders a cancel button that closes the dialog and a confirm button that invokes the provided callback.
+ *
+ * @param onConfirm - Callback invoked when the confirm button is clicked
+ * @returns JSX elements for the dialog footer actions
+ */
 function ConfirmFooter({ onConfirm }: ConfirmFooterProps) {
     const t = useTranslations();
 

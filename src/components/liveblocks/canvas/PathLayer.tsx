@@ -8,6 +8,14 @@ interface PathLayerProps {
     onSelect?: (e: React.PointerEvent) => void;
 }
 
+/**
+ * Renders an SVG group for a freehand path, including a visible hover border and the main selectable path.
+ *
+ * @param id - Unique identifier for the layer
+ * @param layer - Layer data containing position (`x`, `y`), stroke color, fill color, opacity, and `points` used to compute the path
+ * @param onSelect - Optional pointer event handler invoked when the main path is pressed
+ * @returns An SVG `<g>` element containing the hover border and the rendered path
+ */
 export default function PathLayer({ id, layer, onSelect }: PathLayerProps) {
     const { x, y, stroke, fill, opacity, points } = layer;
     const path = getSvgPathFromStroke(

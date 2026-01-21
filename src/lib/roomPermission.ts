@@ -12,6 +12,12 @@ const liveblocks = new Liveblocks({
 
 type TAccess = 'ALL' | 'ONLY_READ';
 
+/**
+ * Map an access level to the corresponding Liveblocks room permission set.
+ *
+ * @param type - Access level: `'ALL'` grants full write permission; `'ONLY_READ'` grants read and presence-write permissions
+ * @returns `['room:write']` when `type` is `'ALL'`, `['room:read', 'room:presence:write']` when `type` is `'ONLY_READ'`
+ */
 function getAccess(type: TAccess) {
     const permissions: ['room:write'] | ['room:read', 'room:presence:write'] = type === 'ALL' ? ['room:write'] : ['room:read', 'room:presence:write'];
 
@@ -26,6 +32,17 @@ interface createRoomParams {
     defaultAccess?: RoomPermission;
 }
 
+/**
+ * Creates a new room with the given name and access configuration, persists the room record, and returns its ID.
+ *
+ * @param createUserId - ID of the user who creates the room
+ * @param groupAccess - Optional mapping of group IDs to permission arrays for group-level access
+ * @param userAccess - Optional mapping of user IDs to permission arrays for user-level access; when omitted the creator is granted `room:write`
+ * @param defaultAccess - Default permission array applied to unspecified users/groups
+ * @param name - Display name of the room
+ * @returns The newly created room's ID
+ * @throws Error - `"用户不存在"` if the creator user ID does not exist
+ */
 async function createRoom({
     createUserId,
     groupAccess = {},
@@ -66,6 +83,14 @@ interface addAllowedUserParams {
     userId: string;
 }
 
+/**
+ * Adds a user to a room's allowed user list if they are not already present.
+ *
+ * Throws an error if the room does not exist.
+ *
+ * @param roomId - The identifier of the room to update
+ * @param userId - The identifier of the user to add to the room's allowed list
+ */
 async function addAllowedUser({ roomId, userId }: addAllowedUserParams) {
     const room = await db.select().from(rooms).where(eq(rooms.id, roomId));
 
@@ -92,6 +117,16 @@ interface removeAllowedUserParams {
     userId: string;
 }
 
+/**
+ * Removes a user from the room's allowedUserIds list.
+ *
+ * If the user is not in the list the function returns without making changes.
+ *
+ * @param roomId - The ID of the room to update
+ * @param userId - The ID of the user to remove from allowed users
+ * @throws Error '房间不存在' if the room does not exist
+ * @throws Error '不能删除创建者' if attempting to remove the room creator
+ */
 async function removeAllowedUser({ roomId, userId }: removeAllowedUserParams) {
     const room = await db.select().from(rooms).where(eq(rooms.id, roomId));
 
@@ -125,6 +160,17 @@ interface validateUserPermissionParams {
     checkPermissionType?: TAccess | 'ANY';
 }
 
+/**
+ * Checks whether a specific user holds the requested permission level for a room.
+ *
+ * @param roomId - The identifier of the room to check
+ * @param checkUserId - The identifier of the user whose permissions are being checked
+ * @param checkPermissionType - The permission level to verify:
+ *   - `'ALL'`: user must have `room:write`
+ *   - `'ONLY_READ'`: user must have `room:read` and `room:presence:write`
+ *   - `'ANY'`: user must have any permission entry
+ * @returns `true` if the user meets the requested permission type, `false` otherwise
+ */
 async function validateUserPermission({ roomId, checkUserId, checkPermissionType = 'ALL' }: validateUserPermissionParams) {
     const room = await liveblocks.getRoom(roomId);
     const targetUser = room.usersAccesses[checkUserId];
@@ -157,6 +203,14 @@ interface triggerUserPermissionParams extends updateUserPermissionParams {
     actionUserId: string;
 }
 
+/**
+ * Set the specified user's permissions for a Liveblocks room.
+ *
+ * @param roomId - The ID of the room to update
+ * @param processedUserId - The ID of the user whose permissions will be changed
+ * @param accessType - Permission scope to apply; `'ALL'` grants full write access, `'ONLY_READ'` grants read and presence write
+ * @returns The Liveblocks room update result
+ */
 async function _updateUserPermission({ roomId, processedUserId, accessType = 'ONLY_READ' }: updateUserPermissionParams) {
     const permissions = getAccess(accessType);
 
@@ -167,6 +221,15 @@ async function _updateUserPermission({ roomId, processedUserId, accessType = 'ON
     });
 }
 
+/**
+ * Adds the specified user to a Liveblocks room's permissions and persists them in the room's allowed-user list.
+ *
+ * @param roomId - The identifier of the room to modify
+ * @param processedUserId - The user id to invite into the room
+ * @param accessType - Permission scope to grant: `'ALL'` grants full write access; `'ONLY_READ'` grants read and presence-write access
+ * @returns The result of persisting the user to the room's allowed-user list
+ * @throws Error - `'该用户已经存在'` if the user already has any permission in the room
+ */
 async function _invitedUserToRoom({ roomId, processedUserId, accessType = 'ONLY_READ' }: updateUserPermissionParams) {
     const targetUserPermission = await validateUserPermission({
         roomId,
@@ -189,6 +252,13 @@ async function _invitedUserToRoom({ roomId, processedUserId, accessType = 'ONLY_
     }
 }
 
+/**
+ * Remove a user's allowed status and clear their Liveblocks permissions for a room.
+ *
+ * @param roomId - The identifier of the room to modify
+ * @param userId - The identifier of the user to remove from the room
+ * @returns The Liveblocks update result for the room
+ */
 async function _removeUserFromRoom({ roomId, userId }: { roomId: string; userId: string }) {
     await removeAllowedUser({ roomId, userId });
     return liveblocks.updateRoom(roomId, {
@@ -207,6 +277,20 @@ async function triggerUserPermission(
     type: 'INVITE'
 ): Promise<void>;
 async function triggerUserPermission({ roomId, actionUserId, accessType }: triggerUserPermissionParams, type: 'REMOVE'): Promise<void>;
+/**
+ * Perform an authorized permission operation (invite, update, or remove) for a user in a room.
+ *
+ * Verifies that `actionUserId` holds `ALL` permission in the room before performing the requested action.
+ *
+ * @param roomId - The id of the room to modify
+ * @param processedUserId - The id of the user whose permissions will be changed
+ * @param actionUserId - The id of the user initiating the action; must have `ALL` permission
+ * @param accessType - Permission level to apply when inviting or updating (`'ALL'` or `'ONLY_READ'`). Defaults to `'ONLY_READ'`
+ * @param type - The operation to perform: `'INVITE'` to add a user, `'UPDATE'` to change a user's permissions, `'REMOVE'` to remove a user
+ * @returns void
+ * @throws Error('用户没有权限') if `actionUserId` does not have `ALL` permission in the room
+ * @throws Error('不能删除自己') if `type` is `'REMOVE'` and `processedUserId` equals `actionUserId`
+ */
 async function triggerUserPermission(
     { roomId, processedUserId: processedUserId, actionUserId, accessType = 'ONLY_READ' }: triggerUserPermissionParams,
     type: 'UPDATE' | 'INVITE' | 'REMOVE'

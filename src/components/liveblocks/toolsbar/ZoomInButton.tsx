@@ -6,6 +6,13 @@ interface ZoomInButtonProps {
     disabled: boolean;
 }
 
+/**
+ * Renders a zoom-in icon button for the LiveBlocks toolbar.
+ *
+ * @param onClick - Callback invoked when the button is clicked
+ * @param disabled - If true, the button is disabled and not interactive
+ * @returns The ZoomIn toolbar button element
+ */
 export default function ZoomInButton({ onClick, disabled }: ZoomInButtonProps) {
     return (
         <IconButton onClick={onClick} disabled={disabled}>

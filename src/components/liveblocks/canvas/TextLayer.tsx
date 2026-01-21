@@ -8,7 +8,15 @@ interface TextLayerProps {
     onSelect: (e: React.PointerEvent) => void;
 }
 
-//TODO 文本图层
+/**
+ * Renders a text layer that toggles between a styled SVG text display and an inline editable input.
+ *
+ * When edited, committed changes are persisted to collaborative storage and the user's selection is recorded.
+ *
+ * @param id - Unique identifier of the layer
+ * @param layer - Data for the text layer (position, dimensions, content, and styling)
+ * @param onSelect - Pointer event handler invoked when the text is selected
+ */
 export default function TextLayer({ id, layer, onSelect }: TextLayerProps) {
     const { x, y, width, height, text, fontSize, fontFamily, fontWeight, lineHeight, textAlign, stroke, fill, opacity } = layer;
 
@@ -29,11 +37,21 @@ export default function TextLayer({ id, layer, onSelect }: TextLayerProps) {
         [id]
     );
 
+    /**
+     * Exit edit mode and persist the current input value to the layer.
+     *
+     * Stops local editing and updates the layer's text with the current `inputValue`.
+     */
     function handleBlur() {
         setIsEditing(false);
         updateText(inputValue);
     }
 
+    /**
+     * Commits the current input value and exits editing mode when the Enter key is pressed.
+     *
+     * @param e - Keyboard event to check for the Enter key
+     */
     function handleKeyDown(e: React.KeyboardEvent) {
         if (e.key === 'Enter') {
             setIsEditing(false);
@@ -41,6 +59,9 @@ export default function TextLayer({ id, layer, onSelect }: TextLayerProps) {
         }
     }
 
+    /**
+     * Enter edit mode for the text layer.
+     */
     function handleDoubleClick() {
         setIsEditing(true);
     }

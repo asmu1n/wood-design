@@ -26,6 +26,13 @@ interface RoomViewProps {
     displayRooms: Room[];
 }
 
+/**
+ * Render a grid of room tiles that support selection, navigation, and per-room editing/deletion when permitted.
+ *
+ * @param userId - The current user's ID used to determine edit permissions
+ * @param displayRooms - Array of rooms to display
+ * @returns The rendered rooms view element
+ */
 export default function RoomsView({ userId, displayRooms }: RoomViewProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const router = useRouter();
@@ -90,6 +97,23 @@ interface SingleRoomProps {
     canEdit: boolean;
 }
 
+/**
+ * Renders a single room card with selection, navigation, inline renaming, and deletion controls.
+ *
+ * Renders a colorful tile that can be selected or double-clicked to navigate, shows the room title
+ * (editable when permitted), a description line, and a confirmation modal for deletion.
+ *
+ * @param id - The room's unique identifier
+ * @param userId - The current user's id used for action requests
+ * @param title - The room's current title
+ * @param description - Secondary text shown below the title (e.g., creation date)
+ * @param color - Background color for the room tile
+ * @param selected - Whether this room is currently selected
+ * @param select - Callback invoked when the room tile is clicked to select it
+ * @param navigateTo - Callback invoked on double-click to navigate into the room
+ * @param canEdit - Whether the current user is allowed to rename or delete the room
+ * @returns The rendered room card element
+ */
 function SingleRoom({ id, userId, title, description, color, selected, select, navigateTo, canEdit }: SingleRoomProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(title);

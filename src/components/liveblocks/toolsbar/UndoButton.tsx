@@ -1,5 +1,14 @@
 import IconButton from './IconButton';
 
+/**
+ * Renders an undo action button.
+ *
+ * Renders an IconButton that displays an inline SVG undo icon and forwards the provided click handler and disabled state.
+ *
+ * @param onClick - Callback invoked when the button is clicked.
+ * @param disabled - If true, the button is rendered in a disabled, non-interactive state.
+ * @returns A JSX element representing the undo button.
+ */
 export default function UndoButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
     return (
         <IconButton onClick={onClick} disabled={disabled}>

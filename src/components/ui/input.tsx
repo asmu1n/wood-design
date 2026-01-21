@@ -1,5 +1,10 @@
 import { cn } from '@/utils/common';
 
+/**
+ * Renders a styled HTML input element that applies the component's UI classes and forwards all provided input props.
+ *
+ * @returns The rendered input element with composed className, `data-slot="input"`, and all other props spread onto it.
+ */
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
     return (
         <input

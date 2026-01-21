@@ -2,6 +2,21 @@ import React from 'react';
 import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 import { Input } from '../ui/input';
 
+/**
+ * Render a numeric input control with optional min/max clamping and an inline icon.
+ *
+ * The input displays the provided `value`, accepts free-form text while editing, and on commit
+ * (blur or Enter) parses the value, resets to the previous `value` if parsing fails, and clamps
+ * the parsed number to the optional `min`/`max` bounds before invoking `onChange`.
+ *
+ * @param value - Controlled numeric value displayed by the input
+ * @param onChange - Callback invoked with the validated/clamped numeric value when the input is committed
+ * @param min - Optional minimum bound used to clamp the committed value
+ * @param max - Optional maximum bound used to clamp the committed value
+ * @param icon - Element rendered inside the input; if a `<p>` element its children are rendered as positioned text, otherwise the element is cloned and positioned
+ * @param classNames - Optional container class names (commonly used to override the default width)
+ * @returns A JSX element containing the numeric input and a positioned icon
+ */
 export default function NumberInput({
     value,
     onChange,

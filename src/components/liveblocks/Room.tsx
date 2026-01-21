@@ -12,6 +12,17 @@ interface RoomProps {
     roomId: string;
 }
 
+/**
+ * Provides a configured Liveblocks room context and renders `children` inside the composed providers.
+ *
+ * Initializes presence and storage for the room and nests LiveblocksProvider, UserInfoProvider,
+ * RoomProvider, and a client-side suspense boundary around the component's children.
+ *
+ * @param children - React nodes to render inside the room context
+ * @param userInfo - User information passed into the UserInfoProvider as custom state
+ * @param roomId - Identifier for the Liveblocks room to join
+ * @returns A JSX element that wraps `children` with Liveblocks providers and a suspense fallback
+ */
 export function Room({ children, userInfo, roomId }: RoomProps) {
     const roomParams = {
         id: roomId,

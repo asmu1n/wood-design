@@ -5,6 +5,16 @@ import { memo } from 'react';
 import { BsArrowDown, BsArrowUp } from 'react-icons/bs';
 import { useTranslations } from 'next-intl';
 
+/**
+ * Render a contextual z-order toolbar anchored to the current selection.
+ *
+ * The component positions a small popover near the selection bounds and exposes
+ * "Bring to Front" and "Send to Back" actions that reorder the selected layers.
+ *
+ * @param camera - Camera transform (position and zoom) used to convert selection bounds to screen coordinates.
+ * @param visible - Controls whether the toolbar is rendered; when `false` the component returns `null`.
+ * @returns A positioned toolbar element containing "Bring to Front" and "Send to Back" buttons, or `null` when there is no selection or `visible` is `false`.
+ */
 function SelectionTools({ camera, visible }: { camera: Camera; visible: boolean }) {
     const t = useTranslations('tools');
     const selectionBound = useSelectionBounds();

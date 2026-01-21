@@ -32,6 +32,15 @@ interface AuthFormProps<T extends FieldValues> {
     onSubmit: (data: T) => Promise<IResponse> | IResponse;
 }
 
+/**
+ * Render an authentication form (login or register) configured by the provided schema and field definitions.
+ *
+ * @param type - Determines the form variant: 'LOGIN', 'REGISTER', or 'LOGIN_EMAIL', which controls displayed text and available navigation links
+ * @param schema - Zod schema used to validate the form data
+ * @param formConfig - Array of form field configurations that define labels, types, defaults, and custom render slots
+ * @param onSubmit - Async handler invoked with form data; its returned result controls success toast and navigation
+ * @returns A React element containing the configured authentication UI (form, headings, and navigation links)
+ */
 export default function AuthForm<T extends FieldValues>({ type, schema, formConfig, onSubmit }: AuthFormProps<T>) {
     const isLogin = type === 'LOGIN' || type === 'LOGIN_EMAIL';
     const router = useRouter();

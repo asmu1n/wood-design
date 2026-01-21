@@ -20,6 +20,14 @@ interface SideBarProps {
     othersWithAccessToRoom: User[];
 }
 
+/**
+ * Render the left and right sidebars for a collaborative room and manage left-sidebar minimization state.
+ *
+ * @param roomName - The room's display name shown in the left sidebar header
+ * @param roomId - The room identifier passed to children (e.g., ShareMenu, storage lookups)
+ * @param othersWithAccessToRoom - Users with access to the room, displayed in the right sidebar
+ * @returns A React element containing the paired left and right sidebar components
+ */
 export default function SideBars({ roomName, roomId, othersWithAccessToRoom }: SideBarProps) {
     const [isLeftMinimized, setIsLeftMinimized] = useState(false);
 
@@ -38,6 +46,12 @@ interface UserAvatarsProps {
     className?: string;
 }
 
+/**
+ * Renders a horizontal group of user avatars for the current user and other participants.
+ *
+ * @param className - Optional additional CSS class names applied to the wrapper element
+ * @returns A div containing a `UserAvatar` for the current user (if present) followed by `UserAvatar` components for each other participant
+ */
 function UserAvatars({ className }: UserAvatarsProps) {
     const me = useSelf();
     const others = useOthers();
@@ -58,6 +72,14 @@ interface RightSidebarProps {
     othersWithAccessToRoom: User[];
 }
 
+/**
+ * Render the right-hand sidebar showing participant avatars, share controls, and layer details.
+ *
+ * @param isMinimized - Whether the sidebar is displayed in its minimized (compact) form
+ * @param roomId - Identifier for the current room, used by the share controls
+ * @param othersWithAccessToRoom - Array of users who have access to the room, shown in the share menu
+ * @returns The sidebar's rendered JSX: an expanded panel displaying layer details when not minimized or a layer is selected, otherwise a compact floating bar
+ */
 function RightSidebar({ isMinimized, roomId, othersWithAccessToRoom }: RightSidebarProps) {
     const selection = useSelf(me => me.presence.selection);
     const selectedLayer = selection?.length === 1 ? selection[0] : null;
@@ -115,6 +137,14 @@ interface LeftSidebarProps {
     onUpdateMinimized: (isMinimized: boolean) => void;
 }
 
+/**
+ * Render the left sidebar UI that displays the room title, a toggle to minimize/restore, and the layer list when expanded.
+ *
+ * When expanded, the component renders a fixed 240px-wide panel with the room name and a list of layers; when minimized, it renders a compact floating bar that preserves the logo, room name, and toggle control.
+ *
+ * @param onUpdateMinimized - Callback invoked with the new minimized state when the sidebar toggle is activated
+ * @returns The React element representing the left sidebar
+ */
 function LeftSidebar({ roomName, isMinimized, onUpdateMinimized }: LeftSidebarProps) {
     const { layers, layerIds } = useLayerList();
     const selection = useSelf(me => me.presence.selection);
