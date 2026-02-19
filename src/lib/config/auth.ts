@@ -1,4 +1,3 @@
-import db from '@/db';
 import NextAuth, { User } from 'next-auth';
 import credentials from 'next-auth/providers/credentials';
 import Resend from 'next-auth/providers/resend';
@@ -9,6 +8,8 @@ import users from '@/db/schema/users';
 import accounts from '@/db/schema/accounts';
 import verificationTokens from '@/db/schema/verificationTokens';
 import { selectUserByEmail } from '@/db/services/users';
+import db from '@/lib/config/database';
+import { getTranslations } from 'next-intl/server';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     session: {
@@ -28,22 +29,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
         credentials({
             credentials: {
-                email: { label: '邮箱', type: 'email' },
-                password: { label: '密码', type: 'password' }
+                email: { label: 'email', type: 'email' },
+                password: { label: 'password', type: 'password' }
             },
             async authorize(credentials) {
+                const t = await getTranslations('auth');
+
                 try {
                     const { email, password } = loginSchema.parse(credentials);
                     const user = await selectUserByEmail(email);
 
                     if (!user) {
-                        throw new Error('用户不存在');
+                        throw new Error(t('user_not_found'));
                     }
 
                     const isPasswordValid = await compare(password, user.password);
 
                     if (!isPasswordValid) {
-                        throw new Error('无效的验证信息');
+                        throw new Error(t('invalid_credentials'));
                     }
 
                     return {

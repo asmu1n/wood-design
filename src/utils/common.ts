@@ -1,0 +1,336 @@
+import { twMerge, twJoin, type ClassNameValue } from 'tailwind-merge';
+import { SQL } from 'drizzle-orm';
+
+// 动态样式组合以及合并函数
+export function cn(...inputs: ClassNameValue[]) {
+    return twMerge(twJoin(inputs));
+}
+
+//签发授权上传Url到R2
+export async function uploadFileByUrl(file: File) {
+    try {
+        const getUrl = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                fileName: file.name,
+                fileType: file.type
+            })
+        });
+        const getUrlRes: IResponse<{
+            uploadUrl: string;
+            publicUrl: string;
+        }> = await getUrl.json();
+
+        if (!getUrlRes.success || !getUrlRes.data) {
+            throw new Error(getUrlRes.message);
+        }
+
+        const {
+            data: { uploadUrl, publicUrl }
+        } = getUrlRes;
+
+        const upload = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': file.type
+            },
+            body: file
+        });
+
+        if (upload.ok) {
+            return publicUrl;
+        } else {
+            throw new Error('Upload failed');
+        }
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+// 判断是服务端还是客户端组件
+export function isServer() {
+    if (typeof window == 'undefined') {
+        console.log('server component');
+    } else {
+        console.log('client component');
+    }
+}
+
+interface transformUrlParams {
+    baseUrl: string;
+    params: Record<string, string | number>;
+}
+
+//GET请求参数拼接
+export function transformGetParams({ baseUrl, params }: transformUrlParams) {
+    const url = new URL(baseUrl, window.location.href);
+
+    Object.keys(params).forEach(key => {
+        if (params[key]) {
+            url.searchParams.append(key, params[key] as string);
+        }
+    });
+
+    return url;
+}
+
+export function queryFilter<T extends Record<string, any>>(filterConfig: Record<keyof T, (value: any) => SQL>, filterParams: T): SQL[] {
+    const filters: SQL[] = [];
+
+    Object.entries(filterParams).forEach(([key, value]) => {
+        if (value || value === false || value === 0) {
+            const getFilter = filterConfig[key as keyof typeof filterConfig];
+
+            if (getFilter) {
+                filters.push(getFilter(value));
+            }
+        }
+    });
+
+    return filters;
+}
+
+export function colorToCss(rgb?: Color) {
+    if (!rgb) {
+        return 'transparent';
+    }
+
+    return `#${rgb.r.toString(16).padStart(2, '0')}${rgb.g.toString(16).padStart(2, '0')}${rgb.b.toString(16).padStart(2, '0')}`;
+}
+
+export function hexToRgb(hex: string): Color {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+
+    return { r, g, b };
+}
+
+/**
+ * 否定模式
+ */
+class Not<T> {
+    constructor(public value: T) {}
+}
+
+function not<T>(value: T): Not<T> {
+    return new Not(value);
+}
+
+/**
+ * 或模式
+ */
+class Or<T> {
+    constructor(public patterns: Pattern<T>[]) {}
+}
+
+function or<T>(...patterns: Pattern<T>[]): Or<T> {
+    return new Or(patterns);
+}
+
+class Exists {
+    constructor() {}
+}
+
+// 添加 exists 辅助函数
+function exists() {
+    return new Exists();
+}
+
+// 通配符占位
+const _ = Symbol('wildcard');
+
+type Pattern<T> = ((value: T) => boolean) | T | typeof _ | Not<Pattern<T>> | Or<Pattern<T>>;
+type PatternValue<T> = T | ((value: T) => any);
+
+type PatternObject<T> = {
+    [K in keyof T]?: PatternValue<T[K]>;
+};
+class Matcher<T> {
+    private isMatched: boolean = false;
+    constructor(private value: T) {}
+
+    on<U>(pattern: PatternObject<U> | U, handler: (value: U) => void): Matcher<T> {
+        const matched = this.matchesPattern(this.value, pattern);
+
+        if (matched) {
+            handler(this.value as unknown as U);
+            this.isMatched = true;
+        }
+
+        return this;
+    }
+
+    private matchesPattern(value: any, pattern: Pattern<any>): boolean {
+        const valueType = typeof value;
+        const patternType = typeof pattern;
+
+        if (this.isMatched) {
+            return false;
+        }
+
+        // 通配符匹配
+        if (pattern === _) {
+            return true;
+        }
+
+        // 处理 Not 包装类型
+        if (pattern instanceof Not) {
+            const negatedValue = pattern.value;
+
+            return !this.matchesPattern(value, negatedValue);
+        }
+
+        // 处理 Or 包装类型
+        if (pattern instanceof Or) {
+            return pattern.patterns.some(p => this.matchesPattern(value, p));
+        }
+
+        // 如果是函数，执行谓词
+        if (patternType === 'function') {
+            return (pattern as (value: any) => boolean)(value);
+        }
+
+        // 判断是否为基本类型（string / number / boolean）
+        const isPrimitive =
+            ['string', 'number', 'boolean'].includes(valueType) || value instanceof String || value instanceof Number || value instanceof Boolean;
+
+        if (isPrimitive) {
+            // 原始值直接比较
+            return Object.is(value, pattern);
+        }
+
+        // 判断是否为数组
+        if (Array.isArray(pattern)) {
+            if (!Array.isArray(value)) {
+                return false;
+            }
+
+            if (pattern.length > value.length) {
+                return false;
+            }
+
+            // 尝试匹配数组中的每个元素
+            return pattern.every((p, i) => this.matchesPattern(value[i], p));
+        }
+
+        // 对象匹配（部分匹配）
+        if (patternType === 'object' && pattern !== null && valueType === 'object' && value !== null) {
+            return Object.entries(pattern).every(([key, val]) => {
+                return key in value && this.matchesPattern(value[key], val);
+            });
+        }
+
+        return false;
+    }
+}
+
+function match<T>(value: T): Matcher<T> {
+    return new Matcher(value);
+}
+
+function validatorNoEmpty<T>(data: T): boolean {
+    if (data === null || data === undefined || data === '') {
+        return false;
+    }
+
+    if (typeof data === 'number' && data === 0) {
+        return true;
+    }
+
+    if (typeof data === 'object' && data !== null) {
+        return Object.keys(data).length > 0;
+    }
+
+    if (data instanceof Array) {
+        return data.length > 0;
+    }
+
+    return true;
+}
+
+class Result<E, T> implements Iterable<E | T | null> {
+    constructor(
+        public readonly error: E | null,
+        public readonly data: T | null
+    ) {}
+
+    get 0(): E | null {
+        return this.error;
+    }
+    get 1(): T | null {
+        return this.data;
+    }
+
+    get length(): 2 {
+        return 2;
+    }
+
+    *[Symbol.iterator](): Iterator<E | T | null> {
+        yield this.error;
+        yield this.data;
+    }
+
+    static isResult(value: any): value is Result<any, any> {
+        return value instanceof Result;
+    }
+}
+
+type ResultTuple<E, T> = readonly [E | null, T | null];
+type ResolvedResult<T> = T extends ResultTuple<infer E, infer D> ? ResultTuple<E | Error, D> : ResultTuple<Error, T>;
+
+type AsyncResolvedResult<T> = Promise<ResolvedResult<T>>;
+
+function attempt<T>(operation: Promise<T>): AsyncResolvedResult<T>;
+
+function attempt<T>(operation: () => Promise<T>): AsyncResolvedResult<T>;
+
+function attempt<T>(operation: () => T): ResolvedResult<T>;
+
+function attempt(operation: any) {
+    const handleSuccess = (val: any) => {
+        if (Result.isResult(val)) {
+            return val;
+        }
+
+        return ok(val);
+    };
+
+    const handleError = (e: any) => {
+        if (Result.isResult(e)) {
+            return e;
+        }
+
+        return err(e instanceof Error ? e : new Error(String(e)));
+    };
+
+    if (operation instanceof Promise) {
+        return operation.then(handleSuccess).catch(handleError);
+    }
+
+    try {
+        const result = operation();
+
+        if (result instanceof Promise || (result && typeof result.then === 'function')) {
+            return result.then(handleSuccess).catch(handleError);
+        }
+
+        return handleSuccess(result);
+    } catch (e) {
+        return handleError(e);
+    }
+}
+
+function ok<T>(value: T): ResultTuple<null, T> {
+    return new Result(null, value) as unknown as ResultTuple<null, T>;
+}
+
+function err<E>(error: E): ResultTuple<E, null> {
+    return new Result(error, null) as unknown as ResultTuple<E, null>;
+}
+
+export { validatorNoEmpty, match, _, not, or, exists, attempt, ok, err };

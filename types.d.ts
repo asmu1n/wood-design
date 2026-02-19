@@ -1,10 +1,14 @@
 import { InferModel } from 'drizzle-orm';
 import users from '@/db/schema/users';
+import accounts from '@/db/schema/accounts';
+import rooms from '@/db/schema/rooms';
 import { registerSchema } from '@/lib/validations';
 import { z } from 'zod';
 
 declare global {
-    type IUser = InferModel<typeof users>;
+    type User = InferModel<typeof users>;
+    type Account = InferModel<typeof accounts>;
+    type Room = InferModel<typeof rooms>;
     interface IResponse<T = unknown> {
         success: boolean;
         message: string;
@@ -13,11 +17,125 @@ declare global {
         pageIndex?: number;
         limit?: number;
     }
-    interface QueryParams<P = unknown> extends P {
-        pageIndex: number;
-        limit: number;
-    }
+    type QueryParams<T = Record<string, unknown>> = T & {
+        pageIndex?: number;
+        limit?: number;
+    };
     type AuthCredentials = z.infer<typeof registerSchema>;
+
+    type Point = {
+        x: number;
+        y: number;
+    };
+
+    type DraftPoint = [x: number, y: number, pressure: number];
+
+    type Color = {
+        r: number;
+        g: number;
+        b: number;
+    };
+
+    interface Camera extends Point {
+        zoom: number;
+    }
+
+    type LayerType = 'Rectangle' | 'Ellipse' | 'Path' | 'Text';
+
+    type RectangleLayer = BaseLayer & {
+        type: 'Rectangle';
+        cornerRadius?: number;
+    };
+
+    type EllipseLayer = BaseLayer & {
+        type: 'Ellipse';
+    };
+
+    type PathLayer = BaseLayer & {
+        type: 'Path';
+        points: [x: number, y: number, pressure: number][];
+    };
+
+    type TextLayer = BaseLayer & {
+        type: 'Text';
+        text: string;
+        fontSize: number;
+        fontFamily: string;
+        fontWeight: number;
+        lineHeight: number;
+        textAlign: 'left' | 'center' | 'right' | 'justify';
+    };
+
+    type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer;
+
+    type CanvasMode = 'None' | 'Inserting' | 'Dragging' | 'Resizing' | 'Translating' | 'Pressing' | 'SelectionNet';
+
+    type CanvasType =
+        | {
+              mode: 'None';
+          }
+        | {
+              mode: 'Inserting'; // insert layer or draw  a path
+              layerType: LayerType;
+          }
+        | {
+              mode: 'Dragging'; // when cursor  move on layer
+              disabled: boolean;
+          }
+        | {
+              mode: 'Resizing'; // when cursor move on layer's border
+              initialBounds: XYHW;
+              corner: Side;
+          }
+        | {
+              mode: 'Translating';
+          }
+        | {
+              mode: 'SelectionNet';
+              origin: Point;
+              current?: Point;
+          }
+        | {
+              mode: 'Pressing';
+              origin: Point;
+          }
+        | {
+              mode: 'Detailing';
+          };
+
+    type Side = 'Top' | 'Bottom' | 'Left' | 'Right' | 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';
+
+    interface XYHW extends Point {
+        width: number;
+        height: number;
+    }
+    declare module '*.svg' {
+        const content: string;
+        export default content;
+    }
 }
 
-export {}
+type BaseLayer = Point & {
+    type: LayerType;
+    width: number;
+    height: number;
+    fill: Color;
+    stroke: Color;
+    opacity: number;
+};
+
+interface UpdateLayerParams {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    opacity?: number;
+    stroke?: string;
+    fill?: string;
+    fontSize?: number;
+    fontFamily?: string;
+    fontWeight?: number;
+    cornerRadius?: number;
+}
+
+export { UpdateLayerParams };

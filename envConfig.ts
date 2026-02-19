@@ -12,7 +12,7 @@ const cloudConfig = {
 };
 
 const dataBaseConfig = {
-    url: process.env.NODE_ENV === 'development' ? process.env.DATABASE_URL : process.env.DATABASE_PRO_URL
+    url: process.env.NODE_ENV === 'development' ? process.env.DATABASE_URL : process.env.DATABASE_PRO_URL || process.env.DATABASE_URL
 };
 
 const nextProdUrl = process.env.NEXT_PUBLIC_PROD_API_ENDPOINT || 'http://localhost:3000';
@@ -23,4 +23,10 @@ const resendConfig = {
     token: process.env.RESEND_TOKEN
 };
 
-export { cloudConfig, dataBaseConfig, resendConfig, nextProdUrl, baseUrl };
+const liveblocksConfig = {
+    // secret: process.env.LIVEBLOCKS_SECRET,
+    publicKey: process.env.LIVEBLOCKS_PUBLIC_KEY,
+    secretKey: process.env.LIVEBLOCKS_SECRET_KEY
+};
+
+export { cloudConfig, dataBaseConfig, resendConfig, nextProdUrl, baseUrl, liveblocksConfig };

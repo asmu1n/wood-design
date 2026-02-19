@@ -1,0 +1,92 @@
+{
+    "common": {
+        "success": "Success",
+        "fail": "Fail",
+        "create": "Create",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "close": "Close",
+        "submit": "Submit",
+        "reset": "Reset",
+        "loading": "Loading...",
+        "dashboard": "Dashboard"
+    },
+    "form": {
+        "email": "Email",
+        "email_placeholder": "Please enter email",
+        "password": "Password",
+        "password_placeholder": "Please enter password",
+        "name": "Name",
+        "name_placeholder": "Please enter name"
+    },
+    "auth": {
+        "login": "Login",
+        "tourist": "Tourist",
+        "logout": "Logout",
+        "register": "Register",
+        "login_error": "Login failed",
+        "register_error": "Register failed",
+        "login_welcome": "Welcome back",
+        "register_welcome": "Register your account",
+        "login_description": "Login your account to access",
+        "register_description": "Please fill in the registration information and provide valid authentication information",
+        "login_with_email": "Email login",
+        "login_with_password": "Account password login",
+        "register_success": "Register success",
+        "login_success": "Login success",
+        "user_exists": "User already exists",
+        "user_not_found": "User not found",
+        "send_fail": "Send failed",
+        "no_permission": "Permission denied",
+        "invalid_credentials": "Invalid credentials",
+        "login_ask": "Create new account?",
+        "register_ask": "Already have an account?"
+    },
+    "upload": {
+        "uploading": "Uploading...",
+        "success": "Upload success",
+        "fail": "Upload failed",
+        "placeholder": "Upload file",
+        "finish": "Upload finished"
+    },
+    "too_fast": {
+        "title": "Too fast",
+        "description": "Your request is too frequent, please try again later"
+    },
+    "dashboard": {
+        "all": "All",
+        "owned": "Owned",
+        "new_file": "New design file",
+        "create_new": "Create a new design",
+        "create_room": "Create a new room",
+        "create_fail": "Create failed",
+        "room_name": "Room name",
+        "room_name_placeholder": "Enter room name",
+        "room_created": "Room created successfully",
+        "rename_fail": "Rename failed",
+        "rename_success": "Rename success",
+        "room_renamed": "Room name updated",
+        "delete_fail": "Delete failed",
+        "delete_success": "Delete success",
+        "room_deleted": "Room removed from list",
+        "delete_confirm": "Are you sure you want to delete this room?",
+        "created_at": "Created at {date}"
+    },
+    "error": {
+        "title": "Oops!",
+        "description": "Something went wrong:",
+        "try_again": "Try again",
+        "contact": "If the problem persists, please contact us."
+    },
+    "tools": {
+        "select": "Select",
+        "select_shape": "Select shape",
+        "pencil": "Pencil",
+        "text": "Text",
+        "bring_to_front": "Bring to front",
+        "send_to_back": "Send to back"
+    }
+}

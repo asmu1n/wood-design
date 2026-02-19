@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1743256442251,
+      "tag": "0000_safe_stellaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744026098765,
+      "tag": "0001_fearless_stature",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766912835878,
+      "tag": "0002_useful_bloodstorm",
+      "breakpoints": true
+    }
+  ]
+}

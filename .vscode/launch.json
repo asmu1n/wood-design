@@ -17,11 +17,15 @@
         },
         {
             "name": "Next.js: debug client-side_mac",
-            "type": "msedge",
+            "type": "chrome",
             "request": "launch",
-            "url": "http://localhost:3000",
             "runtimeArgs": ["--remote-debugging-port=9222"],
-            "userDataDir": "/Users/muinas/Library/Application Support/Microsoft Edge"
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}",
+            "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-profile",
+            "presentation": {
+                "hidden": false
+            }
         },
         {
             "name": "Next.js: debug full stack",
@@ -31,7 +35,7 @@
             "serverReadyAction": {
                 "pattern": "started server on .+, url: (https?://.+)",
                 "uriFormat": "%s",
-                "action": "debugWithEdge"
+                "action": "debugWithChrome"
             }
         }
     ]

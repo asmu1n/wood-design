@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 
-import { cn } from '@/lib/utils';
-import { ButtonProps, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/utils/common';
+import { buttonVariants, type ButtonProps } from '@/components/ui/button';
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
     <nav role="navigation" aria-label="pagination" className={cn('w-full', className)} {...props} />
@@ -24,23 +25,33 @@ PaginationItem.displayName = 'PaginationItem';
 
 type PaginationLinkProps = {
     isActive?: boolean;
-} & Pick<ButtonProps, 'size'> &
+    href?: string;
+} & Partial<Pick<ButtonProps, 'size'>> &
     React.ComponentProps<'button'>;
 
-const PaginationLink = ({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) => (
-    <button
-        aria-current={isActive ? 'page' : undefined}
-        className={cn(
-            buttonVariants({
-                variant: isActive ? 'outline' : 'ghost',
-                size
-            }),
-            className
-        )}
-        {...props}>
-        {props.children}
-    </button>
-);
+const PaginationLink = ({ className, isActive, size = 'icon', href, ...props }: PaginationLinkProps) => {
+    const commonClasses = cn(
+        buttonVariants({
+            type: isActive ? 'outline' : 'ghost',
+            size
+        }),
+        className
+    );
+
+    if (href) {
+        return (
+            <Link href={href} aria-current={isActive ? 'page' : undefined} className={commonClasses}>
+                {props.children}
+            </Link>
+        );
+    }
+
+    return (
+        <button aria-current={isActive ? 'page' : undefined} className={commonClasses} {...props}>
+            {props.children}
+        </button>
+    );
+};
 
 PaginationLink.displayName = 'PaginationLink';
 
@@ -65,7 +76,7 @@ PaginationNext.displayName = 'PaginationNext';
 const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<'span'>) => (
     <span aria-hidden className={cn('flex h-9 w-9 items-center justify-center', className)} {...props}>
         <MoreHorizontal className="h-4 w-4" />
-        <span className="sr-only">More pages</span>
+        <span className="sr-only">更多</span>
     </span>
 );
 
